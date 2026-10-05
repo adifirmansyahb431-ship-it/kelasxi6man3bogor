@@ -383,7 +383,40 @@ function tampilRekapSiswa() {
   });
 }
 
-// ==================== EXPORT EXCEL ====================
+function hapusSemuaSiswa(namaSiswa) {
+  const dataSiswa = db.filter(function(row) { return (row.nama || "").trim() === namaSiswa; });
+  const jumlah = dataSiswa.length;
+
+  if (jumlah === 0) {
+    alert("Tidak ada data untuk siswa ini.");
+    return;
+  }
+
+  const totalPoin = dataSiswa.reduce(function(a, b) { return a + (parseInt(b.total) || 0); }, 0);
+
+  if (!confirm("HAPUS SEMUA DATA SISWA?\n\nNama: " + namaSiswa + "\nJumlah: " + jumlah + "x\nTotal Poin: " + totalPoin + "\n\nData yang dihapus TIDAK BISA dikembalikan!\n\nLanjutkan?")) return;
+
+  let selesai = 0, gagal = 0;
+
+  function hapusSatu(index) {
+    if (index >= dataSiswa.length) {
+      alert("Selesai!\n\nBerhasil: " + selesai + "\nGagal: " + gagal);
+      loadData();
+      return;
+    }
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "hapus", id: dataSiswa[index].id })
+    })
+      .then(function(res) { return res.json(); })
+      .then(function() { selesai++; hapusSatu(index + 1); })
+      .catch(function(err) { console.error(err); gagal++; hapusSatu(index + 1); });
+  }
+
+  hapusSatu(0);
+}
+
+  // ==================== EXPORT EXCEL ====================
 function exportExcel() {
   if (db.length === 0) {
     alert("Belum ada data untuk diexport.");
