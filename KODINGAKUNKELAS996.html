@@ -10,13 +10,21 @@ body{margin:0;font-family:Segoe UI;background:#f3f5f4}
 .header{background:var(--hijau);color:#e9c46a;display:flex;align-items:center;padding:15px 20px;gap:15px;border-bottom:4px solid var(--gold)}
 .header img{height:65px;background:white;border-radius:8px;padding:4px}
 .header b{font-size:20px;line-height:1.2;color:#f6e27a}
-.container{max-width:1000px;margin:auto;padding:15px}
+.container{max-width:1200px;margin:auto;padding:15px}
 .card{background:white;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px #0001}
 input,select{width:100%;padding:11px;margin:6px 0 12px;border:1px solid #ccc;border-radius:10px;box-sizing:border-box}
 button{padding:11px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
 .btn{background:var(--hijau);color:white;width:100%}
-table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid #eee;padding:8px} th{background:#f5f5f5}
-.badge{padding:4px 10px;border-radius:20px;color:white;font-size:11px}.Ringan{background:#2ecc71}.Sedang{background:#f1c40f;color:#333}.Berat{background:#e74c3c}.SangatBerat{background:#000}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border:1px solid #eee;padding:8px}
+th{background:#f5f5f5}
+.badge{padding:4px 10px;border-radius:20px;color:white;font-size:11px}
+.Ringan{background:#2ecc71}
+.Sedang{background:#f1c40f;color:#333}
+.Berat{background:#e74c3c}
+.SangatBerat{background:#000}
+.tab-btn{padding:8px 16px;border:1px solid #ccc;background:white;cursor:pointer;border-radius:8px;margin-right:5px;font-weight:bold}
+.tab-btn.aktif{background:var(--hijau);color:white;border-color:var(--hijau)}
 </style>
 </head>
 <body>
@@ -28,7 +36,6 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
 <div class="card">
 <h3>Input Pelanggaran</h3>
 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
-  <!-- Kolom 1: Nama Siswa -->
   <div>
     <label>Nama Siswa</label>
     <select id="nama">
@@ -75,14 +82,10 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
       <option value="VANIA AYU IRNANDA">VANIA AYU IRNANDA</option>
     </select>
   </div>
-
-  <!-- Kolom 2: NIS -->
   <div>
     <label>NIS</label>
     <input id="nis" type="text" placeholder="Masukkan NIS">
   </div>
-
-  <!-- Kolom 3: Kelas -->
   <div>
     <label>Kelas</label>
     <select id="kelas">
@@ -94,8 +97,6 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
 <label>Pelanggaran</label>
 <select id="jenis">
   <option value="">-- Pilih Jenis Pelanggaran --</option>
-  
-  <!-- A. PASAL KELAKUAN -->
   <optgroup label="A. PASAL KELAKUAN">
     <option value="Memukul dan melukai kepala madrasah, guru, karyawan, dan teman|100">Memukul dan melukai kepala madrasah, guru, karyawan, dan teman (100)</option>
     <option value="Menghasut/mengajak/berada di lokasi tawuran|100">Menghasut/mengajak/berada di lokasi tawuran (100)</option>
@@ -138,8 +139,6 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
     <option value="Melanggar ketertiban di perpustakaan|5">Melanggar ketertiban di perpustakaan (5)</option>
     <option value="Membuang sampah tidak pada tempatnya|5">Membuang sampah tidak pada tempatnya (5)</option>
   </optgroup>
-
-  <!-- B. PASAL KEDISIPLINAN -->
   <optgroup label="B. PASAL KEDISIPLINAN">
     <option value="Akumulasi tidak masuk 14 hari dalam 1 semester|70">Akumulasi tidak masuk 14 hari dalam 1 semester (70)</option>
     <option value="Tidak masuk madrasah dengan surat palsu|15">Tidak masuk madrasah dengan surat palsu (15)</option>
@@ -151,8 +150,6 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
     <option value="Tidak mengikuti kegiatan hari besar yang ditugaskan|5">Tidak mengikuti kegiatan hari besar yang ditugaskan (5)</option>
     <option value="Terlambat masuk madrasah|5">Terlambat masuk madrasah (5)</option>
   </optgroup>
-
-  <!-- C. PASAL KERAPIHAN -->
   <optgroup label="C. PASAL KERAPIHAN">
     <option value="Tidak berseragam olahraga saat praktek|5">Tidak berseragam olahraga saat praktek (5)</option>
     <option value="Tidak memakai perlengkapan upacara|5">Tidak memakai perlengkapan upacara (5)</option>
@@ -176,30 +173,65 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
 <label>Tanggal</label><input id="tgl" type="date">
 <button class="btn" onclick="simpan()">SIMPAN</button>
 </div>
-<div class="card"><h3>Rekap</h3><input id="cari" placeholder="Cari..." onkeyup="tampil()"><table><thead><tr><th>Tgl</th><th>Siswa</th><th>Kelas</th><th>Pelanggaran</th><th>Total</th><th>Aksi</th></tr></thead><tbody id="list"></tbody></table><br><button onclick="exportExcel()" style="background:#2471a3;color:white">Download Excel</button></div>
+
+<div class="card">
+  <h3>Riwayat Pelanggaran</h3>
+  <input id="cari" placeholder="Cari..." onkeyup="tampil()">
+  <table>
+    <thead>
+      <tr><th>Tgl</th><th>Siswa</th><th>Kelas</th><th>Pelanggaran</th><th>Total</th><th>Aksi</th></tr>
+    </thead>
+    <tbody id="list"></tbody>
+  </table>
+  <br>
+  <button onclick="exportExcel()" style="background:#2471a3;color:white">Download Excel</button>
 </div>
+
+<div class="card">
+  <h3>📊 Rekap Poin per Siswa</h3>
+  <p style="font-size:12px;color:#666;margin:0 0 10px">Akumulasi total poin pelanggaran setiap siswa. Diurutkan dari poin tertinggi.</p>
+  <input id="cariSiswa" placeholder="Cari nama siswa..." onkeyup="tampilRekapSiswa()">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:40px">No</th>
+        <th>Nama Siswa</th>
+        <th style="width:70px">Kelas</th>
+        <th style="width:120px">Jumlah Pelanggaran</th>
+        <th style="width:100px">Nilai Skor</th>
+        <th style="width:100px">Total Poin</th>
+        <th style="width:130px">Kategori</th>
+      </tr>
+    </thead>
+    <tbody id="rekapSiswa"></tbody>
+  </table>
+  <br>
+  <button onclick="exportRekapSiswa()" style="background:#2471a3;color:white">📥 Download Rekap Siswa</button>
+</div>
+
+</div>
+
 <script>
-// ==================== KONFIGURASI ====================
 const API_URL = "https://script.google.com/macros/s/AKfycbz2iQQFgVcZ4b4ojOxy4hNPgubWDUl-PAxvZINakPa7RBmDCB5Qpj1OYUC3VcuVuRAuog/exec";
 
 let db = [];
 
-// ==================== LOAD DATA ====================
 function loadData() {
   fetch(API_URL)
     .then(res => res.json())
     .then(data => {
       db = data || [];
       tampil();
+      tampilRekapSiswa();
     })
     .catch(err => {
       console.error("Gagal load data:", err);
       db = [];
       tampil();
+      tampilRekapSiswa();
     });
 }
 
-// ==================== SIMPAN DATA ====================
 function simpan() {
   const nama = document.getElementById("nama").value;
   const nis = document.getElementById("nis").value;
@@ -216,18 +248,11 @@ function simpan() {
   const jenis = parts[0];
   const total = parseInt(parts[1]) || 0;
 
-  const item = {
-    tgl: tgl,
-    nama: nama,
-    nis: nis,
-    kelas: kelas,
-    jenis: jenis,
-    total: total
-  };
+  const item = { tgl, nama, nis, kelas, jenis, total };
 
   fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify({ action: "simpan", ...item })
+    body: JSON.stringify(Object.assign({ action: "simpan" }, item))
   })
     .then(res => res.json())
     .then(() => {
@@ -240,14 +265,12 @@ function simpan() {
     })
     .catch(err => {
       console.error(err);
-      alert("Gagal menyimpan data. Cek koneksi / URL Apps Script.");
+      alert("Gagal menyimpan. Cek koneksi / URL Apps Script.");
     });
 }
 
-// ==================== HAPUS DATA ====================
 function hapus(id) {
   if (!confirm("Yakin hapus data ini?")) return;
-
   fetch(API_URL, {
     method: "POST",
     body: JSON.stringify({ action: "hapus", id: id })
@@ -257,7 +280,6 @@ function hapus(id) {
     .catch(err => console.error(err));
 }
 
-// ==================== TAMPILKAN TABEL ====================
 function tampil() {
   const keyword = (document.getElementById("cari").value || "").toLowerCase();
   const tbody = document.getElementById("list");
@@ -273,9 +295,8 @@ function tampil() {
   });
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888">' +
-      (db.length === 0 ? "Belum ada data. Silakan input pelanggaran." : "Data tidak ditemukan.") +
-      '</td></tr>';
+    const msg = db.length === 0 ? "Belum ada data. Silakan input pelanggaran." : "Data tidak ditemukan.";
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888">' + msg + '</td></tr>';
     return;
   }
 
@@ -287,18 +308,77 @@ function tampil() {
     else if (total >= 25) badgeClass = "Sedang";
 
     let tglTampil = row.tgl || "";
-    if (tglTampil && tglTampil.includes("T")) {
-      tglTampil = tglTampil.split("T")[0];
-    }
+    if (tglTampil && tglTampil.includes("T")) tglTampil = tglTampil.split("T")[0];
 
     const tr = document.createElement("tr");
-    tr.innerHTML = 
-      '<td>' + tglTampil + '</td>' +
-      '<td>' + (row.nama || "") + '</td>' +
-      '<td>' + (row.kelas || "") + '</td>' +
-      '<td>' + (row.jenis || "") + '</td>' +
-      '<td><span class="badge ' + badgeClass + '">' + total + '</span></td>' +
-      '<td><button onclick="hapus(\'' + row.id + '\')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:12px">Hapus</button></td>';
+    tr.innerHTML = '<td>' + tglTampil + '</td>'
+      + '<td>' + (row.nama || "") + '</td>'
+      + '<td>' + (row.kelas || "") + '</td>'
+      + '<td>' + (row.jenis || "") + '</td>'
+      + '<td><span class="badge ' + badgeClass + '">' + total + '</span></td>'
+      + '<td><button onclick="hapus(\'' + row.id + '\')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:12px">Hapus</button></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ==================== REKAP POIN PER SISWA ====================
+function tampilRekapSiswa() {
+  const keyword = (document.getElementById("cariSiswa").value || "").toLowerCase();
+  const tbody = document.getElementById("rekapSiswa");
+  tbody.innerHTML = "";
+
+  // 1. Gabungkan data per nama siswa
+  const rekap = {};
+  db.forEach(row => {
+    const nama = (row.nama || "").trim();
+    if (!nama) return;
+
+    if (!rekap[nama]) {
+      rekap[nama] = {
+        nama: nama,
+        kelas: row.kelas || "",
+        jumlah: 0,
+        total: 0,
+        skorList: []
+      };
+    }
+    rekap[nama].jumlah += 1;
+    const poin = parseInt(row.total) || 0;
+    rekap[nama].total += poin;
+    rekap[nama].skorList.push(poin);
+  });
+
+  // 2. Ubah ke array, filter, urutkan dari poin tertinggi
+  let list = Object.values(rekap);
+  if (keyword) {
+    list = list.filter(s => s.nama.toLowerCase().includes(keyword));
+  }
+  list.sort((a, b) => b.total - a.total);
+
+  if (list.length === 0) {
+    const msg = db.length === 0 ? "Belum ada data pelanggaran." : "Data tidak ditemukan.";
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888">' + msg + '</td></tr>';
+    return;
+  }
+
+  list.forEach((s, i) => {
+    let kategori = "Ringan";
+    let warna = "#2ecc71";
+    if (s.total >= 75) { kategori = "Sangat Berat"; warna = "#000"; }
+    else if (s.total >= 50) { kategori = "Berat"; warna = "#e74c3c"; }
+    else if (s.total >= 25) { kategori = "Sedang"; warna = "#f1c40f"; }
+
+    const skorStr = s.skorList.join(" + ");
+
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td style="text-align:center">' + (i + 1) + '</td>' +
+      '<td><b>' + s.nama + '</b></td>' +
+      '<td style="text-align:center">' + s.kelas + '</td>' +
+      '<td style="text-align:center"><b>' + s.jumlah + 'x</b></td>' +
+      '<td style="text-align:center;font-size:12px;color:#555">' + skorStr + '</td>' +
+      '<td style="text-align:center"><b style="color:' + warna + ';font-size:16px">' + s.total + '</b></td>' +
+      '<td style="text-align:center"><span style="background:' + warna + ';color:white;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:bold">' + kategori + '</span></td>';
     tbody.appendChild(tr);
   });
 }
@@ -309,7 +389,6 @@ function exportExcel() {
     alert("Belum ada data untuk diexport.");
     return;
   }
-
   const data = db.map(row => ({
     Tanggal: row.tgl || "",
     Nama: row.nama || "",
@@ -318,14 +397,43 @@ function exportExcel() {
     Pelanggaran: row.jenis || "",
     Total: row.total || 0
   }));
-
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Rekap Pelanggaran");
-  XLSX.writeFile(wb, "Rekap_Pelanggaran_XI6.xlsx");
+  XLSX.utils.book_append_sheet(wb, ws, "Riwayat Pelanggaran");
+  XLSX.writeFile(wb, "Riwayat_Pelanggaran_XI6.xlsx");
 }
 
-// ==================== INIT ====================
+function exportRekapSiswa() {
+  const rekap = {};
+  db.forEach(row => {
+    const nama = (row.nama || "").trim();
+    if (!nama) return;
+    if (!rekap[nama]) {
+      rekap[nama] = { Nama: nama, Kelas: row.kelas || "", JumlahPelanggaran: 0, TotalPoin: 0 };
+    }
+    rekap[nama].JumlahPelanggaran += 1;
+    rekap[nama].TotalPoin += parseInt(row.total) || 0;
+  });
+
+  const list = Object.values(rekap).sort((a, b) => b.TotalPoin - a.TotalPoin);
+  if (list.length === 0) {
+    alert("Belum ada data.");
+    return;
+  }
+
+  list.forEach(s => {
+    if (s.TotalPoin >= 75) s.Kategori = "Sangat Berat";
+    else if (s.TotalPoin >= 50) s.Kategori = "Berat";
+    else if (s.TotalPoin >= 25) s.Kategori = "Sedang";
+    else s.Kategori = "Ringan";
+  });
+
+  const ws = XLSX.utils.json_to_sheet(list);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Rekap Per Siswa");
+  XLSX.writeFile(wb, "Rekap_Poin_Per_Siswa.xlsx");
+}
+
 loadData();
 </script>
 </body>
