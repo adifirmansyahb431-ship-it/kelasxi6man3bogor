@@ -10,21 +10,13 @@ body{margin:0;font-family:Segoe UI;background:#f3f5f4}
 .header{background:var(--hijau);color:#e9c46a;display:flex;align-items:center;padding:15px 20px;gap:15px;border-bottom:4px solid var(--gold)}
 .header img{height:65px;background:white;border-radius:8px;padding:4px}
 .header b{font-size:20px;line-height:1.2;color:#f6e27a}
-.container{max-width:1200px;margin:auto;padding:15px}
+.container{max-width:1000px;margin:auto;padding:15px}
 .card{background:white;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px #0001}
 input,select{width:100%;padding:11px;margin:6px 0 12px;border:1px solid #ccc;border-radius:10px;box-sizing:border-box}
 button{padding:11px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
 .btn{background:var(--hijau);color:white;width:100%}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{border:1px solid #eee;padding:8px}
-th{background:#f5f5f5}
-.badge{padding:4px 10px;border-radius:20px;color:white;font-size:11px}
-.Ringan{background:#2ecc71}
-.Sedang{background:#f1c40f;color:#333}
-.Berat{background:#e74c3c}
-.SangatBerat{background:#000}
-.tab-btn{padding:8px 16px;border:1px solid #ccc;background:white;cursor:pointer;border-radius:8px;margin-right:5px;font-weight:bold}
-.tab-btn.aktif{background:var(--hijau);color:white;border-color:var(--hijau)}
+table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid #eee;padding:8px} th{background:#f5f5f5}
+.badge{padding:4px 10px;border-radius:20px;color:white;font-size:11px}.Ringan{background:#2ecc71}.Sedang{background:#f1c40f;color:#333}.Berat{background:#e74c3c}.SangatBerat{background:#000}
 </style>
 </head>
 <body>
@@ -178,9 +170,7 @@ th{background:#f5f5f5}
   <h3>Riwayat Pelanggaran</h3>
   <input id="cari" placeholder="Cari..." onkeyup="tampil()">
   <table>
-    <thead>
-      <tr><th>Tgl</th><th>Siswa</th><th>Kelas</th><th>Pelanggaran</th><th>Total</th><th>Aksi</th></tr>
-    </thead>
+    <thead><tr><th>Tgl</th><th>Siswa</th><th>Kelas</th><th>Pelanggaran</th><th>Total</th><th>Aksi</th></tr></thead>
     <tbody id="list"></tbody>
   </table>
   <br>
@@ -201,6 +191,7 @@ th{background:#f5f5f5}
         <th style="width:100px">Nilai Skor</th>
         <th style="width:100px">Total Poin</th>
         <th style="width:130px">Kategori</th>
+        <th style="width:140px">Aksi</th>
       </tr>
     </thead>
     <tbody id="rekapSiswa"></tbody>
@@ -288,13 +279,10 @@ function simpan() {
       alert("Gagal menyimpan. Cek koneksi / URL Apps Script.");
     });
 }
-// ==================== EDIT DATA ====================
+
 function editData(id) {
   const row = db.find(r => r.id === id);
-  if (!row) {
-    alert("Data tidak ditemukan.");
-    return;
-  }
+  if (!row) { alert("Data tidak ditemukan."); return; }
 
   document.getElementById("nama").value = row.nama || "";
   document.getElementById("nis").value = row.nis || "";
@@ -310,7 +298,7 @@ function editData(id) {
       break;
     }
   }
-  if (!found) console.warn("Jenis tidak ditemukan di dropdown:", row.jenis);
+  if (!found) console.warn("Jenis tidak ditemukan:", row.jenis);
 
   let tgl = row.tgl || "";
   if (tgl && tgl.includes("T")) tgl = tgl.split("T")[0];
@@ -349,7 +337,7 @@ function batalEdit() {
   if (btnBatal) btnBatal.remove();
 }
 
-  function hapus(id) {
+function hapus(id) {
   if (!confirm("Yakin hapus data ini?")) return;
   fetch(API_URL, {
     method: "POST",
@@ -360,7 +348,35 @@ function batalEdit() {
     .catch(err => console.error(err));
 }
 
-  function tampil() {
+function hapusSemuaSiswa(namaSiswa) {
+  const dataSiswa = db.filter(row => (row.nama || "").trim() === namaSiswa);
+  const jumlah = dataSiswa.length;
+
+  if (jumlah === 0) { alert("Tidak ada data."); return; }
+
+  const totalPoin = dataSiswa.reduce((a, b) => a + (parseInt(b.total) || 0), 0);
+
+  if (!confirm("⚠️ HAPUS SEMUA DATA SISWA?\n\nNama: " + namaSiswa + "\nJumlah: " + jumlah + "x\nTotal Poin: " + totalPoin + "\n\nData yang dihapus TIDAK BISA dikembalikan!\n\nLanjutkan?")) return;
+
+  let selesai = 0, gagal = 0;
+  const hapusSatu = (index) => {
+    if (index >= dataSiswa.length) {
+      alert("✅ Selesai!\n\nBerhasil: " + selesai + "\nGagal: " + gagal);
+      loadData();
+      return;
+    }
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "hapus", id: dataSiswa[index].id })
+    })
+      .then(res => res.json())
+      .then(() => { selesai++; hapusSatu(index + 1); })
+      .catch(err => { console.error(err); gagal++; hapusSatu(index + 1); });
+  };
+  hapusSatu(0);
+}
+
+function tampil() {
   const keyword = (document.getElementById("cari").value || "").toLowerCase();
   const tbody = document.getElementById("list");
   tbody.innerHTML = "";
@@ -396,33 +412,25 @@ function batalEdit() {
       + '<td>' + (row.kelas || "") + '</td>'
       + '<td>' + (row.jenis || "") + '</td>'
       + '<td><span class="badge ' + badgeClass + '">' + total + '</span></td>'
-                      + '<td style="text-align:center;white-space:nowrap">'
-        + '<button onclick="editData(' + JSON.stringify(row.id) + ')" style="background:#f39c12;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer;margin-right:3px">Edit</button>'
-        + '<button onclick="hapus(' + JSON.stringify(row.id) + ')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer">Hapus</button>'
-        + '</td>';
+      + '<td style="text-align:center;white-space:nowrap">'
+      + '<button onclick="editData(' + JSON.stringify(row.id) + ')" style="background:#f39c12;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer;margin-right:3px">✏️ Edit</button>'
+      + '<button onclick="hapus(' + JSON.stringify(row.id) + ')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer">🗑 Hapus</button>'
+      + '</td>';
     tbody.appendChild(tr);
+  });
 }
-}
-// ==================== REKAP POIN PER SISWA ============
-  function tampilRekapSiswa() {
+
+function tampilRekapSiswa() {
   const keyword = (document.getElementById("cariSiswa").value || "").toLowerCase();
   const tbody = document.getElementById("rekapSiswa");
   tbody.innerHTML = "";
 
-  // 1. Gabungkan data per nama siswa
   const rekap = {};
   db.forEach(row => {
     const nama = (row.nama || "").trim();
     if (!nama) return;
-
     if (!rekap[nama]) {
-      rekap[nama] = {
-        nama: nama,
-        kelas: row.kelas || "",
-        jumlah: 0,
-        total: 0,
-        skorList: []
-      };
+      rekap[nama] = { nama: nama, kelas: row.kelas || "", jumlah: 0, total: 0, skorList: [] };
     }
     rekap[nama].jumlah += 1;
     const poin = parseInt(row.total) || 0;
@@ -430,22 +438,18 @@ function batalEdit() {
     rekap[nama].skorList.push(poin);
   });
 
-  // 2. Ubah ke array, filter, urutkan dari poin tertinggi
   let list = Object.values(rekap);
-  if (keyword) {
-    list = list.filter(s => s.nama.toLowerCase().includes(keyword));
-  }
+  if (keyword) list = list.filter(s => s.nama.toLowerCase().includes(keyword));
   list.sort((a, b) => b.total - a.total);
 
   if (list.length === 0) {
     const msg = db.length === 0 ? "Belum ada data pelanggaran." : "Data tidak ditemukan.";
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888">' + msg + '</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#888">' + msg + '</td></tr>';
     return;
   }
 
   list.forEach((s, i) => {
-    let kategori = "Ringan";
-    let warna = "#2ecc71";
+    let kategori = "Ringan", warna = "#2ecc71";
     if (s.total >= 75) { kategori = "Sangat Berat"; warna = "#000"; }
     else if (s.total >= 50) { kategori = "Berat"; warna = "#e74c3c"; }
     else if (s.total >= 25) { kategori = "Sedang"; warna = "#f1c40f"; }
@@ -460,57 +464,17 @@ function batalEdit() {
       '<td style="text-align:center"><b>' + s.jumlah + 'x</b></td>' +
       '<td style="text-align:center;font-size:12px;color:#555">' + skorStr + '</td>' +
       '<td style="text-align:center"><b style="color:' + warna + ';font-size:16px">' + s.total + '</b></td>' +
-      '<td style="text-align:center"><span style="background:' + warna + ';color:white;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:bold">' + kategori + '</span></td>';
+      '<td style="text-align:center"><span style="background:' + warna + ';color:white;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:bold">' + kategori + '</span></td>' +
+      '<td style="text-align:center"><button onclick="hapusSemuaSiswa(' + JSON.stringify(s.nama) + ')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:11px;border:none;border-radius:8px;cursor:pointer;font-weight:bold">🗑 Hapus Semua</button></td>';
     tbody.appendChild(tr);
   });
 }
 
-function hapusSemuaSiswa(namaSiswa) {
-  const dataSiswa = db.filter(function(row) { return (row.nama || "").trim() === namaSiswa; });
-  const jumlah = dataSiswa.length;
-
-  if (jumlah === 0) {
-    alert("Tidak ada data untuk siswa ini.");
-    return;
-  }
-
-  const totalPoin = dataSiswa.reduce(function(a, b) { return a + (parseInt(b.total) || 0); }, 0);
-
-  if (!confirm("HAPUS SEMUA DATA SISWA?\n\nNama: " + namaSiswa + "\nJumlah: " + jumlah + "x\nTotal Poin: " + totalPoin + "\n\nData yang dihapus TIDAK BISA dikembalikan!\n\nLanjutkan?")) return;
-
-  let selesai = 0, gagal = 0;
-
-  function hapusSatu(index) {
-    if (index >= dataSiswa.length) {
-      alert("Selesai!\n\nBerhasil: " + selesai + "\nGagal: " + gagal);
-      loadData();
-      return;
-    }
-    fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "hapus", id: dataSiswa[index].id })
-    })
-      .then(function(res) { return res.json(); })
-      .then(function() { selesai++; hapusSatu(index + 1); })
-      .catch(function(err) { console.error(err); gagal++; hapusSatu(index + 1); });
-  }
-
-  hapusSatu(0);
-}
-
-  // ==================== EXPORT EXCEL ====================
 function exportExcel() {
-  if (db.length === 0) {
-    alert("Belum ada data untuk diexport.");
-    return;
-  }
+  if (db.length === 0) { alert("Belum ada data."); return; }
   const data = db.map(row => ({
-    Tanggal: row.tgl || "",
-    Nama: row.nama || "",
-    NIS: row.nis || "",
-    Kelas: row.kelas || "",
-    Pelanggaran: row.jenis || "",
-    Total: row.total || 0
+    Tanggal: row.tgl || "", Nama: row.nama || "", NIS: row.nis || "",
+    Kelas: row.kelas || "", Pelanggaran: row.jenis || "", Total: row.total || 0
   }));
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
@@ -531,10 +495,7 @@ function exportRekapSiswa() {
   });
 
   const list = Object.values(rekap).sort((a, b) => b.TotalPoin - a.TotalPoin);
-  if (list.length === 0) {
-    alert("Belum ada data.");
-    return;
-  }
+  if (list.length === 0) { alert("Belum ada data."); return; }
 
   list.forEach(s => {
     if (s.TotalPoin >= 75) s.Kategori = "Sangat Berat";
