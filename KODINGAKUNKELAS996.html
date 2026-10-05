@@ -396,9 +396,9 @@ function batalEdit() {
       + '<td>' + (row.kelas || "") + '</td>'
       + '<td>' + (row.jenis || "") + '</td>'
       + '<td><span class="badge ' + badgeClass + '">' + total + '</span></td>'
-              + '<td style="text-align:center;white-space:nowrap">'
-        + '<button onclick="editData(\'' + row.id + '\')" style="background:#f39c12;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer;margin-right:3px">✏️ Edit</button>'
-        + '<button onclick="hapus(\'' + row.id + '\')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer">🗑 Hapus</button>'
+                      + '<td style="text-align:center;white-space:nowrap">'
+        + '<button onclick="editData(' + JSON.stringify(row.id) + ')" style="background:#f39c12;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer;margin-right:3px">Edit</button>'
+        + '<button onclick="hapus(' + JSON.stringify(row.id) + ')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer">Hapus</button>'
         + '</td>';
     tbody.appendChild(tr);
 
