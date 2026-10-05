@@ -179,36 +179,85 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
 <div class="card"><h3>Rekap</h3><input id="cari" placeholder="Cari..." onkeyup="tampil()"><table><thead><tr><th>Tgl</th><th>Siswa</th><th>Kelas</th><th>Pelanggaran</th><th>Total</th><th>Aksi</th></tr></thead><tbody id="list"></tbody></table><br><button onclick="exportExcel()" style="background:#2471a3;color:white">Download Excel</button></div>
 </div>
 <script>
-// Tempelkan URL Web App dari Google Apps Script di sini
+// ==================== KONFIGURASI ====================
 const API_URL = "https://script.google.com/macros/s/AKfycbz2iQQFgVcZ4b4ojOxy4hNPgubWDUl-PAxvZINakPa7RBmDCB5Qpj1OYUC3VcuVuRAuog/exec";
-  
+
 let db = [];
 
-// 1. Ambil data dari Google Sheets saat web dibuka
+// ==================== LOAD DATA ====================
 function loadData() {
   fetch(API_URL)
     .then(res => res.json())
     .then(data => {
-      db = data;
+      db = data || [];
+      tampil();
+    })
+    .catch(err => {
+      console.error("Gagal load data:", err);
+      db = [];
       tampil();
     });
 }
 
-// 2. Simpan data baru ke Google Sheets
-function simpanDataKeCloud(item) {
+// ==================== SIMPAN DATA ====================
+function simpan() {
+  const nama = document.getElementById("nama").value;
+  const nis = document.getElementById("nis").value;
+  const kelas = document.getElementById("kelas").value;
+  const jenisRaw = document.getElementById("jenis").value;
+  const tgl = document.getElementById("tgl").value;
+
+  if (!nama || !kelas || !jenisRaw || !tgl) {
+    alert("Lengkapi dulu: Nama, Kelas, Pelanggaran, dan Tanggal!");
+    return;
+  }
+
+  const parts = jenisRaw.split("|");
+  const jenis = parts[0];
+  const total = parseInt(parts[1]) || 0;
+
+  const item = {
+    tgl: tgl,
+    nama: nama,
+    nis: nis,
+    kelas: kelas,
+    jenis: jenis,
+    total: total
+  };
+
   fetch(API_URL, {
     method: "POST",
     body: JSON.stringify({ action: "simpan", ...item })
-  }).then(() => loadData());
+  })
+    .then(res => res.json())
+    .then(() => {
+      alert("Data berhasil disimpan!");
+      document.getElementById("nama").value = "";
+      document.getElementById("nis").value = "";
+      document.getElementById("jenis").value = "";
+      document.getElementById("tgl").value = "";
+      loadData();
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Gagal menyimpan data. Cek koneksi / URL Apps Script.");
+    });
 }
 
-// 3. Hapus data dari Google Sheets
-function hapusDataFromCloud(id) {
+// ==================== HAPUS DATA ====================
+function hapus(id) {
+  if (!confirm("Yakin hapus data ini?")) return;
+
   fetch(API_URL, {
     method: "POST",
     body: JSON.stringify({ action: "hapus", id: id })
-  }).then(() => loadData());
+  })
+    .then(res => res.json())
+    .then(() => loadData())
+    .catch(err => console.error(err));
 }
+
+// ==================== TAMPILKAN TABEL ====================
 function tampil() {
   const keyword = (document.getElementById("cari").value || "").toLowerCase();
   const tbody = document.getElementById("list");
@@ -224,13 +273,59 @@ function tampil() {
   });
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#888">
-      ${db.length === 0 ? "Belum ada data. Silakan input pelanggaran." : "Data tidak ditemukan."}
-    </td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888">' +
+      (db.length === 0 ? "Belum ada data. Silakan input pelanggaran." : "Data tidak ditemukan.") +
+      '</td></tr>';
     return;
   }
 
-// Panggil fungsi pertama kali saat halaman dimuat
+  filtered.forEach(row => {
+    const total = parseInt(row.total) || 0;
+    let badgeClass = "Ringan";
+    if (total >= 75) badgeClass = "SangatBerat";
+    else if (total >= 50) badgeClass = "Berat";
+    else if (total >= 25) badgeClass = "Sedang";
+
+    let tglTampil = row.tgl || "";
+    if (tglTampil && tglTampil.includes("T")) {
+      tglTampil = tglTampil.split("T")[0];
+    }
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = 
+      '<td>' + tglTampil + '</td>' +
+      '<td>' + (row.nama || "") + '</td>' +
+      '<td>' + (row.kelas || "") + '</td>' +
+      '<td>' + (row.jenis || "") + '</td>' +
+      '<td><span class="badge ' + badgeClass + '">' + total + '</span></td>' +
+      '<td><button onclick="hapus(\'' + row.id + '\')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:12px">Hapus</button></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ==================== EXPORT EXCEL ====================
+function exportExcel() {
+  if (db.length === 0) {
+    alert("Belum ada data untuk diexport.");
+    return;
+  }
+
+  const data = db.map(row => ({
+    Tanggal: row.tgl || "",
+    Nama: row.nama || "",
+    NIS: row.nis || "",
+    Kelas: row.kelas || "",
+    Pelanggaran: row.jenis || "",
+    Total: row.total || 0
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Rekap Pelanggaran");
+  XLSX.writeFile(wb, "Rekap_Pelanggaran_XI6.xlsx");
+}
+
+// ==================== INIT ====================
 loadData();
 </script>
 </body>
