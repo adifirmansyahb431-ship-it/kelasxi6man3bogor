@@ -215,6 +215,7 @@ th{background:#f5f5f5}
 const API_URL = "https://script.google.com/macros/s/AKfycbz2iQQFgVcZ4b4ojOxy4hNPgubWDUl-PAxvZINakPa7RBmDCB5Qpj1OYUC3VcuVuRAuog/exec";
 
 let db = [];
+let editId = null;
 
 function loadData() {
   fetch(API_URL)
@@ -250,6 +251,25 @@ function simpan() {
 
   const item = { tgl, nama, nis, kelas, jenis, total };
 
+  if (editId) {
+    item.id = editId;
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify(Object.assign({ action: "edit" }, item))
+    })
+      .then(res => res.json())
+      .then(() => {
+        alert("Data berhasil diperbarui!");
+        batalEdit();
+        loadData();
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Gagal update data.");
+      });
+    return;
+  }
+
   fetch(API_URL, {
     method: "POST",
     body: JSON.stringify(Object.assign({ action: "simpan" }, item))
@@ -268,8 +288,68 @@ function simpan() {
       alert("Gagal menyimpan. Cek koneksi / URL Apps Script.");
     });
 }
+// ==================== EDIT DATA ====================
+function editData(id) {
+  const row = db.find(r => r.id === id);
+  if (!row) {
+    alert("Data tidak ditemukan.");
+    return;
+  }
 
-function hapus(id) {
+  document.getElementById("nama").value = row.nama || "";
+  document.getElementById("nis").value = row.nis || "";
+  document.getElementById("kelas").value = row.kelas || "";
+
+  const selectJenis = document.getElementById("jenis");
+  let found = false;
+  for (let i = 0; i < selectJenis.options.length; i++) {
+    const val = selectJenis.options[i].value;
+    if (val.split("|")[0] === row.jenis) {
+      selectJenis.selectedIndex = i;
+      found = true;
+      break;
+    }
+  }
+  if (!found) console.warn("Jenis tidak ditemukan di dropdown:", row.jenis);
+
+  let tgl = row.tgl || "";
+  if (tgl && tgl.includes("T")) tgl = tgl.split("T")[0];
+  document.getElementById("tgl").value = tgl;
+
+  editId = id;
+
+  const btn = document.querySelector(".btn");
+  btn.textContent = "✏️ UPDATE DATA";
+  btn.style.background = "#f39c12";
+
+  document.querySelector(".card").scrollIntoView({ behavior: "smooth" });
+
+  if (!document.getElementById("btnBatal")) {
+    const btnBatal = document.createElement("button");
+    btnBatal.id = "btnBatal";
+    btnBatal.textContent = "❌ BATAL EDIT";
+    btnBatal.style.cssText = "background:#95a5a6;color:white;width:100%;margin-top:8px;padding:11px;border:none;border-radius:10px;cursor:pointer;font-weight:bold";
+    btnBatal.onclick = batalEdit;
+    btn.parentNode.insertBefore(btnBatal, btn.nextSibling);
+  }
+}
+
+function batalEdit() {
+  editId = null;
+  document.getElementById("nama").value = "";
+  document.getElementById("nis").value = "";
+  document.getElementById("jenis").value = "";
+  document.getElementById("tgl").value = "";
+
+  const btn = document.querySelector(".btn");
+  btn.textContent = "SIMPAN";
+  btn.style.background = "";
+
+  const btnBatal = document.getElementById("btnBatal");
+  if (btnBatal) btnBatal.remove();
+}
+
+  function hapus(id) {
   if (!confirm("Yakin hapus data ini?")) return;
   fetch(API_URL, {
     method: "POST",
@@ -280,7 +360,7 @@ function hapus(id) {
     .catch(err => console.error(err));
 }
 
-function tampil() {
+  function tampil() {
   const keyword = (document.getElementById("cari").value || "").toLowerCase();
   const tbody = document.getElementById("list");
   tbody.innerHTML = "";
@@ -316,9 +396,12 @@ function tampil() {
       + '<td>' + (row.kelas || "") + '</td>'
       + '<td>' + (row.jenis || "") + '</td>'
       + '<td><span class="badge ' + badgeClass + '">' + total + '</span></td>'
-      + '<td><button onclick="hapus(\'' + row.id + '\')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:12px">Hapus</button></td>';
+              + '<td style="text-align:center;white-space:nowrap">'
+        + '<button onclick="editData(\'' + row.id + '\')" style="background:#f39c12;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer;margin-right:3px">✏️ Edit</button>'
+        + '<button onclick="hapus(\'' + row.id + '\')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer">🗑 Hapus</button>'
+        + '</td>';
     tbody.appendChild(tr);
-  });
+
 }
 
 // ==================== REKAP POIN PER SISWA ====================
