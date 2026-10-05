@@ -401,11 +401,10 @@ function batalEdit() {
         + '<button onclick="hapus(' + JSON.stringify(row.id) + ')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer">Hapus</button>'
         + '</td>';
     tbody.appendChild(tr);
-
 }
 }
-// ==================== REKAP POIN PER SISWA ====================
-function tampilRekapSiswa() {
+// ==================== REKAP POIN PER SISWA ============
+  function tampilRekapSiswa() {
   const keyword = (document.getElementById("cariSiswa").value || "").toLowerCase();
   const tbody = document.getElementById("rekapSiswa");
   tbody.innerHTML = "";
