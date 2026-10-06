@@ -20,11 +20,28 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
 </style>
 </head>
 <body>
-<div class="header">
-<img src="fotogroupxi-6.png" alt="logo">
-<div><b>SEBELAS ENAM<br><span style="color:white;font-size:16px">MAN 3 BOGOR - SI-TATIB</span></b></div>
+  <!-- ============ HALAMAN LOGIN ============ -->
+<div id="halamanLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#0a3622 0%,#1a5c3a 100%);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;box-sizing:border-box">
+  <div style="background:white;border-radius:20px;padding:35px 30px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+    <div style="text-align:center;margin-bottom:25px">
+      <img src="fotogroupxi-6.png" alt="logo" style="height:80px;border-radius:50%;border:3px solid #d4af37;padding:3px;background:white">
+      <h2 style="color:#0a3622;margin:15px 0 5px;font-size:22px">SI-TATIB</h2>
+      <p style="color:#666;margin:0;font-size:13px">MAN 3 BOGOR - XI-6</p>
+    </div>
+    <label style="display:block;margin-bottom:5px;font-weight:bold;color:#333;font-size:14px">Username</label>
+    <input id="loginUser" type="text" placeholder="Masukkan username" style="width:100%;padding:12px;margin:0 0 15px;border:2px solid #ddd;border-radius:10px;box-sizing:border-box;font-size:14px">
+    <label style="display:block;margin-bottom:5px;font-weight:bold;color:#333;font-size:14px">Password</label>
+    <input id="loginPass" type="password" placeholder="Masukkan password" style="width:100%;padding:12px;margin:0 0 20px;border:2px solid #ddd;border-radius:10px;box-sizing:border-box;font-size:14px" onkeypress="if(event.key==='Enter')prosesLogin()">
+    <button onclick="prosesLogin()" style="width:100%;background:#0a3622;color:white;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer">🔐 MASUK</button>
+    <p id="loginPesan" style="color:#e74c3c;text-align:center;margin:15px 0 0;font-size:13px;min-height:20px"></p>
+  </div>
 </div>
-<div class="container">
+<div class="header" id="headerUtama" style="display:none">
+<img src="fotogroupxi-6.png" alt="logo">
+<div style="flex:1"><b>SEBELAS ENAM<br><span style="color:white;font-size:16px">MAN 3 BOGOR - SI-TATIB</span></b></div>
+  <button onclick="logout()" style="background:#e74c3c;color:white;padding:8px 15px;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold">🚪 KELUAR</button>
+</div>
+<div class="container" id="containerUtama" style="display:none"> 
 <div class="card">
 <h3>Input Pelanggaran</h3>
 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
@@ -204,6 +221,44 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbz2iQQFgVcZ4b4ojOxy4hNPgubWDUl-PAxvZINakPa7RBmDCB5Qpj1OYUC3VcuVuRAuog/exec";
+// ==================== KONFIGURASI LOGIN ====================
+const LOGIN_USER = "admin";
+const LOGIN_PASS = "tatib2026";
+
+function prosesLogin() {
+  const user = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value.trim();
+  const pesan = document.getElementById("loginPesan");
+  if (user === LOGIN_USER && pass === LOGIN_PASS) {
+    localStorage.setItem("siTatibLogin", "true");
+    document.getElementById("halamanLogin").style.display = "none";
+    document.getElementById("headerUtama").style.display = "flex";
+    document.getElementById("containerUtama").style.display = "block";
+    pesan.textContent = "";
+    loadData();
+  } else {
+    pesan.textContent = "❌ Username atau password salah!";
+    document.getElementById("loginPass").value = "";
+  }
+}
+
+function logout() {
+  if (!confirm("Yakin keluar dari aplikasi?")) return;
+  localStorage.removeItem("siTatibLogin");
+  location.reload();
+}
+
+function cekLogin() {
+  const sudah = localStorage.getItem("siTatibLogin");
+  if (sudah === "true") {
+    document.getElementById("halamanLogin").style.display = "none";
+    document.getElementById("headerUtama").style.display = "flex";
+    document.getElementById("containerUtama").style.display = "block";
+    loadData();
+  } else {
+    document.getElementById("halamanLogin").style.display = "flex";
+  }
+}
 
 let db = [];
 let editId = null;
@@ -510,7 +565,7 @@ function exportRekapSiswa() {
   XLSX.writeFile(wb, "Rekap_Poin_Per_Siswa.xlsx");
 }
 
-loadData();
+cekLogin();
 </script>
 </body>
 </html>
