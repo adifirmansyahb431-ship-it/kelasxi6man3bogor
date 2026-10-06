@@ -18,49 +18,34 @@ button{padding:11px;border:none;border-radius:10px;font-weight:bold;cursor:point
 table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid #eee;padding:8px} th{background:#f5f5f5}
 .badge{padding:4px 10px;border-radius:20px;color:white;font-size:11px}.Ringan{background:#2ecc71}.Sedang{background:#f1c40f;color:#333}.Berat{background:#e74c3c}.SangatBerat{background:#000}
 
-/* ==== AREA CETAK ==== */
 #areaCetak { display: none; }
-
 @media print {
   body { background: #fff; }
   .header, .container > .card:first-child, .card:nth-child(2), .no-print { display: none !important; }
   #areaCetak { display: block !important; }
-
-  .kop {
-    display: flex; align-items: center; gap: 15px;
-    border-bottom: 3px double #000;
-    padding-bottom: 10px; margin-bottom: 20px;
-  }
-  .kop-logo {
-    width: 90px; height: 90px; border-radius: 50%;
-    object-fit: cover; flex-shrink: 0;
-    border: 2px solid #333;
-  }
-  .kop-teks { text-align: center; flex: 1; }
-  .kop-teks h3 { font-size: 14px; font-weight: normal; margin: 0; }
-  .kop-teks h1 { font-size: 18px; font-weight: bold; margin: 2px 0; }
-  .kop-teks h2 { font-size: 16px; font-weight: bold; margin: 2px 0; }
-  .kop-teks p { font-size: 11px; margin-top: 3px; }
-
-  .judul-cetak { text-align: center; margin-bottom: 20px; }
-  .judul-cetak h3 { font-size: 16px; text-decoration: underline; margin: 0; }
-  .judul-cetak p { font-size: 12px; margin: 5px 0; }
-
-  #tabelCetak { width: 100%; border-collapse: collapse; font-size: 12px; }
-  #tabelCetak th, #tabelCetak td { border: 1px solid #000; padding: 6px 8px; }
-  #tabelCetak thead { background: #e5e7eb; }
-
-  .ttd { margin-top: 40px; display: flex; justify-content: flex-end; }
-  .ttd-box { text-align: center; width: 280px; }
-  .ttd-box p { font-size: 12px; margin-bottom: 3px; }
-  .ttd-box .nama { font-weight: bold; text-decoration: underline; margin-top: 60px; }
-  .ttd-box .nip { font-size: 12px; }
+  .kop { display:flex; align-items:center; gap:15px; border-bottom:3px double #000; padding-bottom:10px; margin-bottom:20px; }
+  .kop-logo { width:90px; height:90px; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid #333; }
+  .kop-teks { text-align:center; flex:1; }
+  .kop-teks h3 { font-size:14px; font-weight:normal; margin:0; }
+  .kop-teks h1 { font-size:18px; font-weight:bold; margin:2px 0; }
+  .kop-teks h2 { font-size:16px; font-weight:bold; margin:2px 0; }
+  .kop-teks p { font-size:11px; margin-top:3px; }
+  .judul-cetak { text-align:center; margin-bottom:20px; }
+  .judul-cetak h3 { font-size:16px; text-decoration:underline; margin:0; }
+  .judul-cetak p { font-size:12px; margin:5px 0; }
+  #tabelCetak { width:100%; border-collapse:collapse; font-size:12px; }
+  #tabelCetak th, #tabelCetak td { border:1px solid #000; padding:6px 8px; }
+  #tabelCetak thead { background:#e5e7eb; }
+  .ttd { margin-top:40px; display:flex; justify-content:flex-end; }
+  .ttd-box { text-align:center; width:280px; }
+  .ttd-box p { font-size:12px; margin-bottom:3px; }
+  .ttd-box .nama { font-weight:bold; text-decoration:underline; margin-top:60px; }
+  .ttd-box .nip { font-size:12px; }
 }
 </style>
 </head>
 <body>
 
-<!-- ============ HALAMAN LOGIN ============ -->
 <div id="halamanLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#0a3622 0%,#1a5c3a 100%);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;box-sizing:border-box">
   <div style="background:white;border-radius:20px;padding:35px 30px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
     <div style="text-align:center;margin-bottom:25px">
@@ -77,17 +62,14 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
   </div>
 </div>
 
-<!-- ============ HEADER ============ -->
 <div class="header" id="headerUtama" style="display:none">
   <img src="fotogroupxi-6.png" alt="logo">
   <div style="flex:1"><b>SEBELAS ENAM<br><span style="color:white;font-size:16px">MAN 3 BOGOR - SI-TATIB</span></b></div>
   <button onclick="logout()" style="background:#e74c3c;color:white;padding:8px 15px;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold">🚪 KELUAR</button>
 </div>
 
-<!-- ============ KONTEN UTAMA ============ -->
 <div class="container" id="containerUtama" style="display:none">
 
-  <!-- INPUT -->
   <div class="card">
     <h3>Input Pelanggaran</h3>
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
@@ -229,7 +211,6 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
     <button class="btn" onclick="simpan()">SIMPAN</button>
   </div>
 
-  <!-- RIWAYAT -->
   <div class="card">
     <h3>Riwayat Pelanggaran</h3>
     <input id="cari" placeholder="Cari..." onkeyup="tampil()">
@@ -245,7 +226,6 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
     <button onclick="exportExcel()" style="background:#2471a3;color:white">Download Excel</button>
   </div>
 
-  <!-- REKAP -->
   <div class="card">
     <h3>📊 Rekap Poin per Siswa</h3>
     <p style="font-size:12px;color:#666;margin:0 0 10px">Akumulasi total poin pelanggaran setiap siswa. Diurutkan dari poin tertinggi.</p>
@@ -275,7 +255,6 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
 
 </div>
 
-<!-- ============ AREA CETAK ============ -->
 <div id="areaCetak">
   <div class="kop">
     <img src="fotogroupxi-6.png" class="kop-logo" alt="Logo">
@@ -286,17 +265,14 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
       <p>Jl. Pendidikan No. 1, Bogor, Jawa Barat | Telp: (0251) 000-0000 | Email: man3bogor@kemenag.go.id</p>
     </div>
   </div>
-
   <div class="judul-cetak">
     <h3 id="judulLaporan">LAPORAN TATA TERTIB SISWA</h3>
     <p>Kelas XI-6 — Tahun Ajaran 2025/2026</p>
   </div>
-
   <table id="tabelCetak">
     <thead id="tabelCetakHead"></thead>
     <tbody id="tabelCetakBody"></tbody>
   </table>
-
   <div class="ttd">
     <div class="ttd-box">
       <p>Bogor, <span id="tanggalCetak"></span></p>
@@ -309,8 +285,6 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbz2iQQFgVcZ4b4ojOxy4hNPgubWDUl-PAxvZINakPa7RBmDCB5Qpj1OYUC3VcuVuRAuog/exec";
-
-// ==================== KONFIGURASI LOGIN ====================
 const LOGIN_USER = "admin";
 const LOGIN_PASS = "tatib2026";
 
@@ -356,7 +330,7 @@ function loadData() {
   fetch(API_URL)
     .then(res => res.json())
     .then(data => {
-      db = data || [];
+      db = Array.isArray(data) ? data : [];
       tampil();
       tampilRekapSiswa();
     })
@@ -393,8 +367,10 @@ function simpan() {
       body: JSON.stringify(Object.assign({ action: "edit" }, item))
     })
       .then(res => res.json())
-      .then(() => {
-        alert("Data berhasil diperbarui!");
+      .then(data => {
+        console.log("Hasil edit:", data);
+        if (data.status === "ok") alert("✅ Data berhasil diperbarui!");
+        else alert("❌ Gagal: " + (data.message || "tidak diketahui"));
         batalEdit();
         loadData();
       })
@@ -410,8 +386,10 @@ function simpan() {
     body: JSON.stringify(Object.assign({ action: "simpan" }, item))
   })
     .then(res => res.json())
-    .then(() => {
-      alert("Data berhasil disimpan!");
+    .then(data => {
+      console.log("Hasil simpan:", data);
+      if (data.status === "ok") alert("✅ Data berhasil disimpan!");
+      else alert("❌ Gagal: " + (data.message || "tidak diketahui"));
       document.getElementById("nama").value = "";
       document.getElementById("nis").value = "";
       document.getElementById("jenis").value = "";
@@ -425,7 +403,7 @@ function simpan() {
 }
 
 function editData(id) {
-  const row = db.find(r => r.id === id);
+  const row = db.find(r => String(r.id) === String(id));
   if (!row) { alert("Data tidak ditemukan."); return; }
 
   document.getElementById("nama").value = row.nama || "";
@@ -483,25 +461,30 @@ function batalEdit() {
 
 function hapus(id) {
   if (!confirm("Yakin hapus data ini?")) return;
+  console.log("Menghapus ID:", id);
   fetch(API_URL, {
     method: "POST",
     body: JSON.stringify({ action: "hapus", id: id })
   })
     .then(res => res.json())
-    .then(() => loadData())
-    .catch(err => console.error(err));
+    .then(data => {
+      console.log("Respon hapus:", data);
+      if (data.status === "ok") alert("✅ Data berhasil dihapus!");
+      else alert("❌ Gagal: " + (data.message || "tidak diketahui"));
+      loadData();
+    })
+    .catch(err => {
+      console.error("Error:", err);
+      alert("Gagal menghapus. Cek koneksi.");
+    });
 }
 
 function hapusSemuaSiswa(namaSiswa) {
   const dataSiswa = db.filter(row => (row.nama || "").trim() === namaSiswa);
   const jumlah = dataSiswa.length;
-
   if (jumlah === 0) { alert("Tidak ada data."); return; }
-
   const totalPoin = dataSiswa.reduce((a, b) => a + (parseInt(b.total) || 0), 0);
-
-  if (!confirm("⚠️ HAPUS SEMUA DATA SISWA?\n\nNama: " + namaSiswa + "\nJumlah: " + jumlah + "x\nTotal Poin: " + totalPoin + "\n\nData yang dihapus TIDAK BISA dikembalikan!\n\nLanjutkan?")) return;
-
+  if (!confirm("⚠️ HAPUS SEMUA DATA SISWA?\n\nNama: " + namaSiswa + "\nJumlah: " + jumlah + "x\nTotal Poin: " + totalPoin + "\n\nLanjutkan?")) return;
   let selesai = 0, gagal = 0;
   const hapusSatu = (index) => {
     if (index >= dataSiswa.length) {
@@ -556,10 +539,22 @@ function tampil() {
       + '<td>' + (row.kelas || "") + '</td>'
       + '<td>' + (row.jenis || "") + '</td>'
       + '<td><span class="badge ' + badgeClass + '">' + total + '</span></td>'
-      + '<td style="text-align:center;white-space:nowrap">'
-      + '<button onclick="editData(' + JSON.stringify(row.id) + ')" style="background:#f39c12;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer;margin-right:3px">✏️ Edit</button>'
-      + '<button onclick="hapus(' + JSON.stringify(row.id) + ')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer">🗑 Hapus</button>'
-      + '</td>';
+      + '<td style="text-align:center;white-space:nowrap"></td>';
+
+    const td = tr.querySelector("td:last-child");
+
+    const btnEdit = document.createElement("button");
+    btnEdit.textContent = "✏️ Edit";
+    btnEdit.style.cssText = "background:#f39c12;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer;margin-right:3px";
+    btnEdit.onclick = function() { editData(row.id); };
+    td.appendChild(btnEdit);
+
+    const btnHapus = document.createElement("button");
+    btnHapus.textContent = "🗑 Hapus";
+    btnHapus.style.cssText = "background:#e74c3c;color:white;padding:5px 10px;font-size:12px;border:none;border-radius:8px;cursor:pointer";
+    btnHapus.onclick = function() { hapus(row.id); };
+    td.appendChild(btnHapus);
+
     tbody.appendChild(tr);
   });
 }
@@ -609,7 +604,15 @@ function tampilRekapSiswa() {
       '<td style="text-align:center;font-size:12px;color:#555">' + skorStr + '</td>' +
       '<td style="text-align:center"><b style="color:' + warna + ';font-size:16px">' + s.total + '</b></td>' +
       '<td style="text-align:center"><span style="background:' + warna + ';color:white;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:bold">' + kategori + '</span></td>' +
-      '<td style="text-align:center" class="no-print"><button onclick="hapusSemuaSiswa(' + JSON.stringify(s.nama) + ')" style="background:#e74c3c;color:white;padding:5px 10px;font-size:11px;border:none;border-radius:8px;cursor:pointer;font-weight:bold">🗑 Hapus Semua</button></td>';
+      '<td style="text-align:center" class="no-print"></td>';
+
+    const td = tr.querySelector("td:last-child");
+    const btnHapusSemua = document.createElement("button");
+    btnHapusSemua.textContent = "🗑 Hapus Semua";
+    btnHapusSemua.style.cssText = "background:#e74c3c;color:white;padding:5px 10px;font-size:11px;border:none;border-radius:8px;cursor:pointer;font-weight:bold";
+    btnHapusSemua.onclick = function() { hapusSemuaSiswa(s.nama); };
+    td.appendChild(btnHapusSemua);
+
     tbody.appendChild(tr);
   });
 }
@@ -654,7 +657,6 @@ function exportRekapSiswa() {
   XLSX.writeFile(wb, "Rekap_Poin_Per_Siswa.xlsx");
 }
 
-// ============ FUNGSI CETAK / EXPORT ============
 function isiTanggalCetak() {
   const bulan = ['Januari','Februari','Maret','April','Mei','Juni',
                 'Juli','Agustus','September','Oktober','November','Desember'];
@@ -668,37 +670,24 @@ function siapkanTabelCetak(mode, keyword) {
   const body = document.getElementById('tabelCetakBody');
   body.innerHTML = '';
   let judul = '';
-  let headers = [];
 
   if (mode === 'riwayat') {
     judul = 'LAPORAN RIWAYAT PELANGGARAN SISWA';
-    headers = ['No','Tanggal','Nama Siswa','Kelas','Pelanggaran','Total Poin'];
-    head.innerHTML = '<tr>' + headers.map(h => '<th>' + h + '</th>').join('') + '</tr>';
-
+    head.innerHTML = '<tr><th>No</th><th>Tanggal</th><th>Nama Siswa</th><th>Kelas</th><th>Pelanggaran</th><th>Total Poin</th></tr>';
     const data = db.filter(row => {
       if (!keyword) return true;
       return (row.nama||'').toLowerCase().includes(keyword) ||
              (row.kelas||'').toLowerCase().includes(keyword) ||
              (row.jenis||'').toLowerCase().includes(keyword);
     });
-
     data.forEach((row, i) => {
       let tgl = row.tgl || '';
       if (tgl.includes('T')) tgl = tgl.split('T')[0];
-      body.innerHTML += '<tr>' +
-        '<td style="text-align:center">' + (i+1) + '</td>' +
-        '<td style="text-align:center">' + tgl + '</td>' +
-        '<td>' + (row.nama||'') + '</td>' +
-        '<td style="text-align:center">' + (row.kelas||'') + '</td>' +
-        '<td>' + (row.jenis||'') + '</td>' +
-        '<td style="text-align:center"><b>' + (row.total||0) + '</b></td>' +
-      '</tr>';
+      body.innerHTML += '<tr><td style="text-align:center">' + (i+1) + '</td><td style="text-align:center">' + tgl + '</td><td>' + (row.nama||'') + '</td><td style="text-align:center">' + (row.kelas||'') + '</td><td>' + (row.jenis||'') + '</td><td style="text-align:center"><b>' + (row.total||0) + '</b></td></tr>';
     });
   } else if (mode === 'rekap') {
     judul = 'REKAP POIN PELANGGARAN PER SISWA';
-    headers = ['No','Nama Siswa','Kelas','Jumlah','Total Poin','Kategori'];
-    head.innerHTML = '<tr>' + headers.map(h => '<th>' + h + '</th>').join('') + '</tr>';
-
+    head.innerHTML = '<tr><th>No</th><th>Nama Siswa</th><th>Kelas</th><th>Jumlah</th><th>Total Poin</th><th>Kategori</th></tr>';
     const rekap = {};
     db.forEach(row => {
       const nama = (row.nama||'').trim();
@@ -707,28 +696,17 @@ function siapkanTabelCetak(mode, keyword) {
       rekap[nama].jumlah++;
       rekap[nama].total += parseInt(row.total)||0;
     });
-
     let list = Object.values(rekap);
     if (keyword) list = list.filter(s => s.nama.toLowerCase().includes(keyword));
     list.sort((a,b) => b.total - a.total);
-
     list.forEach((s, i) => {
       let kat = 'Ringan';
       if (s.total >= 75) kat = 'Sangat Berat';
       else if (s.total >= 50) kat = 'Berat';
       else if (s.total >= 25) kat = 'Sedang';
-
-      body.innerHTML += '<tr>' +
-        '<td style="text-align:center">' + (i+1) + '</td>' +
-        '<td>' + s.nama + '</td>' +
-        '<td style="text-align:center">' + s.kelas + '</td>' +
-        '<td style="text-align:center">' + s.jumlah + 'x</td>' +
-        '<td style="text-align:center"><b>' + s.total + '</b></td>' +
-        '<td style="text-align:center">' + kat + '</td>' +
-      '</tr>';
+      body.innerHTML += '<tr><td style="text-align:center">' + (i+1) + '</td><td>' + s.nama + '</td><td style="text-align:center">' + s.kelas + '</td><td style="text-align:center">' + s.jumlah + 'x</td><td style="text-align:center"><b>' + s.total + '</b></td><td style="text-align:center">' + kat + '</td></tr>';
     });
   }
-
   document.getElementById('judulLaporan').textContent = judul;
 }
 
@@ -745,32 +723,8 @@ function exportWord(mode) {
   const keyword = (document.getElementById('cari').value || '').toLowerCase();
   siapkanTabelCetak(mode, keyword);
   isiTanggalCetak();
-
   const area = document.getElementById('areaCetak').innerHTML;
-  const htmlWord = '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
-                   'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
-                   'xmlns="http://www.w3.org/TR/REC-html40">' +
-    '<head><meta charset="utf-8"><title>Laporan Tatib</title>' +
-    '<style>' +
-      'body { font-family: "Times New Roman", serif; font-size: 12pt; }' +
-      '.kop { display:flex; align-items:center; gap:15px; border-bottom:3px double #000; padding-bottom:10px; margin-bottom:20px; }' +
-      '.kop-logo { width:90px; height:90px; border-radius:50%; object-fit:cover; }' +
-      '.kop-teks { text-align:center; flex:1; }' +
-      '.kop-teks h3 { font-size:11pt; font-weight:normal; margin:0; }' +
-      '.kop-teks h1 { font-size:15pt; font-weight:bold; margin:2px 0; }' +
-      '.kop-teks h2 { font-size:13pt; font-weight:bold; margin:2px 0; }' +
-      '.kop-teks p { font-size:9pt; margin:2px 0; }' +
-      '.judul-cetak { text-align:center; margin:20px 0; }' +
-      '.judul-cetak h3 { font-size:14pt; text-decoration:underline; }' +
-      'table { width:100%; border-collapse:collapse; font-size:11pt; }' +
-      'th, td { border:1px solid #000; padding:5px 8px; }' +
-      'th { background:#e5e7eb; text-align:center; }' +
-      '.ttd { margin-top:40px; }' +
-      '.ttd-box { text-align:center; width:280px; float:right; }' +
-      '.ttd-box p { font-size:11pt; margin:3px 0; }' +
-      '.ttd-box .nama { font-weight:bold; text-decoration:underline; margin-top:60px; }' +
-    '</style></head><body>' + area + '</body></html>';
-
+  const htmlWord = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Laporan Tatib</title><style>body{font-family:"Times New Roman",serif;font-size:12pt}.kop{display:flex;align-items:center;gap:15px;border-bottom:3px double #000;padding-bottom:10px;margin-bottom:20px}.kop-logo{width:90px;height:90px;border-radius:50%;object-fit:cover}.kop-teks{text-align:center;flex:1}.kop-teks h3{font-size:11pt;font-weight:normal;margin:0}.kop-teks h1{font-size:15pt;font-weight:bold;margin:2px 0}.kop-teks h2{font-size:13pt;font-weight:bold;margin:2px 0}.kop-teks p{font-size:9pt;margin:2px 0}.judul-cetak{text-align:center;margin:20px 0}.judul-cetak h3{font-size:14pt;text-decoration:underline}table{width:100%;border-collapse:collapse;font-size:11pt}th,td{border:1px solid #000;padding:5px 8px}th{background:#e5e7eb;text-align:center}.ttd{margin-top:40px}.ttd-box{text-align:center;width:280px;float:right}.ttd-box p{font-size:11pt;margin:3px 0}.ttd-box .nama{font-weight:bold;text-decoration:underline;margin-top:60px}</style></head><body>' + area + '</body></html>';
   const blob = new Blob(['\ufeff', htmlWord], { type: 'application/msword' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
