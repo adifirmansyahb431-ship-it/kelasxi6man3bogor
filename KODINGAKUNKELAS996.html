@@ -266,6 +266,11 @@ table{width:100%;border-collapse:collapse;font-size:13px} th,td{border:1px solid
               <p>Jl. Rawagumbira No. 39 Sukamaju, Jonggol, Kabupaten Bogor | Email: man3bogor@kemenag.go.id</p>
     </div>
   </div>
+  <div id="infoSiswaCetak" style="display:none; margin-bottom:20px; font-size:14px; line-height:1.8;">
+    <div><b>Nama</b> : <span id="infoNama">-</span></div>
+    <div><b>Kelas</b> : <span id="infoKelas">-</span></div>
+    <div><b>NIS</b> : <span id="infoNIS">-</span></div>
+  </div>
   <div class="judul-cetak">
     <h3 id="judulLaporan">LAPORAN TATA TERTIB SISWA</h3>
     <p>Kelas XI-6 — Tahun Ajaran 2025/2026</p>
@@ -616,6 +621,12 @@ function tampilRekapSiswa() {
       '<td style="text-align:center" class="no-print"></td>';
 
     const td = tr.querySelector("td:last-child");
+        const btnCetak = document.createElement("button");
+    btnCetak.textContent = "📄 Cetak";
+    btnCetak.style.cssText = "background:#16a085;color:white;padding:5px 10px;font-size:11px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;margin-right:3px";
+    btnCetak.onclick = function() { cetakPerSiswa(s.nama); };
+    td.appendChild(btnCetak);
+
     const btnHapusSemua = document.createElement("button");
     btnHapusSemua.textContent = "🗑 Hapus Semua";
     btnHapusSemua.style.cssText = "background:#e74c3c;color:white;padding:5px 10px;font-size:11px;border:none;border-radius:8px;cursor:pointer;font-weight:bold";
@@ -717,9 +728,47 @@ function siapkanTabelCetak(mode, keyword) {
     });
   }
   document.getElementById('judulLaporan').textContent = judul;
+    } else if (mode === 'persiswa') {
+    judul = 'LAPORAN PELANGGARAN SISWA';
+    document.getElementById('infoSiswaCetak').style.display = 'block';
+    const dataSiswa = db.filter(row => (row.nama || '').trim() === keyword);
+    if (dataSiswa.length === 0) {
+      alert('Tidak ada data untuk siswa ini.');
+      return;
+    }
+    document.getElementById('infoNama').textContent = keyword;
+    document.getElementById('infoKelas').textContent = dataSiswa[0].kelas || '-';
+    document.getElementById('infoNIS').textContent = dataSiswa[0].nis || '-';
+    head.innerHTML = '<tr><th style="width:40px">No</th><th style="width:90px">Tanggal</th><th>Pelanggaran</th><th style="width:70px">Total Poin</th></tr>';
+    dataSiswa.forEach((row, i) => {
+      let tgl = row.tgl || '';
+      if (tgl.includes('T')) {
+        const d2 = new Date(tgl);
+        d2.setDate(d2.getDate() + 1);
+        tgl = d2.toISOString().split('T')[0];
+      }
+      body.innerHTML += '<tr><td style="text-align:center">' + (i + 1) + '</td><td style="text-align:center">' + tgl + '</td><td>' + (row.jenis || '') + '</td><td style="text-align:center"><b>' + (parseInt(row.total) || 0) + '</b></td></tr>';
+    });
+    const totalPoin = dataSiswa.reduce((a, b) => a + (parseInt(b.total) || 0), 0);
+    let kat = 'Ringan';
+    if (totalPoin >= 75) kat = 'Sangat Berat';
+    else if (totalPoin >= 50) kat = 'Berat';
+    else if (totalPoin >= 25) kat = 'Sedang';
+    body.innerHTML += '<tr style="background:#f0f0f0;font-weight:bold"><td colspan="3" style="text-align:right">TOTAL POIN:</td><td style="text-align:center">' + totalPoin + '</td></tr>';
+    body.innerHTML += '<tr style="background:#e8f5e9"><td colspan="3" style="text-align:right">KATEGORI:</td><td style="text-align:center"><b>' + kat + '</b></td></tr>';
+  }
 }
 
-function cetakPDF(mode) {
+function cetakPerSiswa(namaSiswa) {
+  if (db.length === 0) { alert('Belum ada data.'); return; }
+  document.getElementById('infoSiswaCetak').style.display = 'block';
+  siapkanTabelCetak('persiswa', namaSiswa);
+  isiTanggalCetak();
+  window.print();
+  document.getElementById('infoSiswaCetak').style.display = 'none';
+}
+
+  function cetakPDF(mode) {
   if (db.length === 0) { alert('Belum ada data.'); return; }
   const keyword = (document.getElementById('cari').value || '').toLowerCase();
   siapkanTabelCetak(mode, keyword);
