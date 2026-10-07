@@ -726,8 +726,6 @@ function siapkanTabelCetak(mode, keyword) {
       else if (s.total >= 25) kat = 'Sedang';
       body.innerHTML += '<tr><td style="text-align:center">' + (i+1) + '</td><td>' + s.nama + '</td><td style="text-align:center">' + s.kelas + '</td><td style="text-align:center">' + s.jumlah + 'x</td><td style="text-align:center"><b>' + s.total + '</b></td><td style="text-align:center">' + kat + '</td></tr>';
     });
-  }
-  document.getElementById('judulLaporan').textContent = judul;
     } else if (mode === 'persiswa') {
     judul = 'LAPORAN PELANGGARAN SISWA';
     document.getElementById('infoSiswaCetak').style.display = 'block';
@@ -758,7 +756,7 @@ function siapkanTabelCetak(mode, keyword) {
     body.innerHTML += '<tr style="background:#e8f5e9"><td colspan="3" style="text-align:right">KATEGORI:</td><td style="text-align:center"><b>' + kat + '</b></td></tr>';
   }
 }
-
+document.getElementById('judulLaporan').textContent = judul;
 function cetakPerSiswa(namaSiswa) {
   if (db.length === 0) { alert('Belum ada data.'); return; }
   document.getElementById('infoSiswaCetak').style.display = 'block';
