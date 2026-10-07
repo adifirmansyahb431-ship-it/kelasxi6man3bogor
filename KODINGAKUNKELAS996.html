@@ -530,8 +530,12 @@ function tampil() {
     else if (total >= 50) badgeClass = "Berat";
     else if (total >= 25) badgeClass = "Sedang";
 
-    let tglTampil = row.tgl || "";
-    if (tglTampil && tglTampil.includes("T")) tglTampil = tglTampil.split("T")[0];
+let tglTampil = row.tgl || "";
+if (tglTampil && tglTampil.includes("T")) {
+  const d = new Date(tglTampil);
+  d.setDate(d.getDate() + 1);
+  tglTampil = d.toISOString().split("T")[0];
+}
 
     const tr = document.createElement("tr");
     tr.innerHTML = '<td>' + tglTampil + '</td>'
