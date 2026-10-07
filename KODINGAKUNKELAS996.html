@@ -422,8 +422,12 @@ function editData(id) {
   }
   if (!found) console.warn("Jenis tidak ditemukan:", row.jenis);
 
-  let tgl = row.tgl || "";
-  if (tgl && tgl.includes("T")) tgl = tgl.split("T")[0];
+    let tgl = row.tgl || "";
+  if (tgl && tgl.includes("T")) {
+    const d = new Date(tgl);
+    d.setDate(d.getDate() + 1);
+    tgl = d.toISOString().split("T")[0];
+  }
   document.getElementById("tgl").value = tgl;
 
   editId = id;
