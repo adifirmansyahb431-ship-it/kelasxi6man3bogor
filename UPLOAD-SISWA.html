@@ -295,7 +295,7 @@ function uploadKeSpreadsheet() {
 
       // Kirim sebagai URL-encoded (paling kompatibel dengan Apps Script)
   const params = "action=uploadSiswa&data=" + encodeURIComponent(JSON.stringify(dataSiswa));
-  
+
   fetch(API_URL, {
     method: "POST",
     mode: "no-cors",
