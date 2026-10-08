@@ -293,17 +293,16 @@ function uploadKeSpreadsheet() {
   document.getElementById("btnUpload").disabled = true;
   document.getElementById("statusUpload").style.display = "none";
 
-    // Kirim sebagai JSON text/plain (bypass CORS + bisa dibaca Apps Script)
+      // Kirim sebagai URL-encoded (paling kompatibel dengan Apps Script)
+  const params = "action=uploadSiswa&data=" + encodeURIComponent(JSON.stringify(dataSiswa));
+  
   fetch(API_URL, {
     method: "POST",
     mode: "no-cors",
     headers: {
-      "Content-Type": "text/plain;charset=utf-8"
+      "Content-Type": "application/x-www-form-urlencoded"
     },
-    body: JSON.stringify({
-      action: "uploadSiswa",
-      data: dataSiswa
-    })
+    body: params
   })
     .then(() => {
       document.getElementById("loading").style.display = "none";
