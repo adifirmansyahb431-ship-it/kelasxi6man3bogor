@@ -289,42 +289,45 @@ function uploadKeSpreadsheet() {
 
   if (!konfirmasi) return;
 
-  // Show loading
   document.getElementById("loading").style.display = "block";
   document.getElementById("btnUpload").disabled = true;
   document.getElementById("statusUpload").style.display = "none";
 
+  // Pakai FormData + no-cors untuk bypass CORS
+  const formData = new FormData();
+  formData.append("action", "uploadSiswa");
+  formData.append("data", JSON.stringify(dataSiswa));
+
   fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify({
-      action: "uploadSiswa",
-      data: dataSiswa
-    })
+    mode: "no-cors",
+    body: formData
   })
-    .then(res => res.json())
-    .then(result => {
+    .then(() => {
       document.getElementById("loading").style.display = "none";
       document.getElementById("btnUpload").disabled = false;
       
       const status = document.getElementById("statusUpload");
       status.style.display = "block";
-
-      if (result.status === "ok") {
-        status.className = "status success";
-        let rekapHtml = "";
-        Object.keys(result.perKelas || {}).sort().forEach(k => {
-          rekapHtml += "• " + k + ": " + result.perKelas[k] + " siswa<br>";
-        });
-        
-        status.innerHTML = 
-          "<b>✅ " + result.message + "</b><br><br>" +
-          "<b>Rekap per kelas:</b><br>" + rekapHtml;
-        
-        alert("✅ BERHASIL!\n\n" + result.total + " siswa tersimpan.");
-      } else {
-        status.className = "status error";
-        status.innerHTML = "<b>❌ Gagal:</b> " + result.message;
-      }
+      status.className = "status success";
+      
+      const rekap = {};
+      dataSiswa.forEach(s => {
+        rekap[s.kelas] = (rekap[s.kelas] || 0) + 1;
+      });
+      
+      let rekapHtml = "";
+      Object.keys(rekap).sort().forEach(k => {
+        rekapHtml += "• " + k + ": " + rekap[k] + " siswa<br>";
+      });
+      
+      status.innerHTML = 
+        "<b>✅ Data terkirim ke Spreadsheet!</b><br><br>" +
+        "<b>Total:</b> " + dataSiswa.length + " siswa<br><br>" +
+        "<b>Rekap per kelas:</b><br>" + rekapHtml +
+        "<br><i style='color:#666'>Buka Google Spreadsheet untuk cek data.</i>";
+      
+      alert("✅ Data terkirim!\n\n" + dataSiswa.length + " siswa.\n\nBuka Spreadsheet untuk konfirmasi.");
     })
     .catch(err => {
       document.getElementById("loading").style.display = "none";
