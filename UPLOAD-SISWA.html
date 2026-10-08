@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload Daftar Siswa - SI-TATIB MAN 3 BOGOR</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{--hijau:#0a3622;--gold:#d4af37;--merah:#e74c3c;--biru:#2471a3;--hijau-muda:#16a085}
+body{margin:0;font-family:Segoe UI;background:#f3f5f4}
+.header{background:var(--hijau);color:#e9c46a;display:flex;align-items:center;padding:15px 20px;gap:15px;border-bottom:4px solid var(--gold)}
+.header img{height:65px;background:white;border-radius:8px;padding:4px}
+.header b{font-size:20px;line-height:1.2;color:#f6e27a}
+.header .sub{color:white;font-size:16px}
+.container{max-width:1100px;margin:auto;padding:15px}
+.card{background:white;border-radius:14px;padding:20px;margin-bottom:12px;box-shadow:0 2px 8px #0001}
+h3{margin-top:0;color:var(--hijau)}
+.file-input{display:block;width:100%;padding:15px;border:2px dashed #ccc;border-radius:10px;background:#fafafa;text-align:center;cursor:pointer;transition:all 0.3s}
+.file-input:hover{border-color:var(--hijau);background:#f0f5f0}
+.file-input input{display:none}
+.file-input label{cursor:pointer;display:block}
+.file-nama{margin-top:10px;color:var(--hijau);font-weight:bold;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+th,td{border:1px solid #eee;padding:8px;text-align:left}
+th{background:#f5f5f5;font-weight:bold}
+.btn{padding:14px 20px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:15px;width:100%;transition:all 0.3s}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+.btn-primary{background:var(--hijau);color:white}
+.btn-primary:hover:not(:disabled){background:#1a5c3a}
+.btn-success{background:var(--hijau-muda);color:white}
+.btn-success:hover:not(:disabled){background:#128a6b}
+.status{margin-top:15px;padding:15px;border-radius:10px;font-size:14px;display:none}
+.status.info{background:#e3f2fd;color:#0d47a1;border-left:4px solid var(--biru)}
+.status.success{background:#e8f5e9;color:#1b5e20;border-left:4px solid var(--hijau-muda);display:block}
+.status.error{background:#ffebee;color:#b71c1c;border-left:4px solid var(--merah)}
+.statistik{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:15px}
+.stat-box{background:#f5f5f5;padding:12px;border-radius:10px;text-align:center}
+.stat-box .angka{font-size:24px;font-weight:bold;color:var(--hijau)}
+.stat-box .label{font-size:12px;color:#666;margin-top:3px}
+.loading{text-align:center;padding:20px;color:#666;display:none}
+.spinner{display:inline-block;width:30px;height:30px;border:4px solid #f3f3f3;border-top-color:var(--hijau);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.badge{padding:3px 8px;border-radius:12px;font-size:11px;background:#e0e0e0;color:#333}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="fotogroupxi-6.png" alt="logo">
+  <div>
+    <b>SI-TATIB MAN 3 BOGOR</b><br>
+    <span class="sub">📤 Upload Daftar Siswa</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STEP 1: Pilih File -->
+  <div class="card">
+    <h3>📁 Langkah 1: Pilih File Excel</h3>
+    <p style="font-size:13px;color:#666;margin-top:0">
+      Format kolom: <b>NOMOR URT | NIS | NISN | NAMA SISWA | L/P | KELAS</b><br>
+      File harus berformat <b>.xlsx</b> atau <b>.xls</b>
+    </p>
+    
+    <label class="file-input" for="fileExcel">
+      <input type="file" id="fileExcel" accept=".xlsx,.xls">
+      <div style="font-size:40px;margin-bottom:10px">📊</div>
+      <div style="font-weight:bold">Klik untuk pilih file Excel</div>
+      <div style="font-size:12px;color:#888;margin-top:5px">atau drag & drop file ke sini</div>
+    </label>
+    
+    <div class="file-nama" id="fileNama"></div>
+  </div>
+
+  <!-- STEP 2: Preview -->
+  <div class="card" id="cardPreview" style="display:none">
+    <h3>👁️ Langkah 2: Preview Data</h3>
+    
+    <div class="statistik">
+      <div class="stat-box">
+        <div class="angka" id="statTotal">0</div>
+        <div class="label">Total Siswa</div>
+      </div>
+      <div class="stat-box">
+        <div class="angka" id="statKelas">0</div>
+        <div class="label">Jumlah Kelas</div>
+      </div>
+      <div class="stat-box">
+        <div class="angka" id="statL">0</div>
+        <div class="label">Laki-laki</div>
+      </div>
+      <div class="stat-box">
+        <div class="angka" id="statP">0</div>
+        <div class="label">Perempuan</div>
+      </div>
+    </div>
+
+    <div style="margin-top:15px">
+      <b>Preview 10 baris pertama:</b>
+    </div>
+    
+    <div style="overflow-x:auto">
+      <table id="tabelPreview">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>NIS</th>
+            <th>NISN</th>
+            <th>Nama Siswa</th>
+            <th>L/P</th>
+            <th>Kelas</th>
+          </tr>
+        </thead>
+        <tbody id="tabelPreviewBody"></tbody>
+      </table>
+    </div>
+    
+    <div style="margin-top:15px">
+      <b>Rekap per Kelas:</b>
+      <div id="rekapKelas" style="margin-top:8px;font-size:13px"></div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Upload -->
+  <div class="card" id="cardUpload" style="display:none">
+    <h3>📤 Langkah 3: Upload ke Spreadsheet</h3>
+    <p style="font-size:13px;color:#666;margin-top:0">
+      ⚠️ <b>Peringatan:</b> Upload akan <b>menggantikan</b> semua data siswa yang ada di sheet <code>DaftarSiswa</code>.<br>
+      Pastikan file Excel sudah benar sebelum upload.
+    </p>
+    
+    <button class="btn btn-success" id="btnUpload" onclick="uploadKeSpreadsheet()">
+      🚀 UPLOAD KE SPREADSHEET
+    </button>
+    
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Mengupload data...</p>
+    </div>
+    
+    <div class="status" id="statusUpload"></div>
+  </div>
+
+</div>
+
+<script>
+// ==================== KONFIGURASI ====================
+const API_URL = "https://script.google.com/macros/s/AKfycbwXq2hN21x9iOsnOfiyAR0kPJdqkvf7AmrTCacXB-lRrdVnVUaEvCtnVON7q5VXUH6n6Q/exec";
+
+let dataSiswa = [];
+
+// ==================== EVENT: PILIH FILE ====================
+document.getElementById("fileExcel").addEventListener("change", function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  document.getElementById("fileNama").textContent = "📄 " + file.name;
+  
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const data = new Uint8Array(evt.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+      if (json.length < 2) {
+        alert("File kosong atau tidak ada data!");
+        return;
+      }
+
+      // Baris 1 = header, baris 2+ = data
+      const header = json[0];
+      const rows = json.slice(1).filter(r => r.length > 0 && r[3]); // kolom D (nama) harus ada
+
+      // Deteksi kolom berdasarkan header
+      const idx = {
+        urt:  cariKolom(header, ["nomor urt", "no urt", "no", "urt"]),
+        nis:  cariKolom(header, ["nis"]),
+        nisn: cariKolom(header, ["nisn"]),
+        nama: cariKolom(header, ["nama siswa", "nama"]),
+        jk:   cariKolom(header, ["l/p", "jk", "jenis kelamin"]),
+        kelas: cariKolom(header, ["kelas"])
+      };
+
+      console.log("Header terdeteksi:", header);
+      console.log("Index kolom:", idx);
+
+      if (idx.nama === -1 || idx.kelas === -1) {
+        alert("Kolom NAMA dan KELAS tidak ditemukan!\n\nPastikan header Excel:\nNOMOR URT | NIS | NISN | NAMA SISWA | L/P | KELAS");
+        return;
+      }
+
+      // Parse data
+      dataSiswa = rows.map(r => ({
+        urt:   idx.urt >= 0 ? String(r[idx.urt] || "") : "",
+        nis:   idx.nis >= 0 ? String(r[idx.nis] || "") : "",
+        nisn:  idx.nisn >= 0 ? String(r[idx.nisn] || "") : "",
+        nama:  idx.nama >= 0 ? String(r[idx.nama] || "").trim() : "",
+        jk:    idx.jk >= 0 ? String(r[idx.jk] || "").trim().toUpperCase() : "",
+        kelas: idx.kelas >= 0 ? String(r[idx.kelas] || "").trim().toUpperCase() : ""
+      })).filter(s => s.nama && s.kelas);
+
+      tampilPreview();
+
+    } catch (err) {
+      console.error(err);
+      alert("Gagal membaca file Excel: " + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+function cariKolom(header, keywords) {
+  for (let i = 0; i < header.length; i++) {
+    const h = String(header[i] || "").toLowerCase().trim();
+    for (const kw of keywords) {
+      if (h.includes(kw)) return i;
+    }
+  }
+  return -1;
+}
+
+// ==================== TAMPIL PREVIEW ====================
+function tampilPreview() {
+  document.getElementById("cardPreview").style.display = "block";
+  document.getElementById("cardUpload").style.display = "block";
+
+  // Statistik
+  const kelasSet = new Set();
+  let totalL = 0, totalP = 0;
+  
+  dataSiswa.forEach(s => {
+    kelasSet.add(s.kelas);
+    if (s.jk === "L") totalL++;
+    if (s.jk === "P") totalP++;
+  });
+
+  document.getElementById("statTotal").textContent = dataSiswa.length;
+  document.getElementById("statKelas").textContent = kelasSet.size;
+  document.getElementById("statL").textContent = totalL;
+  document.getElementById("statP").textContent = totalP;
+
+  // Preview 10 baris
+  const tbody = document.getElementById("tabelPreviewBody");
+  tbody.innerHTML = "";
+  
+  dataSiswa.slice(0, 10).forEach((s, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = 
+      "<td>" + (i + 1) + "</td>" +
+      "<td>" + s.nis + "</td>" +
+      "<td>" + s.nisn + "</td>" +
+      "<td>" + s.nama + "</td>" +
+      "<td>" + s.jk + "</td>" +
+      "<td><span class='badge'>" + s.kelas + "</span></td>";
+    tbody.appendChild(tr);
+  });
+
+  // Rekap per kelas
+  const rekap = {};
+  dataSiswa.forEach(s => {
+    rekap[s.kelas] = (rekap[s.kelas] || 0) + 1;
+  });
+  
+  const kelasUrut = Object.keys(rekap).sort();
+  let htmlRekap = "";
+  kelasUrut.forEach(k => {
+    htmlRekap += "• <b>" + k + "</b>: " + rekap[k] + " siswa<br>";
+  });
+  document.getElementById("rekapKelas").innerHTML = htmlRekap;
+}
+
+// ==================== UPLOAD KE SPREADSHEET ====================
+function uploadKeSpreadsheet() {
+  if (dataSiswa.length === 0) {
+    alert("Tidak ada data untuk diupload!");
+    return;
+  }
+
+  const konfirmasi = confirm(
+    "⚠️ UPLOAD DATA SISWA\n\n" +
+    "Total: " + dataSiswa.length + " siswa\n" +
+    "Kelas: " + new Set(dataSiswa.map(s => s.kelas)).size + " kelas\n\n" +
+    "Data lama di sheet DaftarSiswa akan DIGANTI.\n\n" +
+    "Lanjutkan?"
+  );
+
+  if (!konfirmasi) return;
+
+  // Show loading
+  document.getElementById("loading").style.display = "block";
+  document.getElementById("btnUpload").disabled = true;
+  document.getElementById("statusUpload").style.display = "none";
+
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "uploadSiswa",
+      data: dataSiswa
+    })
+  })
+    .then(res => res.json())
+    .then(result => {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("btnUpload").disabled = false;
+      
+      const status = document.getElementById("statusUpload");
+      status.style.display = "block";
+
+      if (result.status === "ok") {
+        status.className = "status success";
+        let rekapHtml = "";
+        Object.keys(result.perKelas || {}).sort().forEach(k => {
+          rekapHtml += "• " + k + ": " + result.perKelas[k] + " siswa<br>";
+        });
+        
+        status.innerHTML = 
+          "<b>✅ " + result.message + "</b><br><br>" +
+          "<b>Rekap per kelas:</b><br>" + rekapHtml;
+        
+        alert("✅ BERHASIL!\n\n" + result.total + " siswa tersimpan.");
+      } else {
+        status.className = "status error";
+        status.innerHTML = "<b>❌ Gagal:</b> " + result.message;
+      }
+    })
+    .catch(err => {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("btnUpload").disabled = false;
+      
+      const status = document.getElementById("statusUpload");
+      status.style.display = "block";
+      status.className = "status error";
+      status.innerHTML = "<b>❌ Error:</b> " + err.message;
+      
+      console.error(err);
+    });
+}
+</script>
+</body>
+</html>
