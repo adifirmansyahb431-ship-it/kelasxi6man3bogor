@@ -293,15 +293,17 @@ function uploadKeSpreadsheet() {
   document.getElementById("btnUpload").disabled = true;
   document.getElementById("statusUpload").style.display = "none";
 
-  // Pakai FormData + no-cors untuk bypass CORS
-  const formData = new FormData();
-  formData.append("action", "uploadSiswa");
-  formData.append("data", JSON.stringify(dataSiswa));
-
+    // Kirim sebagai JSON text/plain (bypass CORS + bisa dibaca Apps Script)
   fetch(API_URL, {
     method: "POST",
     mode: "no-cors",
-    body: formData
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify({
+      action: "uploadSiswa",
+      data: dataSiswa
+    })
   })
     .then(() => {
       document.getElementById("loading").style.display = "none";
