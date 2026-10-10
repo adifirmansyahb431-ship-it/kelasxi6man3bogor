@@ -144,6 +144,8 @@
       color: #374151;
       border: 1px solid transparent;
       padding: 10px 16px;
+      cursor: pointer;
+      border-radius: 8px;
     }
     .tab.active {
       background: var(--hijau);
@@ -164,7 +166,8 @@
       text-align: left;
       vertical-align: top;
     }
-    th { background: #f5f5f5; }
+    th { background: #f5f5f5; font-weight: 700; }
+    tbody tr:hover { background: #f9f9f9; }
 
     .status {
       margin-top: 15px;
@@ -200,7 +203,7 @@
       align-items: center;
       margin-bottom: 12px;
     }
-    .filter-box input { margin-bottom: 0; }
+    .filter-box input { margin-bottom: 0; flex: 1; min-width: 200px; }
 
     .nilai-grid {
       display: grid;
@@ -266,12 +269,27 @@
 
     .hidden { display: none !important; }
 
+    .btn-hapus {
+      background: #e74c3c;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .btn-hapus:hover { background: #c0392b; }
+
     @media (max-width: 760px) {
       .grid-3, .nilai-grid { grid-template-columns: 1fr; }
       .header { padding: 12px 14px; }
       .header .brand { font-size: 17px; }
       .header .brand small { font-size: 12px; }
       .container { padding: 14px 12px 30px; }
+      .filter-box input { min-width: 100%; }
+      table { font-size: 12px; }
+      th, td { padding: 6px 8px; }
     }
   </style>
 </head>
@@ -307,10 +325,10 @@
 
     <div class="container">
       <div class="tabs">
-        <button class="tab active" data-tab="input">Input Pelanggaran</button>
-        <button class="tab" data-tab="rekap">Rekap Siswa</button>
-        <button class="tab" data-tab="nilai">Input Nilai</button>
-        <button class="tab" data-tab="upload">Upload Siswa</button>
+        <button class="tab active" data-tab="input">📋 Input Pelanggaran</button>
+        <button class="tab" data-tab="rekap">📊 Rekap Siswa</button>
+        <button class="tab" data-tab="nilai">⭐ Input Nilai</button>
+        <button class="tab" data-tab="upload">📤 Upload Siswa</button>
       </div>
 
       <section id="panel-input" class="tab-panel active">
@@ -412,25 +430,28 @@
           <label>Tanggal</label>
           <input id="tgl" type="date" />
 
-          <button class="btn-primary" style="width:100%;" onclick="simpanPelanggaran()">SIMPAN</button>
+          <button class="btn-primary" style="width:100%;" onclick="simpanPelanggaran()">✅ SIMPAN</button>
+          <div id="statusPelanggaran" class="status"></div>
         </div>
 
         <div class="card">
           <h3>Riwayat Pelanggaran</h3>
           <div class="filter-box"><input id="cari" placeholder="Cari siswa / kelas / pelanggaran..." /></div>
-          <table>
-            <thead>
-              <tr>
-                <th>Tgl</th>
-                <th>Siswa</th>
-                <th>Kelas</th>
-                <th>Pelanggaran</th>
-                <th>Total</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="list"></tbody>
-          </table>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:100px">Tgl</th>
+                  <th>Siswa</th>
+                  <th style="width:60px">Kelas</th>
+                  <th>Pelanggaran</th>
+                  <th style="width:50px">Poin</th>
+                  <th style="width:80px">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="list"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -438,19 +459,21 @@
         <div class="card">
           <h3>Rekap Poin per Siswa</h3>
           <div class="filter-box"><input id="cariSiswa" placeholder="Cari nama siswa..." /></div>
-          <table>
-            <thead>
-              <tr>
-                <th style="width:40px">No</th>
-                <th>Nama Siswa</th>
-                <th style="width:80px">Kelas</th>
-                <th style="width:90px">Jumlah</th>
-                <th style="width:120px">Total</th>
-                <th style="width:120px">Kategori</th>
-              </tr>
-            </thead>
-            <tbody id="rekapSiswa"></tbody>
-          </table>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px">No</th>
+                  <th>Nama Siswa</th>
+                  <th style="width:70px">Kelas</th>
+                  <th style="width:70px">Jumlah</th>
+                  <th style="width:70px">Total</th>
+                  <th>Kategori</th>
+                </tr>
+              </thead>
+              <tbody id="rekapSiswa"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -562,20 +585,22 @@
           <div class="filter-box">
             <input id="cariNilai" placeholder="Cari nama / mapel / jenis nilai..." />
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Nama</th>
-                <th>Mapel</th>
-                <th>Jenis</th>
-                <th>Nilai</th>
-                <th>Semester</th>
-                <th>Tahun</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="listNilai"></tbody>
-          </table>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nama</th>
+                  <th>Mapel</th>
+                  <th>Jenis</th>
+                  <th style="width:50px">Nilai</th>
+                  <th>Semester</th>
+                  <th>Tahun</th>
+                  <th style="width:80px">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="listNilai"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -600,8 +625,15 @@
     const STORAGE_KEY = "siTatibData";
     const NILAI_KEY = "siTatibNilai";
 
-    let db = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    let nilaiDb = JSON.parse(localStorage.getItem(NILAI_KEY) || "[]");
+    let db = [];
+    let nilaiDb = [];
+
+    // Initialize data on load
+    function initData() {
+      db = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      nilaiDb = JSON.parse(localStorage.getItem(NILAI_KEY) || "[]");
+      console.log("Data loaded from localStorage:", db.length, "pelanggaran,", nilaiDb.length, "nilai");
+    }
 
     function prosesLogin() {
       const user = document.getElementById("loginUser").value.trim();
@@ -613,6 +645,7 @@
         document.getElementById("loginScreen").classList.add("hidden");
         document.getElementById("appArea").classList.remove("hidden");
         pesan.textContent = "";
+        initData();
         tampil();
         tampilRekapSiswa();
         tampilNilai();
@@ -633,6 +666,7 @@
       if (sudah === "true") {
         document.getElementById("loginScreen").classList.add("hidden");
         document.getElementById("appArea").classList.remove("hidden");
+        initData();
         tampil();
         tampilRekapSiswa();
         tampilNilai();
@@ -642,14 +676,16 @@
     }
 
     function simpanPelanggaran() {
-      const nama = document.getElementById("nama").value;
-      const nis = document.getElementById("nis").value;
-      const kelas = document.getElementById("kelas").value;
+      const nama = document.getElementById("nama").value.trim();
+      const nis = document.getElementById("nis").value.trim();
+      const kelas = document.getElementById("kelas").value.trim();
       const jenisRaw = document.getElementById("jenis").value;
       const tgl = document.getElementById("tgl").value;
+      const status = document.getElementById("statusPelanggaran");
 
       if (!nama || !kelas || !jenisRaw || !tgl) {
-        alert("Lengkapi dulu: Nama, Kelas, Pelanggaran, dan Tanggal!");
+        status.className = "status error";
+        status.textContent = "⚠️ Lengkapi: Nama, Kelas, Pelanggaran, dan Tanggal!";
         return;
       }
 
@@ -659,11 +695,17 @@
       const item = { id: Date.now(), tgl, nama, nis, kelas, jenis, total };
       db.unshift(item);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      
+      status.className = "status success";
+      status.textContent = "✅ Data pelanggaran berhasil disimpan!";
+      
       document.getElementById("nama").value = "";
       document.getElementById("nis").value = "";
       document.getElementById("kelas").value = "";
       document.getElementById("jenis").value = "";
       document.getElementById("tgl").value = "";
+      
+      setTimeout(() => { status.textContent = ""; }, 3000);
       tampil();
       tampilRekapSiswa();
     }
@@ -691,7 +733,7 @@
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">Belum ada data pelanggaran.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;padding:20px;">Belum ada data pelanggaran.</td></tr>';
         return;
       }
 
@@ -699,12 +741,12 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${row.tgl || "-"}</td>
-          <td>${row.nama || "-"}</td>
+          <td><strong>${row.nama || "-"}</strong></td>
           <td>${row.kelas || "-"}</td>
           <td>${row.jenis || "-"}</td>
           <td><span class="badge ${totalBadge(row.total)}">${row.total || 0}</span></td>
-          <td style="text-align:center;white-space:nowrap">
-            <button style="background:#e74c3c;color:white;padding:5px 10px;border:none;border-radius:8px;cursor:pointer;" onclick="hapusPelanggaran(${row.id})">🗑 Hapus</button>
+          <td style="text-align:center;">
+            <button class="btn-hapus" onclick="hapusPelanggaran(${row.id})">🗑 Hapus</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -736,41 +778,42 @@
       list.sort((a, b) => b.total - a.total);
 
       if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">Belum ada data pelanggaran.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;padding:20px;">Belum ada data pelanggaran.</td></tr>';
         return;
       }
 
       list.forEach((s, i) => {
         let kategori = "Ringan";
-        if (s.total >= 75) kategori = "Sangat Berat";
-        else if (s.total >= 50) kategori = "Berat";
-        else if (s.total >= 25) kategori = "Sedang";
+        let badgeClass = "A";
+        if (s.total >= 75) { kategori = "Sangat Berat"; badgeClass = "C"; }
+        else if (s.total >= 50) { kategori = "Berat"; badgeClass = "C"; }
+        else if (s.total >= 25) { kategori = "Sedang"; badgeClass = "B"; }
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td style="text-align:center">${i + 1}</td>
-          <td><b>${s.nama}</b></td>
+          <td style="text-align:center;font-weight:700">${i + 1}</td>
+          <td><strong>${s.nama}</strong></td>
           <td style="text-align:center">${s.kelas}</td>
-          <td style="text-align:center"><b>${s.jumlah}x</b></td>
-          <td style="text-align:center"><b>${s.total}</b></td>
-          <td style="text-align:center"><span class="badge ${kategori === 'Sangat Berat' ? 'C' : kategori === 'Berat' ? 'C' : kategori === 'Sedang' ? 'B' : 'A'}">${kategori}</span></td>
+          <td style="text-align:center"><strong>${s.jumlah}x</strong></td>
+          <td style="text-align:center"><strong>${s.total}</strong></td>
+          <td style="text-align:center"><span class="badge ${badgeClass}">${kategori}</span></td>
         `;
         tbody.appendChild(tr);
       });
     }
 
     function simpanNilai() {
-      const nama = document.getElementById("nilaiNama").value;
+      const nama = document.getElementById("nilaiNama").value.trim();
       const mapel = document.getElementById("mapelNilai").value;
       const jenis = document.getElementById("jenisNilai").value;
       const angka = document.getElementById("nilaiAngka").value;
       const semester = document.getElementById("semesterNilai").value;
-      const tahun = document.getElementById("tahunNilai").value;
+      const tahun = document.getElementById("tahunNilai").value.trim();
       const status = document.getElementById("statusNilai");
 
       if (!nama || !mapel || !jenis || !angka || !semester || !tahun) {
         status.className = "status error";
-        status.textContent = "Lengkapi semua field untuk input nilai.";
+        status.textContent = "⚠️ Lengkapi semua field untuk input nilai.";
         return;
       }
 
@@ -787,10 +830,12 @@
 
       status.className = "status success";
       status.textContent = "✅ Nilai berhasil disimpan.";
+      setTimeout(() => { status.textContent = ""; }, 3000);
       tampilNilai();
     }
 
     function hapusNilai(id) {
+      if (!confirm("Hapus nilai ini?")) return;
       nilaiDb = nilaiDb.filter(item => String(item.id) !== String(id));
       localStorage.setItem(NILAI_KEY, JSON.stringify(nilaiDb));
       tampilNilai();
@@ -811,21 +856,21 @@
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Belum ada data nilai.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;padding:20px;">Belum ada data nilai.</td></tr>';
         return;
       }
 
       filtered.forEach(item => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${item.nama}</td>
+          <td><strong>${item.nama}</strong></td>
           <td>${item.mapel}</td>
           <td>${item.jenis}</td>
-          <td><b>${item.angka}</b></td>
+          <td style="text-align:center;font-weight:700">${item.angka}</td>
           <td>${item.semester}</td>
           <td>${item.tahun}</td>
-          <td>
-            <button style="background:#e74c3c;color:white;padding:5px 10px;border:none;border-radius:8px;cursor:pointer;" onclick="hapusNilai(${item.id})">🗑 Hapus</button>
+          <td style="text-align:center;">
+            <button class="btn-hapus" onclick="hapusNilai(${item.id})">🗑 Hapus</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -849,9 +894,6 @@
       document.getElementById("cariNilai").addEventListener("input", tampilNilai);
 
       cekLogin();
-      tampil();
-      tampilRekapSiswa();
-      tampilNilai();
     });
   </script>
 </body>
