@@ -278,8 +278,35 @@
       cursor: pointer;
       font-weight: 600;
       font-size: 12px;
+      margin-right: 4px;
     }
     .btn-hapus:hover { background: #c0392b; }
+
+    .btn-edit {
+      background: #f39c12;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      margin-right: 4px;
+    }
+    .btn-edit:hover { background: #d68910; }
+
+    .btn-cetak {
+      background: #16a085;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      margin-right: 4px;
+    }
+    .btn-cetak:hover { background: #12876f; }
 
     @media (max-width: 760px) {
       .grid-3, .nilai-grid { grid-template-columns: 1fr; }
@@ -430,7 +457,7 @@
           <label>Tanggal</label>
           <input id="tgl" type="date" />
 
-          <button class="btn-primary" style="width:100%;" onclick="simpanPelanggaran()">✅ SIMPAN</button>
+          <button id="saveViolasiBtn" class="btn-primary" style="width:100%;" onclick="simpanPelanggaran()">✅ SIMPAN</button>
           <div id="statusPelanggaran" class="status"></div>
         </div>
 
@@ -446,7 +473,7 @@
                   <th style="width:60px">Kelas</th>
                   <th>Pelanggaran</th>
                   <th style="width:50px">Poin</th>
-                  <th style="width:80px">Aksi</th>
+                  <th style="width:140px">Aksi</th>
                 </tr>
               </thead>
               <tbody id="list"></tbody>
@@ -468,7 +495,8 @@
                   <th style="width:70px">Kelas</th>
                   <th style="width:70px">Jumlah</th>
                   <th style="width:70px">Total</th>
-                  <th>Kategori</th>
+                  <th style="width:120px">Kategori</th>
+                  <th style="width:200px">Aksi</th>
                 </tr>
               </thead>
               <tbody id="rekapSiswa"></tbody>
@@ -627,12 +655,11 @@
 
     let db = [];
     let nilaiDb = [];
+    let editId = null;
 
-    // Initialize data on load
     function initData() {
       db = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
       nilaiDb = JSON.parse(localStorage.getItem(NILAI_KEY) || "[]");
-      console.log("Data loaded from localStorage:", db.length, "pelanggaran,", nilaiDb.length, "nilai");
     }
 
     function prosesLogin() {
@@ -675,6 +702,51 @@
       }
     }
 
+    function resetFormPelanggaran() {
+      document.getElementById("nama").value = "";
+      document.getElementById("nis").value = "";
+      document.getElementById("kelas").value = "";
+      document.getElementById("jenis").value = "";
+      document.getElementById("tgl").value = "";
+      const btn = document.getElementById("saveViolasiBtn");
+      btn.textContent = "✅ SIMPAN";
+      btn.className = "btn-primary";
+      btn.style.width = "100%";
+      editId = null;
+    }
+
+    function editData(id) {
+      const row = db.find(r => String(r.id) === String(id));
+      if (!row) {
+        alert("Data tidak ditemukan.");
+        return;
+      }
+
+      document.getElementById("nama").value = row.nama || "";
+      document.getElementById("nis").value = row.nis || "";
+      document.getElementById("kelas").value = row.kelas || "";
+      const selectJenis = document.getElementById("jenis");
+      let found = false;
+      for (let i = 0; i < selectJenis.options.length; i++) {
+        const val = selectJenis.options[i].value;
+        if ((val.split("|")[0] || "") === (row.jenis || "")) {
+          selectJenis.selectedIndex = i;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        selectJenis.value = "";
+      }
+      document.getElementById("tgl").value = row.tgl || "";
+
+      editId = id;
+      const btn = document.getElementById("saveViolasiBtn");
+      btn.textContent = "✏️ UPDATE DATA";
+      btn.className = "btn-warning";
+      document.getElementById("panel-input").scrollIntoView({ behavior: "smooth" });
+    }
+
     function simpanPelanggaran() {
       const nama = document.getElementById("nama").value.trim();
       const nis = document.getElementById("nis").value.trim();
@@ -693,21 +765,22 @@
       const jenis = parts[0];
       const total = parseInt(parts[1]) || 0;
       const item = { id: Date.now(), tgl, nama, nis, kelas, jenis, total };
-      db.unshift(item);
+
+      if (editId) {
+        db = db.map(row => String(row.id) === String(editId) ? { ...row, ...item, id: Number(editId) } : row);
+        status.className = "status success";
+        status.textContent = "✅ Data pelanggaran berhasil diperbarui!";
+      } else {
+        db.unshift(item);
+        status.className = "status success";
+        status.textContent = "✅ Data pelanggaran berhasil disimpan!";
+      }
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-      
-      status.className = "status success";
-      status.textContent = "✅ Data pelanggaran berhasil disimpan!";
-      
-      document.getElementById("nama").value = "";
-      document.getElementById("nis").value = "";
-      document.getElementById("kelas").value = "";
-      document.getElementById("jenis").value = "";
-      document.getElementById("tgl").value = "";
-      
-      setTimeout(() => { status.textContent = ""; }, 3000);
+      resetFormPelanggaran();
       tampil();
       tampilRekapSiswa();
+      setTimeout(() => { status.textContent = ""; status.className = "status"; }, 2500);
     }
 
     function hapusPelanggaran(id) {
@@ -716,6 +789,76 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
       tampil();
       tampilRekapSiswa();
+    }
+
+    function hapusSemuaSiswa(namaSiswa) {
+      const siswa = (namaSiswa || "").trim();
+      if (!siswa) return;
+      const rowCount = db.filter(row => (row.nama || "").trim() === siswa).length;
+      if (rowCount === 0) return;
+      if (!confirm(`Yakin hapus semua data pelanggaran untuk ${siswa}?`)) return;
+      db = db.filter(row => (row.nama || "").trim() !== siswa);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      tampil();
+      tampilRekapSiswa();
+    }
+
+    function cetakPerSiswa(namaSiswa) {
+      const siswa = (namaSiswa || "").trim();
+      const rows = db.filter(row => (row.nama || "").trim() === siswa);
+      if (!rows.length) {
+        alert("Tidak ada data untuk siswa ini.");
+        return;
+      }
+      const totalPoin = rows.reduce((sum, row) => sum + (parseInt(row.total) || 0), 0);
+      const win = window.open("", "_blank", "width=900,height=700");
+      const tbody = rows.map((row, index) => `
+        <tr>
+          <td style="border:1px solid #333;padding:6px;text-align:center;">${index + 1}</td>
+          <td style="border:1px solid #333;padding:6px;text-align:center;">${row.tgl || "-"}</td>
+          <td style="border:1px solid #333;padding:6px;">${row.jenis || "-"}</td>
+          <td style="border:1px solid #333;padding:6px;text-align:center;">${row.total || 0}</td>
+        </tr>`).join("");
+
+      win.document.write(`
+        <html>
+        <head>
+          <title>Cetak Pelanggaran - ${siswa}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 24px; color: #111; }
+            h2 { text-align: center; margin-bottom: 8px; }
+            .meta { margin-bottom: 12px; font-size: 14px; }
+            table { width: 100%; border-collapse: collapse; font-size: 13px; }
+            th, td { border: 1px solid #333; padding: 7px; }
+            th { background: #f2f2f2; }
+            .total { margin-top: 12px; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <h2>SI-TATIB MAN 3 BOGOR</h2>
+          <div class="meta">
+            <div><strong>Nama:</strong> ${siswa}</div>
+            <div><strong>Kelas:</strong> ${rows[0].kelas || "-"}</div>
+            <div><strong>NIS:</strong> ${rows[0].nis || "-"}</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Tanggal</th>
+                <th>Pelanggaran</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>${tbody}</tbody>
+          </table>
+          <div class="total">Total Poin: ${totalPoin}</div>
+        </body>
+        </html>
+      `);
+      win.document.close();
+      win.focus();
+      setTimeout(() => win.print(), 300);
     }
 
     function tampil() {
@@ -746,6 +889,7 @@
           <td>${row.jenis || "-"}</td>
           <td><span class="badge ${totalBadge(row.total)}">${row.total || 0}</span></td>
           <td style="text-align:center;">
+            <button class="btn-edit" onclick="editData(${row.id})">✏️ Edit</button>
             <button class="btn-hapus" onclick="hapusPelanggaran(${row.id})">🗑 Hapus</button>
           </td>
         `;
@@ -778,7 +922,7 @@
       list.sort((a, b) => b.total - a.total);
 
       if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;padding:20px;">Belum ada data pelanggaran.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;padding:20px;">Belum ada data pelanggaran.</td></tr>';
         return;
       }
 
@@ -790,6 +934,7 @@
         else if (s.total >= 25) { kategori = "Sedang"; badgeClass = "B"; }
 
         const tr = document.createElement("tr");
+        const firstRow = db.filter(row => (row.nama || "").trim() === s.nama)[0];
         tr.innerHTML = `
           <td style="text-align:center;font-weight:700">${i + 1}</td>
           <td><strong>${s.nama}</strong></td>
@@ -797,6 +942,11 @@
           <td style="text-align:center"><strong>${s.jumlah}x</strong></td>
           <td style="text-align:center"><strong>${s.total}</strong></td>
           <td style="text-align:center"><span class="badge ${badgeClass}">${kategori}</span></td>
+          <td style="text-align:center;white-space:nowrap;">
+            <button class="btn-edit" onclick="${firstRow ? `editData(${firstRow.id})` : ""}">✏️ Edit</button>
+            <button class="btn-hapus" onclick="hapusSemuaSiswa('${s.nama.replace(/'/g, "\\'")}')">🗑 Hapus</button>
+            <button class="btn-cetak" onclick="cetakPerSiswa('${s.nama.replace(/'/g, "\\'")}')">🖨 Cetak</button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
@@ -830,7 +980,7 @@
 
       status.className = "status success";
       status.textContent = "✅ Nilai berhasil disimpan.";
-      setTimeout(() => { status.textContent = ""; }, 3000);
+      setTimeout(() => { status.textContent = ""; status.className = "status"; }, 2500);
       tampilNilai();
     }
 
