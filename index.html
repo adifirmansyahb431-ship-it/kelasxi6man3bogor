@@ -420,38 +420,82 @@
               </select>
             </div>
           </div>
-
+          
           <label>Pelanggaran</label>
-          <select id="jenis">
-            <option value="">-- Pilih Jenis Pelanggaran --</option>
-            <optgroup label="A. PASAL KELAKUAN">
-              <option value="Memukul dan melukai kepala madrasah, guru, karyawan, dan teman|100">Memukul dan melukai kepala madrasah, guru, karyawan, dan teman (100)</option>
-              <option value="Menghasut/mengajak/berada di lokasi tawuran|100">Menghasut/mengajak/berada di lokasi tawuran (100)</option>
-              <option value="Melibatkan diri dalam tawuran|100">Melibatkan diri dalam tawuran (100)</option>
-              <option value="Berkelahi hingga menimbulkan korban|100">Berkelahi hingga menimbulkan korban (100)</option>
-              <option value="Merokok tembakau/elektrik (vape)|30">Merokok tembakau/elektrik (vape) (30)</option>
-              <option value="Pacaran di lingkungan madrasah|50">Pacaran di lingkungan madrasah (50)</option>
-              <option value="Mencuri uang atau mengambil barang milik orang lain|75">Mencuri uang atau mengambil barang milik orang lain (75)</option>
-              <option value="Membawa/menitipkan/mendapat titipan rokok|25">Membawa/menitipkan/mendapat titipan rokok (25)</option>
-              <option value="Mengoperasikan HP saat KBM tanpa izin|20">Mengoperasikan HP saat KBM tanpa izin (20)</option>
-              <option value="Membuang sampah tidak pada tempatnya|5">Membuang sampah tidak pada tempatnya (5)</option>
-            </optgroup>
-            <optgroup label="B. PASAL KEDISIPLINAN">
-              <option value="Terlambat masuk madrasah|5">Terlambat masuk madrasah (5)</option>
-              <option value="Meninggalkan kelas tanpa izin saat KBM|10">Meninggalkan kelas tanpa izin saat KBM (10)</option>
-              <option value="Berada di luar kelas saat KBM tanpa izin|10">Berada di luar kelas saat KBM tanpa izin (10)</option>
-              <option value="Tidak mengikuti upacara bendera hari Senin|5">Tidak mengikuti upacara bendera hari Senin (5)</option>
-              <option value="Tidak masuk madrasah karena alpa|5">Tidak masuk madrasah karena alpa (5)</option>
-            </optgroup>
-            <optgroup label="C. PASAL KERAPIHAN">
-              <option value="Tidak memakai atribut seragam saat KBM|5">Tidak memakai atribut seragam saat KBM (5)</option>
-              <option value="Tidak memakai sepatu berwarna dasar hitam|5">Tidak memakai sepatu berwarna dasar hitam (5)</option>
-              <option value="Memakai kaos kaki selain warna putih|5">Memakai kaos kaki selain warna putih (5)</option>
-              <option value="Memakai rok ketat / sempit / terdapat belahan|5">Memakai rok ketat / sempit / terdapat belahan (5)</option>
-              <option value="Memakai celana ketat / jeans|5">Memakai celana ketat / jeans (5)</option>
-              <option value="Memakai seragam robek atau dicoret-coret|5">Memakai seragam robek atau dicoret-coret (5)</option>
-              <option value="Rambut tidak sesuai ketentuan ukuran|5">Rambut tidak sesuai ketentuan ukuran (5)</option>
-            </optgroup>
+    <select id="jenis">
+      <option value="">-- Pilih Jenis Pelanggaran --</option>
+      <optgroup label="A. PASAL KELAKUAN">
+        <option value="Memukul dan melukai kepala madrasah, guru, karyawan, dan teman|100">Memukul dan melukai kepala madrasah, guru, karyawan, dan teman (100)</option>
+        <option value="Menghasut/mengajak/berada di lokasi tawuran|100">Menghasut/mengajak/berada di lokasi tawuran (100)</option>
+        <option value="Melibatkan diri dalam tawuran|100">Melibatkan diri dalam tawuran (100)</option>
+        <option value="Berkelahi hingga menimbulkan korban|100">Berkelahi hingga menimbulkan korban (100)</option>
+        <option value="Membawa senjata api/ senjata tajam|100">Membawa senjata api/ senjata tajam (100)</option>
+        <option value="Mengkonsumsi dan atau mengedarkan NARKOBA|100">Mengkonsumsi dan atau mengedarkan NARKOBA (100)</option>
+        <option value="Terlibat judi online dan Video Call Sex (VCS)|100">Terlibat judi online dan Video Call Sex (VCS) (100)</option>
+        <option value="Membawa atau mengkonsumsi minuman keras|100">Membawa atau mengkonsumsi minuman keras (100)</option>
+        <option value="Tidak memenuhi panggilan orang tua minimal 3 kali|100">Tidak memenuhi panggilan orang tua minimal 3 kali (100)</option>
+        <option value="Membawa obat-obatan/zat/alat penyalahgunaan narkoba|100">Membawa obat-obatan/zat/alat penyalahgunaan narkoba (100)</option>
+        <option value="Membawa titipan barang-barang terkait NARKOBA|100">Membawa titipan barang-barang terkait NARKOBA (100)</option>
+        <option value="Merekam, mengedarkan, menyebarkan video/foto pornografi|100">Merekam, mengedarkan, menyebarkan video/foto pornografi (100)</option>
+        <option value="Menikah selama menjadi peserta didik|100">Menikah selama menjadi peserta didik (100)</option>
+        <option value="Terdeteksi hamil saat menjadi peserta didik|100">Terdeteksi hamil saat menjadi peserta didik (100)</option>
+        <option value="Mengikuti atau mengadakan kegiatan perjudian|100">Mengikuti atau mengadakan kegiatan perjudian (100)</option>
+        <option value="Mencuri uang atau mengambil barang milik orang lain|75">Mencuri uang atau mengambil barang milik orang lain (75)</option>
+        <option value="Melawan, mengancam, memfitnah kepala madrasah/guru/karyawan|75">Melawan, mengancam, memfitnah kepala madrasah/guru/karyawan (75)</option>
+        <option value="Ribut dengan memberi ancaman sesama teman|50">Ribut dengan memberi ancaman sesama teman (50)</option>
+        <option value="Berkelahi hingga menimbulkan keributan/onar|50">Berkelahi hingga menimbulkan keributan/onar (50)</option>
+        <option value="Pacaran di lingkungan madrasah|50">Pacaran di lingkungan madrasah (50)</option>
+        <option value="Bertato baik temporary atau permanen|50">Bertato baik temporary atau permanen (50)</option>
+        <option value="Merusak/menghilangkan benda milik madrasah/guru/teman|50">Merusak/menghilangkan benda milik madrasah/guru/teman (50)</option>
+        <option value="Bergerombol di luar madrasah radius 500m >15 menit|35">Bergerombol di luar madrasah radius 500m >15 menit (35)</option>
+        <option value="Merokok tembakau/elektrik (vape)|30">Merokok tembakau/elektrik (vape) (30)</option>
+        <option value="Masuk/keluar tidak melalui gerbang utama|25">Masuk/keluar tidak melalui gerbang utama (25)</option>
+        <option value="Tidak menjalankan shalat Jumat|25">Tidak menjalankan shalat Jumat (25)</option>
+        <option value="Membawa/menitipkan/mendapat titipan rokok|25">Membawa/menitipkan/mendapat titipan rokok (25)</option>
+        <option value="Tidak menyampaikan panggilan orang tua|25">Tidak menyampaikan panggilan orang tua (25)</option>
+        <option value="Mengoperasikan HP saat KBM tanpa izin|20">Mengoperasikan HP saat KBM tanpa izin (20)</option>
+        <option value="Berhias berlebihan / perhiasan berlebih|20">Berhias berlebihan / perhiasan berlebih (20)</option>
+        <option value="Ujaran kebencian / sarkasme / hoax online & offline|20">Ujaran kebencian / sarkasme / hoax online & offline (20)</option>
+        <option value="Mengotori/mencoret benda milik madrasah/teman|15">Mengotori/mencoret benda milik madrasah/teman (15)</option>
+        <option value="Kuku panjang / cat kuku / kuku palsu|10">Kuku panjang / cat kuku / kuku palsu (10)</option>
+        <option value="Jilbab tidak sesuai ketentuan / transparan / tanpa ciput|10">Jilbab tidak sesuai ketentuan / transparan / tanpa ciput (10)</option>
+        <option value="Merusak/malware/mengeksploitasi sistem komputer|10">Merusak/malware/mengeksploitasi sistem komputer (10)</option>
+        <option value="Membuat keributan/kegaduhan saat KBM|5">Membuat keributan/kegaduhan saat KBM (5)</option>
+        <option value="Peserta didik putra masuk MCK putri / sebaliknya|5">Peserta didik putra masuk MCK putri / sebaliknya (5)</option>
+        <option value="Menyimpan buku pelajaran di lemari/laci kelas|5">Menyimpan buku pelajaran di lemari/laci kelas (5)</option>
+        <option value="Melanggar ketertiban di perpustakaan|5">Melanggar ketertiban di perpustakaan (5)</option>
+        <option value="Membuang sampah tidak pada tempatnya|5">Membuang sampah tidak pada tempatnya (5)</option>
+      </optgroup>
+      <optgroup label="B. PASAL KEDISIPLINAN">
+        <option value="Akumulasi tidak masuk 14 hari dalam 1 semester|70">Akumulasi tidak masuk 14 hari dalam 1 semester (70)</option>
+        <option value="Tidak masuk madrasah dengan surat palsu|15">Tidak masuk madrasah dengan surat palsu (15)</option>
+        <option value="Meninggalkan kelas tanpa izin saat KBM|10">Meninggalkan kelas tanpa izin saat KBM (10)</option>
+        <option value="Tidak mengikuti upacara PHBN / PHBI|10">Tidak mengikuti upacara PHBN / PHBI (10)</option>
+        <option value="Berada di luar kelas saat KBM tanpa izin|10">Berada di luar kelas saat KBM tanpa izin (10)</option>
+        <option value="Tidak mengikuti upacara bendera hari Senin|5">Tidak mengikuti upacara bendera hari Senin (5)</option>
+        <option value="Tidak masuk madrasah karena alpa|5">Tidak masuk madrasah karena alpa (5)</option>
+        <option value="Tidak mengikuti kegiatan hari besar yang ditugaskan|5">Tidak mengikuti kegiatan hari besar yang ditugaskan (5)</option>
+        <option value="Terlambat masuk madrasah|5">Terlambat masuk madrasah (5)</option>
+      </optgroup>
+      <optgroup label="C. PASAL KERAPIHAN">
+        <option value="Tidak berseragam olahraga saat praktek|5">Tidak berseragam olahraga saat praktek (5)</option>
+        <option value="Tidak memakai perlengkapan upacara|5">Tidak memakai perlengkapan upacara (5)</option>
+        <option value="Tidak memakai atribut seragam saat KBM|5">Tidak memakai atribut seragam saat KBM (5)</option>
+        <option value="Memakai kaos oblong hitam untuk dalaman|5">Memakai kaos oblong hitam untuk dalaman (5)</option>
+        <option value="Memakai topi bukan topi madrasah di kelas|5">Memakai topi bukan topi madrasah di kelas (5)</option>
+        <option value="Tidak memakai sepatu berwarna dasar hitam|5">Tidak memakai sepatu berwarna dasar hitam (5)</option>
+        <option value="Memakai kaos kaki selain warna putih|5">Memakai kaos kaki selain warna putih (5)</option>
+        <option value="Memakai rok ketat / sempit / terdapat belahan|5">Memakai rok ketat / sempit / terdapat belahan (5)</option>
+        <option value="Memakai celana ketat / jeans|5">Memakai celana ketat / jeans (5)</option>
+        <option value="Memakai seragam robek atau dicoret-coret|5">Memakai seragam robek atau dicoret-coret (5)</option>
+        <option value="Baju siswa putra tidak dimasukkan|5">Baju siswa putra tidak dimasukkan (5)</option>
+        <option value="Rambut tidak sesuai ketentuan ukuran|5">Rambut tidak sesuai ketentuan ukuran (5)</option>
+        <option value="Memakai cat rambut|5">Memakai cat rambut (5)</option>
+        <option value="Memakai seragam tidak sesuai jadwal|5">Memakai seragam tidak sesuai jadwal (5)</option>
+        <option value="Memakai jaket/sweater di kelas saat KBM|5">Memakai jaket/sweater di kelas saat KBM (5)</option>
+        <option value="Memakai baju seragam dikeluarkan|5">Memakai baju seragam dikeluarkan (5)</option>
+        <option value="Memakai baju terlalu sempit / terlalu longgar|5">Memakai baju terlalu sempit / terlalu longgar (5)</option>
+      </optgroup>
           </select>
 
           <label>Tanggal</label>
