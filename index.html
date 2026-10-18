@@ -763,9 +763,10 @@
     let absensiDb = [];
     let editId = null;
 
-    function initData() {
+        function initData() {
       db = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
       nilaiDb = JSON.parse(localStorage.getItem(NILAI_KEY) || "[]");
+      absensiDb = JSON.parse(localStorage.getItem(ABSENSI_KEY) || "[]"); // TAMBAHAN
     }
 
     function prosesLogin() {
@@ -1132,7 +1133,102 @@
         tbody.appendChild(tr);
       });
     }
+    // ==================== LOGIKA ABSENSI ====================
+    function isiDropdownSiswaAbsensi() {
+      const selectAbsensi = document.getElementById('absensiNama');
+      if(selectAbsensi.options.length > 1) return; // Biar gak dobel
 
+      // Ambil daftar nama dari dropdown Input Nilai (karena isinya sama)
+      const selectNilai = document.getElementById('nilaiNama'); 
+      if(selectNilai) {
+        selectAbsensi.innerHTML = selectNilai.innerHTML;
+      }
+    }
+
+    function simpanAbsensi() {
+      const tgl = document.getElementById('absensiTanggal').value;
+      const nama = document.getElementById('absensiNama').value;
+      const status = document.getElementById('absensiStatus').value;
+      const ket = document.getElementById('absensiKeterangan').value;
+      const statusDiv = document.getElementById('statusAbsensi');
+
+      if(!tgl || !nama) {
+        statusDiv.className = "status error";
+        statusDiv.textContent = "⚠️ Tanggal dan Nama Siswa wajib diisi!";
+        return;
+      }
+
+      // Cek apakah sudah diabsen di tanggal yang sama
+      const sudahAbsen = absensiDb.find(a => a.tgl === tgl && a.nama === nama);
+      if(sudahAbsen) {
+        statusDiv.className = "status error";
+        statusDiv.textContent = `⚠️ ${nama} sudah diabsen pada tanggal tersebut!`;
+        return;
+      }
+
+      const data = { id: Date.now(), tgl, nama, status, ket };
+      absensiDb.unshift(data);
+      localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
+
+      // Reset form
+      document.getElementById('absensiNama').value = "";
+      document.getElementById('absensiKeterangan').value = "";
+      
+      statusDiv.className = "status success";
+      statusDiv.textContent = "✅ Absensi berhasil disimpan!";
+      setTimeout(() => { statusDiv.textContent = ""; statusDiv.className = "status"; }, 2500);
+      
+      tampilAbsensi();
+    }
+
+    function tampilAbsensi() {
+      const keyword = (document.getElementById("cariAbsensi").value || "").toLowerCase();
+      const tbody = document.getElementById("listAbsensi");
+      if(!tbody) return;
+      tbody.innerHTML = "";
+
+      const filtered = absensiDb.filter(a => {
+        if(!keyword) return true;
+        return (
+          (a.nama || "").toLowerCase().includes(keyword) ||
+          (a.status || "").toLowerCase().includes(keyword) ||
+          (a.tgl || "").includes(keyword)
+        );
+      });
+
+      if(filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;padding:20px;">Belum ada data absensi.</td></tr>';
+        return;
+      }
+
+      filtered.forEach(a => {
+        let badgeColor = "A"; // Default hijau
+        if(a.status === "Sakit") badgeColor = "B"; // Kuning
+        if(a.status === "Izin") badgeColor = "info"; 
+        if(a.status === "Alpa") badgeColor = "C"; // Merah
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${a.tgl}</td>
+          <td><strong>${a.nama}</strong></td>
+          <td style="text-align:center;">
+            <span class="badge ${badgeColor}" style="${a.status === 'Izin' ? 'background:#3498db;' : ''}">${a.status}</span>
+          </td>
+          <td>${a.ket || "-"}</td>
+          <td style="text-align:center;">
+            <button class="btn-hapus" onclick="hapusAbsensi(${a.id})">🗑 Hapus</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function hapusAbsensi(id) {
+      if(!confirm("Yakin ingin menghapus data absensi ini?")) return;
+      absensiDb = absensiDb.filter(a => String(a.id) !== String(id));
+      localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
+      tampilAbsensi();
+    }
     document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll(".tab").forEach(button => {
         button.addEventListener("click", () => {
