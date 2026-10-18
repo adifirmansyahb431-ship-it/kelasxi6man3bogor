@@ -359,7 +359,59 @@
         <button class="tab" data-tab="upload">📤 Upload Siswa</button>
       </div>
 
-      <section id="panel-input" class="tab-panel active">
+            <section id="panel-absensi" class="tab-panel">
+        <div class="card">
+          <h3>Input Absensi Siswa</h3>
+          <div class="grid-3">
+            <div>
+              <label>Tanggal</label>
+              <input type="date" id="absensiTanggal">
+            </div>
+            <div>
+              <label>Nama Siswa</label>
+              <select id="absensiNama">
+                <!-- Otomatis terisi oleh JS -->
+              </select>
+            </div>
+            <div>
+              <label>Status Kehadiran</label>
+              <select id="absensiStatus">
+                <option value="Hadir">Hadir (H)</option>
+                <option value="Sakit">Sakit (S)</option>
+                <option value="Izin">Izin (I)</option>
+                <option value="Alpa">Alpa (A)</option>
+              </select>
+            </div>
+          </div>
+          
+          <label>Keterangan (Opsional)</label>
+          <input type="text" id="absensiKeterangan" placeholder="Contoh: Sakit demam">
+
+          <button class="btn-success" style="width:100%;" onclick="simpanAbsensi()">💾 SIMPAN ABSENSI</button>
+          <div id="statusAbsensi" class="status"></div>
+        </div>
+
+        <div class="card">
+          <h3>Daftar Absensi</h3>
+          <div class="filter-box">
+            <input id="cariAbsensi" placeholder="Cari nama / status / tanggal..." />
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:100px">Tanggal</th>
+                  <th>Nama Siswa</th>
+                  <th style="width:80px">Status</th>
+                  <th>Keterangan</th>
+                  <th style="width:80px">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="listAbsensi"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
         <div class="card">
           <h3>Input Pelanggaran</h3>
           <div class="grid-3">
