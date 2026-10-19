@@ -152,6 +152,7 @@
     }
 
     // ==================== UPLOAD DARI EXCEL ====================
+        // ==================== UPLOAD DARI EXCEL ====================
     function importDariExcel(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -162,75 +163,66 @@
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           
-          // Cari sheet bernama 'Database'
+          // Buka sheet Database
           let sheetName = "Database";
-          if (!workbook.Sheets[sheetName]) {
-            sheetName = workbook.SheetNames[0]; // Jika tidak ada, ambil sheet pertama
-          }
+          if (!workbook.Sheets[sheetName]) sheetName = workbook.SheetNames[0];
           
           const worksheet = workbook.Sheets[sheetName];
-          // Ambil data mentah dalam bentuk Array of Arrays
           const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-          // 1. Cari baris header (yang ada tulisan 'Nama' atau 'NAMA')
+          // 1. CARI BARIS HEADER (Baris yang punya teks "Nama" dan "NIS")
           let headerRowIdx = -1;
+          let idxNama = -1;
+
           for (let i = 0; i < json.length; i++) {
-            if (json[i].some(cell => String(cell).toUpperCase().includes("NAMA"))) {
+            const rowStr = json[i].map(c => String(c).toUpperCase().trim());
+            if (rowStr.includes("NAMA") && rowStr.includes("NIS")) {
               headerRowIdx = i;
+              idxNama = rowStr.indexOf("NAMA");
               break;
             }
           }
 
           if (headerRowIdx === -1) {
-            alert("❌ Tidak dapat menemukan kolom 'NAMA' di file Excel.");
+            alert("❌ Tidak dapat menemukan baris judul (Header Nama dan NIS) di file Excel.");
             return;
           }
 
-          const headers = json[headerRowIdx];
-          
-          // 2. Cari index kolom 'Nama' dan kolom Mapel
-          let idxNama = headers.findIndex(h => String(h).toUpperCase().includes("NAMA"));
-          
-          // Mapping index kolom Mapel
-          let mapelIndices = {};
-          MAPEL.forEach(mapel => {
-            // Cari kolom yang namanya mirip (case-insensitive, spasi diabaikan)
-            let idx = headers.findIndex(h => {
-              if(!h) return false;
-              let hClean = String(h).toLowerCase().replace(/\s+/g, '');
-              let mClean = mapel.toLowerCase().replace(/\s+/g, '');
-              return hClean.includes(mClean) || mClean.includes(hClean);
-            });
-            if(idx !== -1) mapelIndices[mapel] = idx;
-          });
+          // Posisi kolom Mapel dimulai 3 kolom setelah Nama (Nama, NIS, NISN, baru Mapel)
+          const startIdxMapel = idxNama + 3;
 
-          // 3. Looping data mulai dari bawah header
           let jumlahImport = 0;
+          
+          // 2. LOOPING DATA SISWA
           for (let i = headerRowIdx + 1; i < json.length; i++) {
             const row = json[i];
             const nama = row[idxNama];
             
-            // Jika nama kosong, lewati (biasanya baris kosong di bawah)
-            if (!nama || String(nama).trim() === "") continue; 
+            // Lewati baris kosong (termasuk baris sub-header Sakit/Ijin/Alpa yang namanya kosong)
+            if (!nama || String(nama).trim() === "" || String(nama).includes("=")) continue; 
             
             const namaSiswa = String(nama).trim().toUpperCase();
             if (!dataNilai[namaSiswa]) dataNilai[namaSiswa] = {};
 
-            MAPEL.forEach(mapel => {
-              if (mapelIndices[mapel] !== undefined) {
-                const val = row[mapelIndices[mapel]];
-                // Pastikan nilai berupa angka
-                if (val !== undefined && val !== null && val !== "") {
-                  dataNilai[namaSiswa][mapel] = Number(val);
+            // Looping 17 Mapel
+            for (let m = 0; m < MAPEL.length; m++) {
+              const colIdx = startIdxMapel + m;
+              const val = row[colIdx];
+              
+              if (val !== undefined && val !== null && val !== "") {
+                const numVal = Number(val);
+                if (!isNaN(numVal)) {
+                  dataNilai[namaSiswa][MAPEL[m]] = numVal;
                   jumlahImport++;
                 }
               }
-            });
+            }
           }
 
-          // 4. Simpan ke localStorage & Refresh Tabel
+          // 3. Simpan ke memori browser & Refresh halaman
           localStorage.setItem(NILAI_KEY, JSON.stringify(dataNilai));
-          window.location.reload(); // Reload halaman untuk menampilkan data baru
+          alert(`✅ Berhasil mengimpor ${jumlahImport} nilai dari Excel!`);
+          window.location.reload();
 
         } catch (err) {
           console.error(err);
