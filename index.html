@@ -1244,6 +1244,48 @@
       localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
       tampilAbsensi();
     }
+        // ==================== LOGIKA KELOLA SISWA ====================
+    function simpanDataSiswa() {
+      const teks = document.getElementById('inputSiswa').value;
+      const listSiswa = teks.split('\n').map(n => n.trim()).filter(n => n !== "");
+      
+      if(listSiswa.length === 0) {
+        alert("Daftar siswa masih kosong!");
+        return;
+      }
+
+      localStorage.setItem('siTatibSiswa', JSON.stringify(listSiswa));
+      
+      const status = document.getElementById('statusSiswa');
+      status.className = "status success";
+      status.textContent = `✅ Berhasil menyimpan ${listSiswa.length} nama siswa!`;
+      setTimeout(() => { status.textContent = ""; status.className = "status"; }, 3000);
+      
+      loadDropdownSiswa(); // Panggil fungsi untuk update dropdown
+    }
+
+    function loadDropdownSiswa() {
+      const listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
+      
+      // Jika belum ada data di localStorage, biarkan data bawaan HTML
+      if (listSiswa.length === 0) return;
+
+      // Buat element <option>
+      let opsi = '<option value="">Pilih Nama Siswa</option>';
+      listSiswa.forEach(nama => {
+        opsi += `<option value="${nama}">${nama}</option>`;
+      });
+
+      // Suntikkan ke semua dropdown nama siswa
+      if(document.getElementById('nama')) document.getElementById('nama').innerHTML = opsi;
+      if(document.getElementById('nilaiNama')) document.getElementById('nilaiNama').innerHTML = opsi;
+      if(document.getElementById('absensiNama')) document.getElementById('absensiNama').innerHTML = opsi;
+      
+      // Tampilkan juga di textarea biar gampang diedit
+      if(document.getElementById('inputSiswa') && document.getElementById('inputSiswa').value === "") {
+        document.getElementById('inputSiswa').value = listSiswa.join('\n');
+      }
+    }
     document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll(".tab").forEach(button => {
         button.addEventListener("click", () => {
