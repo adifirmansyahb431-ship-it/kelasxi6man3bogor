@@ -1184,6 +1184,7 @@
     }
 
     function tampilAbsensi() {
+      document.getElementById('absensiTanggal').valueAsDate = new Date();
       const keyword = (document.getElementById("cariAbsensi").value || "").toLowerCase();
       const tbody = document.getElementById("listAbsensi");
       if(!tbody) return;
