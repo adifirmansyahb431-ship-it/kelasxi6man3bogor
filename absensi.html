@@ -3,76 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Absensi - SI-TATIB</title>
+  <title>Absensi Kelas - SI-TATIB</title>
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
-    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100;}
     .header h1 { margin: 0; font-size: 20px; }
-    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    .container { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
     .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
-    h3 { margin-top: 0; color: var(--hijau); }
-    input, select { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-    button { border: none; border-radius: 8px; padding: 12px; font-weight: bold; cursor: pointer; }
-    .btn-save { background: #16a085; color: white; width: 100%; }
-    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+    
+    .top-action { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; background: white; padding: 15px; border-radius: 14px; box-shadow: 0 2px 9px rgba(0,0,0,0.07);}
+    .top-action label { font-weight: bold; font-size: 15px; }
+    input[type="date"] { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; font-weight: bold;}
+    .btn-save { background: #16a085; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; margin-left: auto; }
+    
+    /* Kotak Rekap Total */
+    .rekap-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+    .rekap-item { background: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-top: 4px solid #ccc; }
+    .rekap-item h2 { margin: 0; font-size: 28px; }
+    .rekap-item p { margin: 5px 0 0; font-size: 13px; font-weight: bold; color: #666; }
+    .r-hadir { border-top-color: #2ecc71; color: #2ecc71; }
+    .r-sakit { border-top-color: #f1c40f; color: #d4ac0d; }
+    .r-izin { border-top-color: #3498db; color: #3498db; }
+    .r-alpa { border-top-color: #e74c3c; color: #e74c3c; }
+
+    /* Tabel Absensi */
+    .table-responsive { overflow-x: auto; border: 1px solid #ddd; border-radius: 8px; }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
-    th { background: #f5f5f5; }
-    .badge { padding: 4px 8px; border-radius: 12px; color: white; font-size: 12px; font-weight: bold; }
-    .Hadir { background: #2ecc71; }
-    .Sakit { background: #f1c40f; color: #333; }
-    .Izin { background: #3498db; }
-    .Alpa { background: #e74c3c; }
-    .btn-hapus { background: #e74c3c; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; }
-    @media (max-width: 600px) { .grid-3 { grid-template-columns: 1fr; } }
+    th, td { border-bottom: 1px solid #e5e7eb; padding: 10px; text-align: left; vertical-align: middle; }
+    th { background: #f8fafc; font-weight: bold; position: sticky; top: 0; }
+    
+    .status-select { padding: 8px; border-radius: 6px; font-weight: bold; border: 1px solid #ccc; width: 120px; cursor: pointer; text-align: center; }
+    .status-select.Hadir { background: #e8f8f5; color: #1abc9c; border-color: #1abc9c; }
+    .status-select.Sakit { background: #fef9e7; color: #f1c40f; border-color: #f1c40f; }
+    .status-select.Izin { background: #ebf5fb; color: #3498db; border-color: #3498db; }
+    .status-select.Alpa { background: #fdedec; color: #e74c3c; border-color: #e74c3c; }
+    
+    .input-ket { padding: 8px; border: 1px solid #ccc; border-radius: 6px; width: 100%; }
+
+    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+
+    @media (max-width: 600px) { .rekap-box { grid-template-columns: 1fr 1fr; } .btn-save { width: 100%; margin-left: 0; margin-top: 10px;} }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>📋 Absensi Siswa</h1>
+    <h1>📋 Absensi Kelas</h1>
     <span>MAN 3 BOGOR</span>
   </div>
 
   <div class="container">
     <a href="index.html" class="btn-back">⬅ Kembali ke Dashboard</a>
 
-    <div class="card">
-      <h3>Input Absensi</h3>
-      <div class="grid-3">
-        <div>
-          <label>Tanggal</label>
-          <input type="date" id="absensiTanggal">
-        </div>
-        <div>
-          <label>Nama Siswa</label>
-          <select id="absensiNama"><option value="">Memuat data...</option></select>
-        </div>
-        <div>
-          <label>Status</label>
-          <select id="absensiStatus">
-            <option value="Hadir">Hadir (H)</option>
-            <option value="Sakit">Sakit (S)</option>
-            <option value="Izin">Izin (I)</option>
-            <option value="Alpa">Alpa (A)</option>
-          </select>
-        </div>
-      </div>
-      <label>Keterangan (Opsional)</label>
-      <input type="text" id="absensiKeterangan" placeholder="Contoh: Sakit demam">
-      
-      <button class="btn-save" onclick="simpanAbsensi()">💾 SIMPAN ABSENSI</button>
+    <!-- Pengaturan Tanggal & Tombol Simpan -->
+    <div class="top-action">
+      <label>Tanggal Absensi:</label>
+      <input type="date" id="absensiTanggal" onchange="muatDataAbsensi()">
+      <button class="btn-save" onclick="simpanSemuaAbsensi()">💾 SIMPAN ABSENSI</button>
     </div>
 
-    <div class="card">
-      <h3>Daftar Absensi</h3>
-      <input type="text" id="cariAbsensi" placeholder="Cari nama / status / tanggal..." onkeyup="tampilAbsensi()">
-      <div style="overflow-x: auto; margin-top: 10px;">
+    <!-- Kotak Rekap Otomatis -->
+    <div class="rekap-box">
+      <div class="rekap-item r-hadir"><h2 id="totalHadir">0</h2><p>HADIR</p></div>
+      <div class="rekap-item r-sakit"><h2 id="totalSakit">0</h2><p>SAKIT</p></div>
+      <div class="rekap-item r-izin"><h2 id="totalIzin">0</h2><p>IZIN</p></div>
+      <div class="rekap-item r-alpa"><h2 id="totalAlpa">0</h2><p>TANPA KET (A)</p></div>
+    </div>
+
+    <!-- Tabel Siswa -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div class="table-responsive">
         <table>
-          <thead><tr><th>Tanggal</th><th>Nama Siswa</th><th>Status</th><th>Keterangan</th><th>Aksi</th></tr></thead>
-          <tbody id="listAbsensi"></tbody>
+          <thead>
+            <tr>
+              <th style="width: 50px; text-align: center;">No</th>
+              <th>Nama Siswa</th>
+              <th style="width: 150px;">Status</th>
+              <th style="width: 250px;">Keterangan (Opsional)</th>
+            </tr>
+          </thead>
+          <tbody id="listAbsensi">
+            <!-- Diisi oleh Javascript -->
+          </tbody>
         </table>
       </div>
     </div>
@@ -83,81 +96,116 @@
     
     const ABSENSI_KEY = "siTatibAbsensi";
     let absensiDb = [];
+    let listSiswa = [];
 
     window.onload = function() {
+      // Set tanggal hari ini
       document.getElementById('absensiTanggal').valueAsDate = new Date();
+      
+      // Ambil data master
       absensiDb = JSON.parse(localStorage.getItem(ABSENSI_KEY) || "[]");
+      listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
       
-      // Load dropdown siswa
-      const listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
-      const select = document.getElementById('absensiNama');
-      let opsi = '<option value="">Pilih Nama Siswa</option>';
-      
-      if(listSiswa.length > 0) {
-        listSiswa.forEach(nama => opsi += `<option value="${nama}">${nama}</option>`);
-      } else {
-        opsi += `<option value="ADINDA RIZKY AYU PUTRI">ADINDA RIZKY AYU PUTRI</option>`;
+      // Fallback jika data siswa belum diupload
+      if (listSiswa.length === 0) {
+        listSiswa = ["ADINDA RIZKY AYU PUTRI", "AHMAD FAQIH ALFAIQ", "AIA TRINIYULIYANTI"]; 
       }
-      select.innerHTML = opsi;
-      
-      tampilAbsensi();
+
+      muatDataAbsensi();
     };
 
-    function simpanAbsensi() {
+    function muatDataAbsensi() {
       const tgl = document.getElementById('absensiTanggal').value;
-      const nama = document.getElementById('absensiNama').value;
-      const status = document.getElementById('absensiStatus').value;
-      const ket = document.getElementById('absensiKeterangan').value;
-
-      if(!tgl || !nama) return alert("Tanggal dan Nama wajib diisi!");
-
-      // Cek apakah sudah diabsen hari ini
-      const sudah = absensiDb.find(a => a.tgl === tgl && a.nama === nama);
-      if(sudah) return alert(`Siswa ${nama} sudah diabsen pada tanggal ${tgl}!`);
-
-      absensiDb.unshift({ id: Date.now(), tgl, nama, status, ket });
-      localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
-      
-      document.getElementById('absensiNama').value = "";
-      document.getElementById('absensiKeterangan').value = "";
-      alert("✅ Absensi berhasil disimpan!");
-      tampilAbsensi();
-    }
-
-    function tampilAbsensi() {
-      const keyword = (document.getElementById("cariAbsensi").value || "").toLowerCase();
       const tbody = document.getElementById("listAbsensi");
       tbody.innerHTML = "";
 
-      const filtered = absensiDb.filter(a => 
-        (a.nama||"").toLowerCase().includes(keyword) || 
-        (a.status||"").toLowerCase().includes(keyword) || 
-        (a.tgl||"").includes(keyword)
-      );
+      // Cari data absensi yang sudah tersimpan di tanggal tersebut
+      const dataHariIni = absensiDb.filter(a => a.tgl === tgl);
 
-      if(filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">Belum ada data absensi.</td></tr>';
-        return;
-      }
+      listSiswa.forEach((siswa, index) => {
+        // Cari apakah siswa ini sudah diabsen
+        const record = dataHariIni.find(a => a.nama === siswa);
+        
+        // Default: Hadir (mempercepat input)
+        const status = record ? record.status : "Hadir";
+        const ket = record ? (record.ket || "") : "";
 
-      filtered.forEach(a => {
-        tbody.innerHTML += `
-          <tr>
-            <td>${a.tgl}</td>
-            <td><b>${a.nama}</b></td>
-            <td><span class="badge ${a.status}">${a.status}</span></td>
-            <td>${a.ket || "-"}</td>
-            <td><button class="btn-hapus" onclick="hapusAbsensi(${a.id})">Hapus</button></td>
-          </tr>
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="text-align:center;">${index + 1}</td>
+          <td><b>${siswa}</b></td>
+          <td>
+            <select class="status-select ${status}" onchange="ubahStatus(this)">
+              <option value="Hadir" ${status === 'Hadir' ? 'selected' : ''}>Hadir</option>
+              <option value="Sakit" ${status === 'Sakit' ? 'selected' : ''}>Sakit</option>
+              <option value="Izin" ${status === 'Izin' ? 'selected' : ''}>Izin</option>
+              <option value="Alpa" ${status === 'Alpa' ? 'selected' : ''}>Tanpa Ket (A)</option>
+            </select>
+          </td>
+          <td>
+            <input type="text" class="input-ket" value="${ket}" placeholder="Contoh: Sakit demam">
+          </td>
         `;
+        // Simpan nama siswa di elemen tr agar mudah diambil saat simpan
+        tr.setAttribute('data-nama', siswa);
+        tbody.appendChild(tr);
       });
+
+      hitungTotal();
     }
 
-    function hapusAbsensi(id) {
-      if(!confirm("Hapus data ini?")) return;
-      absensiDb = absensiDb.filter(a => a.id !== id);
-      localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
-      tampilAbsensi();
+    // Fungsi untuk mengubah warna dropdown saat status diganti
+    function ubahStatus(selectElement) {
+      selectElement.className = "status-select " + selectElement.value;
+      hitungTotal(); // Hitung ulang total setiap kali ada perubahan
+    }
+
+    function hitungTotal() {
+      let hadir = 0, sakit = 0, izin = 0, alpa = 0;
+      const allSelects = document.querySelectorAll('.status-select');
+
+      allSelects.forEach(sel => {
+        if(sel.value === "Hadir") hadir++;
+        else if(sel.value === "Sakit") sakit++;
+        else if(sel.value === "Izin") izin++;
+        else if(sel.value === "Alpa") alpa++;
+      });
+
+      document.getElementById('totalHadir').textContent = hadir;
+      document.getElementById('totalSakit').textContent = sakit;
+      document.getElementById('totalIzin').textContent = izin;
+      document.getElementById('totalAlpa').textContent = alpa;
+    }
+
+    function simpanSemuaAbsensi() {
+      const tgl = document.getElementById('absensiTanggal').value;
+      if(!tgl) return alert("Pilih tanggal terlebih dahulu!");
+
+      const rows = document.querySelectorAll('#listAbsensi tr');
+      let dataBaru = [];
+
+      rows.forEach(tr => {
+        const nama = tr.getAttribute('data-nama');
+        const status = tr.querySelector('.status-select').value;
+        const ket = tr.querySelector('.input-ket').value.trim();
+
+        dataBaru.push({
+          id: Date.now() + Math.random(), // ID unik
+          tgl: tgl,
+          nama: nama,
+          status: status,
+          ket: ket
+        });
+      });
+
+      // Hapus data lama untuk tanggal ini (jika ada), lalu gabungkan dengan data baru
+      let dataLain = absensiDb.filter(a => a.tgl !== tgl);
+      let dataGabungan = [...dataLain, ...dataBaru];
+
+      localStorage.setItem(ABSENSI_KEY, JSON.stringify(dataGabungan));
+      absensiDb = dataGabungan; // update memori
+      
+      alert(`✅ Absensi tanggal ${tgl} berhasil disimpan!`);
     }
   </script>
 </body>
