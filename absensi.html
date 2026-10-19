@@ -51,16 +51,21 @@
     .input-ket { padding: 8px; border: 1px solid #ccc; border-radius: 6px; width: 100%; }
     .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
 
-    /* Kolom Akumulasi */
-    .kolom-akumulasi { background: #fafafa; text-align: center; font-weight: bold; border-left: 2px dashed #ccc; font-size: 15px;}
+    /* Kolom Akumulasi yang bisa diedit */
+    .kolom-akumulasi { background: #fafafa; text-align: center; font-weight: bold; border-left: 2px dashed #ccc; }
     .th-akumulasi { background: #e2e8f0; text-align: center; border-left: 2px dashed #ccc; }
+    .total-input { width: 100%; border: none; background: transparent; text-align: center; font-weight: bold; font-size: 15px; padding: 5px 0;}
+    .total-input::-webkit-outer-spin-button, .total-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    
     .teks-hadir { color: #2ecc71; }
     .teks-sakit { color: #d4ac0d; }
     .teks-izin { color: #3498db; }
     .teks-alpa { color: #e74c3c; }
 
-    /* Tombol Hapus Per Baris */
-    .btn-hapus-baris { background: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    /* Tombol Aksi di Tabel */
+    .btn-aksi-kecil { border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; color: white; display: inline-block; margin: 2px 0;}
+    .btn-hapus-baris { background: #e74c3c; }
+    .btn-reset-baris { background: #f39c12; }
 
     /* Area Tanda Tangan */
     .ttd-section { display: none; margin-top: 40px; page-break-inside: avoid; }
@@ -79,7 +84,7 @@
       .header { display: none; }
       .print-header { display: block; }
       .ttd-section { display: block !important; }
-      .status-select, .input-ket { border: none !important; background: transparent !important; appearance: none; font-weight: bold; padding: 0; width: 100%; color: black !important; text-align: left;}
+      .status-select, .input-ket, .total-input { border: none !important; background: transparent !important; appearance: none; font-weight: bold; padding: 0; width: 100%; color: black !important; text-align: left;}
       .r-hadir, .r-sakit, .r-izin, .r-alpa, .teks-hadir, .teks-sakit, .teks-izin, .teks-alpa { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       table, th, td { border: 1px solid #000; }
     }
@@ -126,13 +131,13 @@
             <tr>
               <th style="width: 50px; text-align: center;">No</th>
               <th>Nama Siswa</th>
-              <th style="width: 130px;">Status</th>
+              <th style="width: 130px;">Status (Hari Ini)</th>
               <th style="width: 200px;">Keterangan</th>
-              <th style="width: 80px; text-align: center;" class="no-print">Aksi</th>
-              <th class="th-akumulasi" style="width: 50px;">H</th>
-              <th class="th-akumulasi" style="width: 50px;">S</th>
-              <th class="th-akumulasi" style="width: 50px;">I</th>
-              <th class="th-akumulasi" style="width: 50px;">A</th>
+              <th class="th-akumulasi" style="width: 50px;" title="Total Hadir">H</th>
+              <th class="th-akumulasi" style="width: 50px;" title="Total Sakit">S</th>
+              <th class="th-akumulasi" style="width: 50px;" title="Total Izin">I</th>
+              <th class="th-akumulasi" style="width: 50px;" title="Total Alpa">A</th>
+              <th style="width: 100px; text-align: center;" class="no-print">Aksi</th>
             </tr>
           </thead>
           <tbody id="listAbsensi"></tbody>
@@ -158,19 +163,23 @@
   </div>
 
   <script>
-    // Cek Login & Role
     if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
     const userRole = localStorage.getItem("siTatibRole");
     const userName = localStorage.getItem("siTatibNama");
     document.getElementById("roleUser").textContent = userName || "MAN 3 BOGOR";
 
     const ABSENSI_KEY = "siTatibAbsensi";
+    const MANUAL_TOTAL_KEY = "siTatibManualTotal"; // Menyimpan nilai H,S,I,A yang diedit manual
+    
     let absensiDb = [];
+    let manualTotal = {};
     let listSiswa = [];
 
     window.onload = function() {
       document.getElementById('absensiTanggal').valueAsDate = new Date();
+      
       absensiDb = JSON.parse(localStorage.getItem(ABSENSI_KEY) || "[]");
+      manualTotal = JSON.parse(localStorage.getItem(MANUAL_TOTAL_KEY) || "{}");
       listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
       
       if (listSiswa.length === 0) {
@@ -198,15 +207,22 @@
         const status = record ? record.status : "Hadir";
         const ket = record ? (record.ket || "") : "";
 
-        const riwayatSiswa = absensiDb.filter(a => a.nama === siswa);
+        // Ambil Nilai Total (Jika belum pernah diedit manual, hitung dari riwayat)
         let tH = 0, tS = 0, tI = 0, tA = 0;
-        
-        riwayatSiswa.forEach(r => {
-          if(r.status === 'Hadir') tH++;
-          else if(r.status === 'Sakit') tS++;
-          else if(r.status === 'Izin') tI++;
-          else if(r.status === 'Alpa') tA++;
-        });
+        if (manualTotal[siswa]) {
+            tH = manualTotal[siswa].H;
+            tS = manualTotal[siswa].S;
+            tI = manualTotal[siswa].I;
+            tA = manualTotal[siswa].A;
+        } else {
+            const riwayatSiswa = absensiDb.filter(a => a.nama === siswa);
+            riwayatSiswa.forEach(r => {
+              if(r.status === 'Hadir') tH++;
+              else if(r.status === 'Sakit') tS++;
+              else if(r.status === 'Izin') tI++;
+              else if(r.status === 'Alpa') tA++;
+            });
+        }
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -221,13 +237,18 @@
             </select>
           </td>
           <td><input type="text" class="input-ket" value="${ket}" placeholder="-"></td>
+          
+          <!-- Kolom Total yang Bisa Diedit -->
+          <td class="kolom-akumulasi"><input type="number" class="total-input teks-hadir" value="${tH}" onchange="editManualTotal('${siswa.replace(/'/g, "\\'")}', 'H', this.value)"></td>
+          <td class="kolom-akumulasi"><input type="number" class="total-input teks-sakit" value="${tS}" onchange="editManualTotal('${siswa.replace(/'/g, "\\'")}', 'S', this.value)"></td>
+          <td class="kolom-akumulasi"><input type="number" class="total-input teks-izin" value="${tI}" onchange="editManualTotal('${siswa.replace(/'/g, "\\'")}', 'I', this.value)"></td>
+          <td class="kolom-akumulasi"><input type="number" class="total-input teks-alpa" value="${tA}" onchange="editManualTotal('${siswa.replace(/'/g, "\\'")}', 'A', this.value)"></td>
+          
+          <!-- Tombol Aksi -->
           <td class="no-print" style="text-align:center;">
-            <button class="btn-hapus-baris" onclick="hapusAbsensiSiswa('${siswa.replace(/'/g, "\\'")}')">Hapus</button>
+            <button class="btn-aksi-kecil btn-hapus-baris" onclick="hapusAbsensiSiswa('${siswa.replace(/'/g, "\\'")}')">Hapus</button>
+            <button class="btn-aksi-kecil btn-reset-baris" onclick="resetTotalSiswa('${siswa.replace(/'/g, "\\'")}')">Reset</button>
           </td>
-          <td class="kolom-akumulasi teks-hadir">${tH}</td>
-          <td class="kolom-akumulasi teks-sakit">${tS}</td>
-          <td class="kolom-akumulasi teks-izin">${tI}</td>
-          <td class="kolom-akumulasi teks-alpa">${tA}</td>
         `;
         tr.setAttribute('data-nama', siswa);
         tbody.appendChild(tr);
@@ -256,6 +277,21 @@
       document.getElementById('totalAlpa').textContent = alpa;
     }
 
+    // ==================== EDIT MANUAL TOTAL (H, S, I, A) ====================
+    function editManualTotal(nama, tipe, val) {
+        if (!manualTotal[nama]) manualTotal[nama] = { H: 0, S: 0, I: 0, A: 0 };
+        manualTotal[nama][tipe] = Number(val);
+        localStorage.setItem(MANUAL_TOTAL_KEY, JSON.stringify(manualTotal));
+    }
+
+    // ==================== RESET TOTAL KE NOL ====================
+    function resetTotalSiswa(nama) {
+        if (!confirm(`Yakin ingin mereset (menghapus) total H/S/I/A untuk ${nama} menjadi 0?`)) return;
+        manualTotal[nama] = { H: 0, S: 0, I: 0, A: 0 };
+        localStorage.setItem(MANUAL_TOTAL_KEY, JSON.stringify(manualTotal));
+        muatDataAbsensi(); // Refresh tabel
+    }
+
     function simpanSemuaAbsensi() {
       const tgl = document.getElementById('absensiTanggal').value;
       if(!tgl) return alert("Pilih tanggal terlebih dahulu!");
@@ -277,22 +313,17 @@
       absensiDb = dataGabungan;
       
       alert(`✅ Absensi tanggal ${tgl} berhasil disimpan!`);
-      muatDataAbsensi();
     }
 
-    // --- FITUR HAPUS ABSENSI PER SISWA PADA TANGGAL TERTENTU ---
     function hapusAbsensiSiswa(namaSiswa) {
       const tgl = document.getElementById('absensiTanggal').value;
-      if(!confirm(`Hapus data absensi ${namaSiswa} pada tanggal ${tgl}?\n\n(Dropdown akan kembali ke 'Hadir' default)`)) return;
+      if(!confirm(`Hapus data absensi ${namaSiswa} pada tanggal ${tgl}?\n\n(Status dropdown akan kembali menjadi 'Hadir')`)) return;
 
-      // Filter buang data siswa tersebut di tanggal tersebut
       absensiDb = absensiDb.filter(a => !(a.tgl === tgl && a.nama === namaSiswa));
-      
       localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
-      muatDataAbsensi(); // Refresh tabel
+      muatDataAbsensi(); 
     }
 
-    // --- FITUR HAPUS SEMUA DATA SATU TANGGAL ---
     function hapusTanggalIni() {
       const tgl = document.getElementById('absensiTanggal').value;
       if(!tgl) return alert("Pilih tanggal terlebih dahulu!");
@@ -306,7 +337,6 @@
       muatDataAbsensi();
     }
 
-    // --- FITUR DOWNLOAD REKAP KE EXCEL ---
     function downloadExcel() {
       if(absensiDb.length === 0) return alert("Belum ada data absensi untuk didownload!");
 
