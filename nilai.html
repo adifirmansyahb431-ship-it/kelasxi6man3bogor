@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input Nilai - SI-TATIB</title>
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
+    h3 { margin-top: 0; color: var(--hijau); }
+    label { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
+    input, select { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+    button { border: none; border-radius: 8px; padding: 12px; font-weight: bold; cursor: pointer; }
+    .btn-save { background: #16a085; color: white; width: 100%; }
+    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    th { background: #f5f5f5; }
+    .btn-hapus { background: #e74c3c; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; }
+    @media (max-width: 600px) { .grid-3 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>⭐ Input Nilai Siswa</h1>
+    <span>MAN 3 BOGOR</span>
+  </div>
+
+  <div class="container">
+    <a href="index.html" class="btn-back">⬅ Kembali ke Dashboard</a>
+
+    <div class="card">
+      <h3>Form Input Nilai</h3>
+      <div class="grid-3">
+        <div>
+          <label>Nama Siswa</label>
+          <select id="nilaiNama"><option value="">Pilih Siswa</option></select>
+        </div>
+        <div>
+          <label>Mata Pelajaran</label>
+          <select id="mapelNilai">
+            <option value="">Pilih Mapel</option>
+            <option value="Al Qur'an Hadis">Al Qur'an Hadis</option>
+            <option value="Akidah Akhlak">Akidah Akhlak</option>
+            <option value="Fikih">Fikih</option>
+            <option value="Sejarah Kebudayaan Islam">Sejarah Kebudayaan Islam</option>
+            <option value="Bahasa Arab">Bahasa Arab</option>
+            <option value="Pendidikan Pancasila">Pendidikan Pancasila</option>
+            <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+            <option value="Matematika">Matematika</option>
+            <option value="Bahasa Inggris">Bahasa Inggris</option>
+            <option value="Seni Budaya">Seni Budaya</option>
+            <option value="PJOK">PJOK</option>
+            <option value="Informatika">Informatika</option>
+            <option value="Bahasa Sunda">Bahasa Sunda</option>
+          </select>
+        </div>
+        <div>
+          <label>Jenis Penilaian</label>
+          <select id="jenisNilai">
+            <option value="UTS">UTS</option>
+            <option value="UAS">UAS</option>
+            <option value="Tugas">Tugas</option>
+            <option value="Ulangan Harian">Ulangan Harian</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div>
+          <label>Nilai (0-100)</label>
+          <input id="nilaiAngka" type="number" min="0" max="100" placeholder="Masukkan nilai">
+        </div>
+        <div>
+          <label>Semester</label>
+          <select id="semesterNilai">
+            <option value="Ganjil">Ganjil</option>
+            <option value="Genap">Genap</option>
+          </select>
+        </div>
+        <div>
+          <label>Tahun Ajaran</label>
+          <input id="tahunNilai" type="text" value="2025/2026">
+        </div>
+      </div>
+
+      <button class="btn-save" onclick="simpanNilai()">💾 SIMPAN NILAI</button>
+    </div>
+
+    <div class="card">
+      <h3>Daftar Nilai</h3>
+      <input type="text" id="cariNilai" placeholder="Cari nama / mapel..." onkeyup="tampilNilai()">
+      <div style="overflow-x: auto; margin-top: 10px;">
+        <table>
+          <thead><tr><th>Nama</th><th>Mapel</th><th>Jenis</th><th>Nilai</th><th>Aksi</th></tr></thead>
+          <tbody id="listNilai"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+    
+    const NILAI_KEY = "siTatibNilai";
+    let nilaiDb = [];
+
+    window.onload = function() {
+      nilaiDb = JSON.parse(localStorage.getItem(NILAI_KEY) || "[]");
+      
+      const listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
+      const select = document.getElementById('nilaiNama');
+      if(listSiswa.length > 0) {
+        listSiswa.forEach(nama => select.innerHTML += `<option value="${nama}">${nama}</option>`);
+      }
+      
+      tampilNilai();
+    };
+
+    function simpanNilai() {
+      const nama = document.getElementById("nilaiNama").value;
+      const mapel = document.getElementById("mapelNilai").value;
+      const jenis = document.getElementById("jenisNilai").value;
+      const angka = document.getElementById("nilaiAngka").value;
+      const semester = document.getElementById("semesterNilai").value;
+      const tahun = document.getElementById("tahunNilai").value;
+
+      if (!nama || !mapel || !angka) return alert("Lengkapi nama, mapel, dan nilai!");
+
+      nilaiDb.unshift({ id: Date.now(), nama, mapel, jenis, angka: Number(angka), semester, tahun });
+      localStorage.setItem(NILAI_KEY, JSON.stringify(nilaiDb));
+      
+      document.getElementById("nilaiAngka").value = "";
+      alert("Nilai disimpan!");
+      tampilNilai();
+    }
+
+    function tampilNilai() {
+      const keyword = document.getElementById("cariNilai").value.toLowerCase();
+      const tbody = document.getElementById("listNilai");
+      tbody.innerHTML = "";
+
+      const filtered = nilaiDb.filter(n => 
+        (n.nama||"").toLowerCase().includes(keyword) || 
+        (n.mapel||"").toLowerCase().includes(keyword)
+      );
+
+      if(filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data.</td></tr>';
+        return;
+      }
+
+      filtered.forEach(n => {
+        tbody.innerHTML += `
+          <tr>
+            <td><b>${n.nama}</b></td>
+            <td>${n.mapel}</td>
+            <td>${n.jenis}</td>
+            <td style="text-align:center; font-weight:bold;">${n.angka}</td>
+            <td><button class="btn-hapus" onclick="hapusNilai(${n.id})">Hapus</button></td>
+          </tr>
+        `;
+      });
+    }
+
+    function hapusNilai(id) {
+      if(!confirm("Hapus nilai ini?")) return;
+      nilaiDb = nilaiDb.filter(n => n.id !== id);
+      localStorage.setItem(NILAI_KEY, JSON.stringify(nilaiDb));
+      tampilNilai();
+    }
+  </script>
+</body>
+</html>
