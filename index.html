@@ -778,7 +778,8 @@
         function initData() {
       db = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
       nilaiDb = JSON.parse(localStorage.getItem(NILAI_KEY) || "[]");
-      absensiDb = JSON.parse(localStorage.getItem(ABSENSI_KEY) || "[]"); // TAMBAHAN
+      absensiDb = JSON.parse(localStorage.getItem(ABSENSI_KEY) || "[]");
+    loadDropdownSiswa();
     }
 
     function prosesLogin() {
