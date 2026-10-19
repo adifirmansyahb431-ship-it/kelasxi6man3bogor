@@ -151,13 +151,21 @@
       location.reload();
     }
 
-    function aturTampilan(role, nama) {
-      document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK XI-6 <br><span style="color:#f6e27a;font-size:11px;">Login: ${nama}</span>`;
+        function aturTampilan(role, nama) {
+      document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SI-TATIB <br><span style="color:#f6e27a;font-size:11px;">Login: ${nama}</span>`;
 
       if (role === "sekretaris") {
+        // Sembunyikan menu selain Absensi
         document.getElementById("menuPelanggaran").style.display = "none";
         document.getElementById("menuRekap").style.display = "none";
         document.getElementById("menuNilai").style.display = "none";
+        document.getElementById("menuKelolaSiswa").style.display = "none"; // Sembunyikan Kelola Siswa juga
+      } else {
+        // Tampilkan semua menu untuk Admin
+        document.getElementById("menuPelanggaran").style.display = "flex";
+        document.getElementById("menuRekap").style.display = "flex";
+        document.getElementById("menuNilai").style.display = "flex";
+        document.getElementById("menuKelolaSiswa").style.display = "flex";
       }
     }
 
