@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input Pelanggaran - SI-TATIB</title>
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .container { max-width: 1000px; margin: 20px auto; padding: 0 16px; }
+    .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
+    h3 { margin-top: 0; color: var(--hijau); }
+    label { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
+    input, select { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+    button { border: none; border-radius: 8px; padding: 12px; font-weight: bold; cursor: pointer; }
+    .btn-save { background: #16a085; color: white; width: 100%; }
+    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    th { background: #f5f5f5; }
+    .btn-aksi { padding: 6px 10px; border-radius: 6px; font-size: 12px; color: white; cursor: pointer; border: none; margin-right: 5px; }
+    .btn-hapus { background: #e74c3c; }
+    .btn-edit { background: #f39c12; }
+    @media (max-width: 600px) { .grid-3 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📝 Input Pelanggaran</h1>
+    <span>MAN 3 BOGOR</span>
+  </div>
+
+  <div class="container">
+    <a href="index.html" class="btn-back">⬅ Kembali ke Dashboard</a>
+
+    <div class="card">
+      <h3>Form Pelanggaran</h3>
+      <div class="grid-3">
+        <div>
+          <label>Nama Siswa</label>
+          <select id="nama"><option value="">Pilih Siswa</option></select>
+        </div>
+        <div>
+          <label>NIS</label>
+          <input id="nis" type="text" placeholder="Masukkan NIS">
+        </div>
+        <div>
+          <label>Kelas</label>
+          <select id="kelas">
+            <option value="XI-6">XI-6</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Jenis Pelanggaran</label>
+      <select id="jenis">
+        <option value="">-- Pilih Pelanggaran --</option>
+        <option value="Terlambat masuk madrasah|5">Terlambat masuk madrasah (5)</option>
+        <option value="Membuang sampah tidak pada tempatnya|5">Membuang sampah tidak pada tempatnya (5)</option>
+        <option value="Mengoperasikan HP saat KBM tanpa izin|20">Mengoperasikan HP saat KBM tanpa izin (20)</option>
+        <option value="Bergerombol di luar madrasah radius 500m >15 menit|35">Bergerombol di luar madrasah (35)</option>
+        <option value="Pacaran di lingkungan madrasah|50">Pacaran di lingkungan madrasah (50)</option>
+        <option value="Berkelahi hingga menimbulkan korban|100">Berkelahi hingga menimbulkan korban (100)</option>
+        <option value="Mengkonsumsi dan atau mengedarkan NARKOBA|100">Mengkonsumsi NARKOBA (100)</option>
+        <!-- Tambahkan opsi lain di sini -->
+      </select>
+
+      <label>Tanggal</label>
+      <input id="tgl" type="date" />
+
+      <button class="btn-save" onclick="simpanData()">💾 SIMPAN PELANGGARAN</button>
+    </div>
+
+    <div class="card">
+      <h3>Riwayat Pelanggaran</h3>
+      <input type="text" id="cari" placeholder="Cari nama..." onkeyup="tampil()">
+      <div style="overflow-x: auto; margin-top: 10px;">
+        <table>
+          <thead><tr><th>Tgl</th><th>Nama</th><th>Kelas</th><th>Pelanggaran</th><th>Poin</th><th>Aksi</th></tr></thead>
+          <tbody id="list"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+    
+    const STORAGE_KEY = "siTatibData";
+    let db = [];
+    let editId = null;
+
+    window.onload = function() {
+      document.getElementById('tgl').valueAsDate = new Date();
+      db = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      
+      // Load dropdown siswa
+      const listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
+      const select = document.getElementById('nama');
+      if(listSiswa.length > 0) {
+        listSiswa.forEach(nama => select.innerHTML += `<option value="${nama}">${nama}</option>`);
+      } else {
+        select.innerHTML += `<option value="ADINDA RIZKY AYU PUTRI">ADINDA RIZKY AYU PUTRI</option>`;
+      }
+      
+      tampil();
+    };
+
+    function simpanData() {
+      const nama = document.getElementById("nama").value;
+      const nis = document.getElementById("nis").value;
+      const kelas = document.getElementById("kelas").value;
+      const jenisRaw = document.getElementById("jenis").value;
+      const tgl = document.getElementById("tgl").value;
+
+      if (!nama || !jenisRaw || !tgl) return alert("Lengkapi data yang wajib diisi!");
+
+      const parts = jenisRaw.split("|");
+      const jenis = parts[0];
+      const total = parseInt(parts[1]) || 0;
+
+      if (editId) {
+        db = db.map(row => String(row.id) === String(editId) ? { ...row, tgl, nama, nis, kelas, jenis, total } : row);
+        alert("Data diperbarui!");
+        editId = null;
+      } else {
+        db.unshift({ id: Date.now(), tgl, nama, nis, kelas, jenis, total });
+        alert("Data disimpan!");
+      }
+      
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      document.getElementById('jenis').value = "";
+      tampil();
+    }
+
+    function tampil() {
+      const keyword = document.getElementById("cari").value.toLowerCase();
+      const tbody = document.getElementById("list");
+      tbody.innerHTML = "";
+
+      const filtered = db.filter(r => (r.nama||"").toLowerCase().includes(keyword));
+      
+      if(filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data.</td></tr>';
+        return;
+      }
+
+      filtered.forEach(r => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${r.tgl}</td>
+            <td><b>${r.nama}</b></td>
+            <td>${r.kelas}</td>
+            <td>${r.jenis}</td>
+            <td style="text-align:center;"><b>${r.total}</b></td>
+            <td>
+              <button class="btn-aksi btn-edit" onclick="editData(${r.id})">Edit</button>
+              <button class="btn-aksi btn-hapus" onclick="hapus(${r.id})">Hapus</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function hapus(id) {
+      if(!confirm("Hapus data ini?")) return;
+      db = db.filter(r => r.id !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      tampil();
+    }
+
+    function editData(id) {
+      const row = db.find(r => r.id === id);
+      if(!row) return;
+      
+      document.getElementById("nama").value = row.nama;
+      document.getElementById("nis").value = row.nis;
+      document.getElementById("kelas").value = row.kelas;
+      document.getElementById("tgl").value = row.tgl;
+      
+      const select = document.getElementById("jenis");
+      for(let i=0; i<select.options.length; i++){
+        if(select.options[i].value.startsWith(row.jenis)) {
+          select.selectedIndex = i;
+          break;
+        }
+      }
+      editId = id;
+      alert("Silakan ubah data di form atas, lalu klik SIMPAN kembali.");
+      window.scrollTo(0, 0);
+    }
+  </script>
+</body>
+</html>
