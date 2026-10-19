@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Absensi - SI-TATIB</title>
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
+    h3 { margin-top: 0; color: var(--hijau); }
+    input, select { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+    button { border: none; border-radius: 8px; padding: 12px; font-weight: bold; cursor: pointer; }
+    .btn-save { background: #16a085; color: white; width: 100%; }
+    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    th { background: #f5f5f5; }
+    .badge { padding: 4px 8px; border-radius: 12px; color: white; font-size: 12px; font-weight: bold; }
+    .Hadir { background: #2ecc71; }
+    .Sakit { background: #f1c40f; color: #333; }
+    .Izin { background: #3498db; }
+    .Alpa { background: #e74c3c; }
+    .btn-hapus { background: #e74c3c; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; }
+    @media (max-width: 600px) { .grid-3 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📋 Absensi Siswa</h1>
+    <span>MAN 3 BOGOR</span>
+  </div>
+
+  <div class="container">
+    <a href="index.html" class="btn-back">⬅ Kembali ke Dashboard</a>
+
+    <div class="card">
+      <h3>Input Absensi</h3>
+      <div class="grid-3">
+        <div>
+          <label>Tanggal</label>
+          <input type="date" id="absensiTanggal">
+        </div>
+        <div>
+          <label>Nama Siswa</label>
+          <select id="absensiNama"><option value="">Memuat data...</option></select>
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="absensiStatus">
+            <option value="Hadir">Hadir (H)</option>
+            <option value="Sakit">Sakit (S)</option>
+            <option value="Izin">Izin (I)</option>
+            <option value="Alpa">Alpa (A)</option>
+          </select>
+        </div>
+      </div>
+      <label>Keterangan (Opsional)</label>
+      <input type="text" id="absensiKeterangan" placeholder="Contoh: Sakit demam">
+      
+      <button class="btn-save" onclick="simpanAbsensi()">💾 SIMPAN ABSENSI</button>
+    </div>
+
+    <div class="card">
+      <h3>Daftar Absensi</h3>
+      <input type="text" id="cariAbsensi" placeholder="Cari nama / status / tanggal..." onkeyup="tampilAbsensi()">
+      <div style="overflow-x: auto; margin-top: 10px;">
+        <table>
+          <thead><tr><th>Tanggal</th><th>Nama Siswa</th><th>Status</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+          <tbody id="listAbsensi"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+    
+    const ABSENSI_KEY = "siTatibAbsensi";
+    let absensiDb = [];
+
+    window.onload = function() {
+      document.getElementById('absensiTanggal').valueAsDate = new Date();
+      absensiDb = JSON.parse(localStorage.getItem(ABSENSI_KEY) || "[]");
+      
+      // Load dropdown siswa
+      const listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
+      const select = document.getElementById('absensiNama');
+      let opsi = '<option value="">Pilih Nama Siswa</option>';
+      
+      if(listSiswa.length > 0) {
+        listSiswa.forEach(nama => opsi += `<option value="${nama}">${nama}</option>`);
+      } else {
+        opsi += `<option value="ADINDA RIZKY AYU PUTRI">ADINDA RIZKY AYU PUTRI</option>`;
+      }
+      select.innerHTML = opsi;
+      
+      tampilAbsensi();
+    };
+
+    function simpanAbsensi() {
+      const tgl = document.getElementById('absensiTanggal').value;
+      const nama = document.getElementById('absensiNama').value;
+      const status = document.getElementById('absensiStatus').value;
+      const ket = document.getElementById('absensiKeterangan').value;
+
+      if(!tgl || !nama) return alert("Tanggal dan Nama wajib diisi!");
+
+      // Cek apakah sudah diabsen hari ini
+      const sudah = absensiDb.find(a => a.tgl === tgl && a.nama === nama);
+      if(sudah) return alert(`Siswa ${nama} sudah diabsen pada tanggal ${tgl}!`);
+
+      absensiDb.unshift({ id: Date.now(), tgl, nama, status, ket });
+      localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
+      
+      document.getElementById('absensiNama').value = "";
+      document.getElementById('absensiKeterangan').value = "";
+      alert("✅ Absensi berhasil disimpan!");
+      tampilAbsensi();
+    }
+
+    function tampilAbsensi() {
+      const keyword = (document.getElementById("cariAbsensi").value || "").toLowerCase();
+      const tbody = document.getElementById("listAbsensi");
+      tbody.innerHTML = "";
+
+      const filtered = absensiDb.filter(a => 
+        (a.nama||"").toLowerCase().includes(keyword) || 
+        (a.status||"").toLowerCase().includes(keyword) || 
+        (a.tgl||"").includes(keyword)
+      );
+
+      if(filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">Belum ada data absensi.</td></tr>';
+        return;
+      }
+
+      filtered.forEach(a => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${a.tgl}</td>
+            <td><b>${a.nama}</b></td>
+            <td><span class="badge ${a.status}">${a.status}</span></td>
+            <td>${a.ket || "-"}</td>
+            <td><button class="btn-hapus" onclick="hapusAbsensi(${a.id})">Hapus</button></td>
+          </tr>
+        `;
+      });
+    }
+
+    function hapusAbsensi(id) {
+      if(!confirm("Hapus data ini?")) return;
+      absensiDb = absensiDb.filter(a => a.id !== id);
+      localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
+      tampilAbsensi();
+    }
+  </script>
+</body>
+</html>
