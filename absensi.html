@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Absensi Kelas - SIPADAK XI-6</title>
+  <title>Absensi Kelas - SI-TATIB</title>
   <!-- Library Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
@@ -12,7 +12,7 @@
     body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
     .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100;}
     .header h1 { margin: 0; font-size: 20px; }
-    .container { max-width: 1200px; margin: 20px auto; padding: 0 16px; }
+    .container { max-width: 1250px; margin: 20px auto; padding: 0 16px; }
     .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
     
     .top-action { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; background: white; padding: 15px; border-radius: 14px; box-shadow: 0 2px 9px rgba(0,0,0,0.07);}
@@ -59,6 +59,9 @@
     .teks-izin { color: #3498db; }
     .teks-alpa { color: #e74c3c; }
 
+    /* Tombol Hapus Per Baris */
+    .btn-hapus-baris { background: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
     /* Area Tanda Tangan */
     .ttd-section { display: none; margin-top: 40px; page-break-inside: avoid; }
     .ttd-tanggal { text-align: right; margin-bottom: 20px; font-size: 14px; }
@@ -85,7 +88,7 @@
 </head>
 <body>
   <div class="header no-print">
-    <h1>📋 Absensi Kelas XI-6</h1>
+    <h1>📋 Absensi Kelas</h1>
     <span id="roleUser">MAN 3 BOGOR</span>
   </div>
 
@@ -125,10 +128,11 @@
               <th>Nama Siswa</th>
               <th style="width: 130px;">Status</th>
               <th style="width: 200px;">Keterangan</th>
-              <th class="th-akumulasi" style="width: 60px;">H</th>
-              <th class="th-akumulasi" style="width: 60px;">S</th>
-              <th class="th-akumulasi" style="width: 60px;">I</th>
-              <th class="th-akumulasi" style="width: 60px;">A</th>
+              <th style="width: 80px; text-align: center;" class="no-print">Aksi</th>
+              <th class="th-akumulasi" style="width: 50px;">H</th>
+              <th class="th-akumulasi" style="width: 50px;">S</th>
+              <th class="th-akumulasi" style="width: 50px;">I</th>
+              <th class="th-akumulasi" style="width: 50px;">A</th>
             </tr>
           </thead>
           <tbody id="listAbsensi"></tbody>
@@ -217,6 +221,9 @@
             </select>
           </td>
           <td><input type="text" class="input-ket" value="${ket}" placeholder="-"></td>
+          <td class="no-print" style="text-align:center;">
+            <button class="btn-hapus-baris" onclick="hapusAbsensiSiswa('${siswa.replace(/'/g, "\\'")}')">Hapus</button>
+          </td>
           <td class="kolom-akumulasi teks-hadir">${tH}</td>
           <td class="kolom-akumulasi teks-sakit">${tS}</td>
           <td class="kolom-akumulasi teks-izin">${tI}</td>
@@ -273,7 +280,19 @@
       muatDataAbsensi();
     }
 
-    // --- FITUR HAPUS DATA SATU TANGGAL ---
+    // --- FITUR HAPUS ABSENSI PER SISWA PADA TANGGAL TERTENTU ---
+    function hapusAbsensiSiswa(namaSiswa) {
+      const tgl = document.getElementById('absensiTanggal').value;
+      if(!confirm(`Hapus data absensi ${namaSiswa} pada tanggal ${tgl}?\n\n(Dropdown akan kembali ke 'Hadir' default)`)) return;
+
+      // Filter buang data siswa tersebut di tanggal tersebut
+      absensiDb = absensiDb.filter(a => !(a.tgl === tgl && a.nama === namaSiswa));
+      
+      localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
+      muatDataAbsensi(); // Refresh tabel
+    }
+
+    // --- FITUR HAPUS SEMUA DATA SATU TANGGAL ---
     function hapusTanggalIni() {
       const tgl = document.getElementById('absensiTanggal').value;
       if(!tgl) return alert("Pilih tanggal terlebih dahulu!");
@@ -294,7 +313,6 @@
       const headers = ["Tanggal", "Nama Siswa", "Status", "Keterangan"];
       const wsData = [headers];
 
-      // Urutkan berdasarkan tanggal lalu nama
       const sortedData = [...absensiDb].sort((a,b) => {
         if(a.tgl !== b.tgl) return a.tgl.localeCompare(b.tgl);
         return a.nama.localeCompare(b.nama);
@@ -307,7 +325,7 @@
       const ws = XLSX.utils.aoa_to_sheet(wsData);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Rekap Absensi");
-      XLSX.writeFile(wb, "Rekap_Absensi_SIPADAK XI-6.xlsx");
+      XLSX.writeFile(wb, "Rekap_Absensi_SI-TATIB.xlsx");
     }
   </script>
 </body>
