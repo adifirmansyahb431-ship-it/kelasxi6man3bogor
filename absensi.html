@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Absensi Kelas - SIPADAK XI-</title>
+  <title>Absensi Kelas - SIPADAK XI-6</title>
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
     * { box-sizing: border-box; }
@@ -25,7 +25,7 @@
     .rekap-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
     .rekap-item { background: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-top: 4px solid #ccc; }
     .rekap-item h2 { margin: 0; font-size: 28px; }
-    .rekap-item p { margin: 5px 0 0; font-size: 13px; font-weight: bold; color: #666; }
+    .rekap-item p { margin: 5px 0 0; font-size: 12px; font-weight: bold; color: #666; }
     .r-hadir { border-top-color: #2ecc71; color: #2ecc71; }
     .r-sakit { border-top-color: #f1c40f; color: #d4ac0d; }
     .r-izin { border-top-color: #3498db; color: #3498db; }
@@ -47,7 +47,7 @@
     .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
 
     /* Kolom Akumulasi (Total Per Siswa) */
-    .kolom-akumulasi { background: #fafafa; text-align: center; font-weight: bold; border-left: 2px dashed #ccc; }
+    .kolom-akumulasi { background: #fafafa; text-align: center; font-weight: bold; border-left: 2px dashed #ccc; font-size: 15px;}
     .th-akumulasi { background: #e2e8f0; text-align: center; border-left: 2px dashed #ccc; }
     .teks-hadir { color: #2ecc71; }
     .teks-sakit { color: #d4ac0d; }
@@ -138,7 +138,7 @@
               <th>Nama Siswa</th>
               <th style="width: 130px;">Status (Hari Ini)</th>
               <th style="width: 200px;">Keterangan</th>
-              <!-- Kolom Akumulasi -->
+              <!-- KOLOM BARU: Total Akumulasi per Siswa -->
               <th class="th-akumulasi" style="width: 60px;">Total H</th>
               <th class="th-akumulasi" style="width: 60px;">Total S</th>
               <th class="th-akumulasi" style="width: 60px;">Total I</th>
@@ -238,7 +238,7 @@
             <input type="text" class="input-ket" value="${ket}" placeholder="-">
           </td>
           
-          <!-- Kolom Akumulasi -->
+          <!-- Kolom Total per Siswa -->
           <td class="kolom-akumulasi teks-hadir">${tH}</td>
           <td class="kolom-akumulasi teks-sakit">${tS}</td>
           <td class="kolom-akumulasi teks-izin">${tI}</td>
@@ -287,14 +287,17 @@
         dataBaru.push({ id: Date.now() + Math.random(), tgl: tgl, nama: nama, status: status, ket: ket });
       });
 
+      // Hapus data lama untuk tanggal ini, gabungkan dengan yang baru
       let dataLain = absensiDb.filter(a => a.tgl !== tgl);
       let dataGabungan = [...dataLain, ...dataBaru];
 
       localStorage.setItem(ABSENSI_KEY, JSON.stringify(dataGabungan));
-      absensiDb = dataGabungan;
+      absensiDb = dataGabungan; // update memori lokal
       
       alert(`✅ Absensi tanggal ${tgl} berhasil disimpan!`);
-      muatDataAbsensi(); // Refresh tabel agar kolom Total H/S/I/A ikut terupdate
+      
+      // Muat ulang tabel agar kolom Total H/S/I/A langsung terupdate
+      muatDataAbsensi();
     }
   </script>
 </body>
