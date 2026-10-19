@@ -15,8 +15,11 @@
     h3 { margin-top: 0; color: var(--hijau); }
     
     .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
-    .btn-save { background: #16a085; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin-bottom: 15px; width: 100%;}
-    .btn-save:hover { background: #12876f; }
+    
+    .action-bar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+    .btn-save { background: #16a085; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; flex: 1; }
+    .btn-upload { background: #e67e22; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; flex: 1; text-align: center; }
+    .btn-download { background: #2471a3; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; flex: 1; }
 
     /* Tampilan Tabel Excel */
     .table-responsive { width: 100%; overflow-x: auto; border: 1px solid #ccc; }
@@ -32,11 +35,8 @@
     input.nilai-input { width: 60px; padding: 6px; border: 1px solid transparent; border-radius: 4px; text-align: center; font-size: 13px; background: transparent; }
     input.nilai-input:focus { border-color: #16a085; background: white; outline: none; box-shadow: 0 0 5px rgba(22, 160, 133, 0.3); }
     input.nilai-input::-webkit-outer-spin-button, input.nilai-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    
-    /* Tombol Download */
-    .btn-download { background: #2471a3; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; float: right; margin-bottom: 10px;}
   </style>
-  <!-- Library untuk Download Excel -->
+  <!-- Library Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -47,13 +47,21 @@
 
   <div class="container">
     <a href="index.html" class="btn-back">⬅ Kembali ke Dashboard</a>
-    <button class="btn-download" onclick="downloadExcel()">⬇️ Download Database (Excel)</button>
 
     <div class="card">
       <h3>Input Nilai (Format Tabel)</h3>
-      <p style="font-size:13px; color:#666; margin-bottom:15px;">Ketik nilai langsung di dalam kotak tabel. Geser tabel ke kanan/kiri untuk melihat semua mata pelajaran.</p>
       
-      <button class="btn-save" onclick="simpanSemuaNilai()">💾 SIMPAN SEMUA NILAI</button>
+      <!-- Tombol Aksi -->
+      <div class="action-bar">
+        <label class="btn-upload">
+          📥 Upload dari Excel
+          <input type="file" id="uploadExcel" accept=".xlsx,.xls" style="display: none;" onchange="importDariExcel(event)">
+        </label>
+        <button class="btn-save" onclick="simpanSemuaNilai()">💾 SIMPAN KE WEB</button>
+        <button class="btn-download" onclick="downloadExcel()">⬇️ Download Excel</button>
+      </div>
+      
+      <p style="font-size:13px; color:#666; margin-bottom:15px;">Ketik nilai langsung di dalam kotak tabel, atau upload file Excel yang sudah diisi.</p>
 
       <div class="table-responsive">
         <table id="tabelNilai">
@@ -61,7 +69,6 @@
             <tr>
               <th style="width:40px;">No</th>
               <th class="sticky-col" style="width:250px;">Nama Siswa</th>
-              <th>NIS</th>
               <!-- Kolom Mapel akan digenerate oleh JS -->
             </tr>
           </thead>
@@ -77,7 +84,6 @@
     if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
     
     // Daftar Mata Pelajaran (Sesuai Excel)
-        // Daftar Mata Pelajaran (Sesuai Excel)
     const MAPEL = [
       "Al-Qur'an Hadis", "Aqidah Akhlak", "Fiqih", "Sejarah Kebudayaan Islam", 
       "Bahasa Arab", "Pendidikan Pancasila", "Bahasa Indonesia", "Matematika", 
@@ -85,131 +91,173 @@
       "Sosiologi", "Ekonomi", "Geografi", "Sejarah Tingkat Lanjut"
     ];
 
-    // Kunci penyimpanan LocalStorage
     const NILAI_KEY = "siTatibNilaiMatriks";
-    let dataNilai = {}; // Format: { "NAMA SISWA": { "Matematika": 80, "PJOK": 90 } }
+    let dataNilai = {}; 
 
     window.onload = function() {
-      // 1. Muat data nilai lama
       dataNilai = JSON.parse(localStorage.getItem(NILAI_KEY) || "{}");
-      
-      // 2. Muat daftar siswa
       let listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
       
-      // Jika data siswa kosong, gunakan data fallback (bawaan)
       if (listSiswa.length === 0) {
         listSiswa = ["ADINDA RIZKY AYU PUTRI", "AHMAD FAQIH ALFAIQ", "AIA TRINIYULIYANTI"]; 
       }
-
       renderTabel(listSiswa);
     };
 
     function renderTabel(listSiswa) {
-      // 1. Buat Header Kolom Mapel
       const theadTr = document.querySelector("#tabelNilai thead tr");
-      MAPEL.forEach(mapel => {
-        const th = document.createElement("th");
-        th.textContent = mapel;
-        theadTr.appendChild(th);
-      });
+      theadTr.innerHTML = `<th style="width:40px;">No</th><th class="sticky-col" style="width:250px;">Nama Siswa</th>`;
+      MAPEL.forEach(mapel => theadTr.innerHTML += `<th>${mapel}</th>`);
 
-      // 2. Buat Baris Siswa
       const tbody = document.getElementById("tbodyNilai");
       tbody.innerHTML = "";
 
       listSiswa.forEach((siswa, index) => {
-        const tr = document.createElement("tr");
-        
-        // Kolom No
-        let tdNo = document.createElement("td");
-        tdNo.textContent = index + 1;
-        tr.appendChild(tdNo);
+        let html = `<tr>
+          <td>${index + 1}</td>
+          <td class="sticky-col"><b>${siswa}</b></td>
+        `;
 
-        // Kolom Nama (Sticky)
-        let tdNama = document.createElement("td");
-        tdNama.className = "sticky-col";
-        tdNama.innerHTML = `<b>${siswa}</b>`;
-        tr.appendChild(tdNama);
-
-        // Kolom NIS (Dikosongkan sementara atau ambil dari database siswa jika ada)
-        let tdNis = document.createElement("td");
-        tdNis.textContent = "-"; 
-        tr.appendChild(tdNis);
-
-        // Kolom Nilai per Mapel
         MAPEL.forEach(mapel => {
-          let tdNilai = document.createElement("td");
-          
-          // Ambil nilai jika sudah pernah disimpan
-          let nilaiTersimpan = "";
-          if (dataNilai[siswa] && dataNilai[siswa][mapel]) {
-            nilaiTersimpan = dataNilai[siswa][mapel];
-          }
-
-          tdNilai.innerHTML = `
-            <input type="number" class="nilai-input" 
-                   data-siswa="${siswa}" 
-                   data-mapel="${mapel}" 
-                   value="${nilaiTersimpan}" 
-                   min="0" max="100" placeholder="-">
-          `;
-          tr.appendChild(tdNilai);
+          let val = (dataNilai[siswa] && dataNilai[siswa][mapel]) ? dataNilai[siswa][mapel] : "";
+          html += `<td><input type="number" class="nilai-input" data-siswa="${siswa}" data-mapel="${mapel}" value="${val}" min="0" max="100" placeholder="-"></td>`;
         });
-
-        tbody.appendChild(tr);
+        
+        html += `</tr>`;
+        tbody.innerHTML += html;
       });
     }
 
     function simpanSemuaNilai() {
       const inputs = document.querySelectorAll('.nilai-input');
-      let jumlahDiisi = 0;
+      let jumlah = 0;
 
       inputs.forEach(input => {
         const siswa = input.getAttribute('data-siswa');
         const mapel = input.getAttribute('data-mapel');
         const val = input.value;
 
-        if (!dataNilai[siswa]) {
-          dataNilai[siswa] = {};
-        }
+        if (!dataNilai[siswa]) dataNilai[siswa] = {};
 
         if (val !== "") {
           dataNilai[siswa][mapel] = Number(val);
-          jumlahDiisi++;
+          jumlah++;
         } else {
-          delete dataNilai[siswa][mapel]; // Hapus jika dikosongkan
+          delete dataNilai[siswa][mapel];
         }
       });
 
-      // Simpan ke browser
       localStorage.setItem(NILAI_KEY, JSON.stringify(dataNilai));
-      alert(`✅ Berhasil menyimpan ${jumlahDiisi} data nilai!`);
+      alert(`✅ Berhasil menyimpan ${jumlah} data nilai ke browser!`);
     }
 
+    // ==================== UPLOAD DARI EXCEL ====================
+    function importDariExcel(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          // Cari sheet bernama 'Database'
+          let sheetName = "Database";
+          if (!workbook.Sheets[sheetName]) {
+            sheetName = workbook.SheetNames[0]; // Jika tidak ada, ambil sheet pertama
+          }
+          
+          const worksheet = workbook.Sheets[sheetName];
+          // Ambil data mentah dalam bentuk Array of Arrays
+          const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+          // 1. Cari baris header (yang ada tulisan 'Nama' atau 'NAMA')
+          let headerRowIdx = -1;
+          for (let i = 0; i < json.length; i++) {
+            if (json[i].some(cell => String(cell).toUpperCase().includes("NAMA"))) {
+              headerRowIdx = i;
+              break;
+            }
+          }
+
+          if (headerRowIdx === -1) {
+            alert("❌ Tidak dapat menemukan kolom 'NAMA' di file Excel.");
+            return;
+          }
+
+          const headers = json[headerRowIdx];
+          
+          // 2. Cari index kolom 'Nama' dan kolom Mapel
+          let idxNama = headers.findIndex(h => String(h).toUpperCase().includes("NAMA"));
+          
+          // Mapping index kolom Mapel
+          let mapelIndices = {};
+          MAPEL.forEach(mapel => {
+            // Cari kolom yang namanya mirip (case-insensitive, spasi diabaikan)
+            let idx = headers.findIndex(h => {
+              if(!h) return false;
+              let hClean = String(h).toLowerCase().replace(/\s+/g, '');
+              let mClean = mapel.toLowerCase().replace(/\s+/g, '');
+              return hClean.includes(mClean) || mClean.includes(hClean);
+            });
+            if(idx !== -1) mapelIndices[mapel] = idx;
+          });
+
+          // 3. Looping data mulai dari bawah header
+          let jumlahImport = 0;
+          for (let i = headerRowIdx + 1; i < json.length; i++) {
+            const row = json[i];
+            const nama = row[idxNama];
+            
+            // Jika nama kosong, lewati (biasanya baris kosong di bawah)
+            if (!nama || String(nama).trim() === "") continue; 
+            
+            const namaSiswa = String(nama).trim().toUpperCase();
+            if (!dataNilai[namaSiswa]) dataNilai[namaSiswa] = {};
+
+            MAPEL.forEach(mapel => {
+              if (mapelIndices[mapel] !== undefined) {
+                const val = row[mapelIndices[mapel]];
+                // Pastikan nilai berupa angka
+                if (val !== undefined && val !== null && val !== "") {
+                  dataNilai[namaSiswa][mapel] = Number(val);
+                  jumlahImport++;
+                }
+              }
+            });
+          }
+
+          // 4. Simpan ke localStorage & Refresh Tabel
+          localStorage.setItem(NILAI_KEY, JSON.stringify(dataNilai));
+          window.location.reload(); // Reload halaman untuk menampilkan data baru
+
+        } catch (err) {
+          console.error(err);
+          alert("❌ Gagal membaca file Excel: " + err.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // ==================== DOWNLOAD KE EXCEL ====================
     function downloadExcel() {
-      // 1. Siapkan Header
-      const headers = ["No", "Nama Siswa", "NIS", ...MAPEL];
+      const headers = ["No", "Nama Siswa", ...MAPEL];
       const wsData = [headers];
 
-      // 2. Ambil Data dari LocalStorage
       const dataTersimpan = JSON.parse(localStorage.getItem(NILAI_KEY) || "{}");
       const listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
       const finalSiswa = listSiswa.length > 0 ? listSiswa : ["ADINDA RIZKY AYU PUTRI"];
 
-      // 3. Susun Baris
       finalSiswa.forEach((siswa, index) => {
-        const row = [index + 1, siswa, "-"]; // No, Nama, NIS
+        const row = [index + 1, siswa]; 
         MAPEL.forEach(mapel => {
-          let nilai = "";
-          if(dataTersimpan[siswa] && dataTersimpan[siswa][mapel]) {
-            nilai = dataTersimpan[siswa][mapel];
-          }
+          let nilai = (dataTersimpan[siswa] && dataTersimpan[siswa][mapel]) ? dataTersimpan[siswa][mapel] : "";
           row.push(nilai);
         });
         wsData.push(row);
       });
 
-      // 4. Buat File Excel & Unduh
       const ws = XLSX.utils.aoa_to_sheet(wsData);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Database Nilai");
