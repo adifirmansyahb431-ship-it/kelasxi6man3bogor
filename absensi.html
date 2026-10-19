@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Absensi Kelas - SIPADAK XI-6</title>
+  <!-- Library Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
     * { box-sizing: border-box; }
@@ -13,13 +15,16 @@
     .container { max-width: 1200px; margin: 20px auto; padding: 0 16px; }
     .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
     
-    .top-action { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; background: white; padding: 15px; border-radius: 14px; box-shadow: 0 2px 9px rgba(0,0,0,0.07);}
-    .top-action label { font-weight: bold; font-size: 15px; }
+    .top-action { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; background: white; padding: 15px; border-radius: 14px; box-shadow: 0 2px 9px rgba(0,0,0,0.07);}
+    .top-action label { font-weight: bold; font-size: 15px; margin-right: 10px;}
     input[type="date"] { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; font-weight: bold;}
     
-    .action-buttons { margin-left: auto; display: flex; gap: 10px;}
-    .btn-save { background: #16a085; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
-    .btn-print { background: #e67e22; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
+    .action-buttons { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap;}
+    .btn { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; color: white;}
+    .btn-save { background: #16a085; }
+    .btn-print { background: #e67e22; }
+    .btn-download { background: #2471a3; }
+    .btn-delete-day { background: #c0392b; }
     
     /* Kotak Rekap Total Harian */
     .rekap-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
@@ -46,7 +51,7 @@
     .input-ket { padding: 8px; border: 1px solid #ccc; border-radius: 6px; width: 100%; }
     .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
 
-    /* Kolom Akumulasi (Total Per Siswa) */
+    /* Kolom Akumulasi */
     .kolom-akumulasi { background: #fafafa; text-align: center; font-weight: bold; border-left: 2px dashed #ccc; font-size: 15px;}
     .th-akumulasi { background: #e2e8f0; text-align: center; border-left: 2px dashed #ccc; }
     .teks-hadir { color: #2ecc71; }
@@ -60,11 +65,9 @@
     .ttd-flex { display: flex; justify-content: space-between; text-align: center; font-size: 14px; }
     .ttd-box { width: 45%; }
     .ttd-nama { margin-top: 70px; font-weight: bold; text-decoration: underline; }
-    
-    /* Header Khusus Cetak */
     .print-header { display: none; text-align: center; margin-bottom: 20px; }
 
-    /* ==================== CSS KHUSUS CETAK (PRINT) ==================== */
+    /* CSS KHUSUS CETAK */
     @media print {
       body { background: white; color: black; }
       .no-print { display: none !important; }
@@ -73,54 +76,39 @@
       .header { display: none; }
       .print-header { display: block; }
       .ttd-section { display: block !important; }
-      
-      /* Ubah input/select jadi teks biasa */
-      .status-select, .input-ket { 
-        border: none !important; 
-        background: transparent !important; 
-        appearance: none; 
-        font-weight: bold; 
-        padding: 0; 
-        width: 100%;
-        color: black !important;
-      }
-      .status-select { text-align: left; }
-      
-      /* Paksa warna tetap tercetak */
+      .status-select, .input-ket { border: none !important; background: transparent !important; appearance: none; font-weight: bold; padding: 0; width: 100%; color: black !important; text-align: left;}
       .r-hadir, .r-sakit, .r-izin, .r-alpa, .teks-hadir, .teks-sakit, .teks-izin, .teks-alpa { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      table { border: 1px solid #000; }
-      th, td { border: 1px solid #000; }
+      table, th, td { border: 1px solid #000; }
     }
-    @media (max-width: 600px) { .rekap-box { grid-template-columns: 1fr 1fr; } .btn-save, .btn-print { width: 100%; margin-left: 0; margin-top: 10px;} .action-buttons { flex-direction: column; width: 100%; } .ttd-flex { flex-direction: column; align-items: center; gap: 30px;} .ttd-box { width: 100%; } }
+    @media (max-width: 600px) { .rekap-box { grid-template-columns: 1fr 1fr; } .btn { width: 100%; margin-bottom: 5px;} .action-buttons { width: 100%; flex-direction: column;} .ttd-flex { flex-direction: column; align-items: center; gap: 30px;} .ttd-box { width: 100%; } }
   </style>
 </head>
 <body>
   <div class="header no-print">
-    <h1>📋 Absensi Kelas</h1>
-    <span>MAN 3 BOGOR</span>
+    <h1>📋 Absensi Kelas XI-6</h1>
+    <span id="roleUser">MAN 3 BOGOR</span>
   </div>
 
   <div class="container">
     <a href="index.html" class="btn-back no-print">⬅ Kembali ke Dashboard</a>
 
-    <!-- Header Khusus Cetak -->
     <div class="print-header">
       <h2 style="margin:0;">DAFTAR HADIR SISWA</h2>
       <h3 style="margin:5px 0;">MAN 3 BOGOR - KELAS XI.6</h3>
     </div>
 
-    <!-- Pengaturan Tanggal & Tombol -->
-    <div class="top-action">
+    <div class="top-action no-print">
       <label>Tanggal:</label>
       <input type="date" id="absensiTanggal" onchange="muatDataAbsensi()">
       
       <div class="action-buttons">
-        <button class="btn-print no-print" onclick="window.print()">🖨️ Cetak / PDF</button>
-        <button class="btn-save no-print" onclick="simpanSemuaAbsensi()">💾 SIMPAN ABSENSI</button>
+        <button class="btn btn-delete-day" onclick="hapusTanggalIni()">🗑️ Hapus Tgl Ini</button>
+        <button class="btn btn-download" onclick="downloadExcel()">⬇️ Download Rekap</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ Cetak / PDF</button>
+        <button class="btn btn-save" onclick="simpanSemuaAbsensi()">💾 SIMPAN</button>
       </div>
     </div>
 
-    <!-- Kotak Rekap Total Harian -->
     <div class="rekap-box">
       <div class="rekap-item r-hadir"><h2 id="totalHadir">0</h2><p>HADIR (Hari Ini)</p></div>
       <div class="rekap-item r-sakit"><h2 id="totalSakit">0</h2><p>SAKIT (Hari Ini)</p></div>
@@ -128,7 +116,6 @@
       <div class="rekap-item r-alpa"><h2 id="totalAlpa">0</h2><p>TANPA KET (Hari Ini)</p></div>
     </div>
 
-    <!-- Tabel Siswa -->
     <div class="card" style="padding: 0; overflow: hidden;">
       <div class="table-responsive">
         <table>
@@ -136,23 +123,19 @@
             <tr>
               <th style="width: 50px; text-align: center;">No</th>
               <th>Nama Siswa</th>
-              <th style="width: 130px;">Status (Hari Ini)</th>
+              <th style="width: 130px;">Status</th>
               <th style="width: 200px;">Keterangan</th>
-              <!-- KOLOM BARU: Total Akumulasi per Siswa -->
-              <th class="th-akumulasi" style="width: 60px;">Total H</th>
-              <th class="th-akumulasi" style="width: 60px;">Total S</th>
-              <th class="th-akumulasi" style="width: 60px;">Total I</th>
-              <th class="th-akumulasi" style="width: 60px;">Total A</th>
+              <th class="th-akumulasi" style="width: 60px;">H</th>
+              <th class="th-akumulasi" style="width: 60px;">S</th>
+              <th class="th-akumulasi" style="width: 60px;">I</th>
+              <th class="th-akumulasi" style="width: 60px;">A</th>
             </tr>
           </thead>
-          <tbody id="listAbsensi">
-            <!-- Diisi oleh Javascript -->
-          </tbody>
+          <tbody id="listAbsensi"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Area Tanda Tangan (Titimangsa) -->
     <div class="ttd-section" id="areaTtd">
       <div class="ttd-tanggal" id="titimangsa">Jonggol, 19 Oktober 2026</div>
       <div class="ttd-flex">
@@ -168,12 +151,15 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <script>
+    // Cek Login & Role
     if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
-    
+    const userRole = localStorage.getItem("siTatibRole");
+    const userName = localStorage.getItem("siTatibNama");
+    document.getElementById("roleUser").textContent = userName || "MAN 3 BOGOR";
+
     const ABSENSI_KEY = "siTatibAbsensi";
     let absensiDb = [];
     let listSiswa = [];
@@ -195,15 +181,12 @@
       const tbody = document.getElementById("listAbsensi");
       tbody.innerHTML = "";
 
-      // Update Teks Titimangsa
       if(tgl) {
         const dateObj = new Date(tgl);
         const options = { day: 'numeric', month: 'long', year: 'numeric' };
-        const tglFormatted = dateObj.toLocaleDateString('id-ID', options);
-        document.getElementById('titimangsa').textContent = `Jonggol, ${tglFormatted}`;
+        document.getElementById('titimangsa').textContent = `Jonggol, ${dateObj.toLocaleDateString('id-ID', options)}`;
       }
 
-      // Ambil data absensi khusus tanggal yang dipilih
       const dataHariIni = absensiDb.filter(a => a.tgl === tgl);
 
       listSiswa.forEach((siswa, index) => {
@@ -211,7 +194,6 @@
         const status = record ? record.status : "Hadir";
         const ket = record ? (record.ket || "") : "";
 
-        // Hitung Akumulasi Total per Siswa (seluruh tanggal)
         const riwayatSiswa = absensiDb.filter(a => a.nama === siswa);
         let tH = 0, tS = 0, tI = 0, tA = 0;
         
@@ -234,11 +216,7 @@
               <option value="Alpa" ${status === 'Alpa' ? 'selected' : ''}>Tanpa Ket (A)</option>
             </select>
           </td>
-          <td>
-            <input type="text" class="input-ket" value="${ket}" placeholder="-">
-          </td>
-          
-          <!-- Kolom Total per Siswa -->
+          <td><input type="text" class="input-ket" value="${ket}" placeholder="-"></td>
           <td class="kolom-akumulasi teks-hadir">${tH}</td>
           <td class="kolom-akumulasi teks-sakit">${tS}</td>
           <td class="kolom-akumulasi teks-izin">${tI}</td>
@@ -256,7 +234,6 @@
       hitungTotalHarian();
     }
 
-    // Menghitung Total Harian (Kotak atas)
     function hitungTotalHarian() {
       let hadir = 0, sakit = 0, izin = 0, alpa = 0;
       document.querySelectorAll('.status-select').forEach(sel => {
@@ -283,21 +260,54 @@
         const nama = tr.getAttribute('data-nama');
         const status = tr.querySelector('.status-select').value;
         const ket = tr.querySelector('.input-ket').value.trim();
-
         dataBaru.push({ id: Date.now() + Math.random(), tgl: tgl, nama: nama, status: status, ket: ket });
       });
 
-      // Hapus data lama untuk tanggal ini, gabungkan dengan yang baru
       let dataLain = absensiDb.filter(a => a.tgl !== tgl);
       let dataGabungan = [...dataLain, ...dataBaru];
 
       localStorage.setItem(ABSENSI_KEY, JSON.stringify(dataGabungan));
-      absensiDb = dataGabungan; // update memori lokal
+      absensiDb = dataGabungan;
       
       alert(`✅ Absensi tanggal ${tgl} berhasil disimpan!`);
-      
-      // Muat ulang tabel agar kolom Total H/S/I/A langsung terupdate
       muatDataAbsensi();
+    }
+
+    // --- FITUR HAPUS DATA SATU TANGGAL ---
+    function hapusTanggalIni() {
+      const tgl = document.getElementById('absensiTanggal').value;
+      if(!tgl) return alert("Pilih tanggal terlebih dahulu!");
+      
+      if(!confirm(`Hapus SEMUA data absensi tanggal ${tgl}?\n\nData yang dihapus tidak bisa dikembalikan.`)) return;
+
+      absensiDb = absensiDb.filter(a => a.tgl !== tgl);
+      localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
+      
+      alert(`Data absensi tanggal ${tgl} telah dihapus.`);
+      muatDataAbsensi();
+    }
+
+    // --- FITUR DOWNLOAD REKAP KE EXCEL ---
+    function downloadExcel() {
+      if(absensiDb.length === 0) return alert("Belum ada data absensi untuk didownload!");
+
+      const headers = ["Tanggal", "Nama Siswa", "Status", "Keterangan"];
+      const wsData = [headers];
+
+      // Urutkan berdasarkan tanggal lalu nama
+      const sortedData = [...absensiDb].sort((a,b) => {
+        if(a.tgl !== b.tgl) return a.tgl.localeCompare(b.tgl);
+        return a.nama.localeCompare(b.nama);
+      });
+
+      sortedData.forEach(a => {
+        wsData.push([a.tgl, a.nama, a.status, a.ket || "-"]);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Rekap Absensi");
+      XLSX.writeFile(wb, "Rekap_Absensi_SIPADAK XI-6.xlsx");
     }
   </script>
 </body>
