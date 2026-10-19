@@ -737,6 +737,17 @@
         </div>
       </section>
 
+           <section id="panel-siswa" class="tab-panel">
+        <div class="card">
+          <h3>👥 Kelola Data Siswa</h3>
+          <p style="font-size:13px; color:#666;">Ketik atau paste nama siswa di bawah ini (Satu nama per baris). Data ini akan otomatis masuk ke dropdown Absensi, Nilai, dan Pelanggaran.</p>
+          
+          <textarea id="inputSiswa" rows="12" style="font-family:monospace; font-size:14px; resize:vertical;" placeholder="ADINDA RIZKY AYU PUTRI&#10;AHMAD FAQIH ALFAIQ&#10;AIA TRINIYULIYANTI"></textarea>
+          
+          <button class="btn-success" style="width:100%; margin-top:15px;" onclick="simpanDataSiswa()">💾 SIMPAN DATA SISWA</button>
+          <div id="statusSiswa" class="status"></div>
+        </div>
+      </section>
       <section id="panel-upload" class="tab-panel">
         <div class="card">
           <h3>Upload Daftar Siswa</h3>
