@@ -4,36 +4,63 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard - SIPADAK XI-6</title>
+  
+  <!-- FIREBASE LIBRARY -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    // ================= KONFIGURASI FIREBASE =================
+    // GANTI BAGIAN INI DENGAN CONFIG DARI FIREBASE CONSOLE KAMU
+    const firebaseConfig = {
+      apiKey: "ISI_API_KEY_KAMU",
+      authDomain: "ISI_AUTH_DOMAIN_KAMU",
+      projectId: "ISI_PROJECT_ID_KAMU",
+      storageBucket: "ISI_STORAGE_BUCKET_KAMU",
+      messagingSenderId: "ISI_SENDER_ID_KAMU",
+      appId: "ISI_APP_ID_KAMU"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Simpan fungsi ke window agar bisa dipakai di luar module
+    window.fbDB = db;
+    window.fbFunc = { collection, getDocs, doc, setDoc, deleteDoc, getDoc };
+  </script>
+
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; --card: #ffffff; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
     
-    /* HEADER */
     .header { background: var(--hijau); color: #f6e27a; display: flex; align-items: center; gap: 15px; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
     .header img { height: 60px; width: 60px; background: white; border-radius: 10px; padding: 4px; object-fit: cover; }
     .header .brand { flex: 1; font-size: 20px; font-weight: 800; line-height: 1.2; }
     .header .brand small { display: block; font-size: 14px; color: white; font-weight: 600; margin-top: 2px; }
     .header .logout { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 9px 14px; font-weight: 700; cursor: pointer; }
 
-    /* LOGIN SCREEN */
     .login-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a3622 0%, #1a5c3a 100%); z-index: 100; }
     .login-box { background: white; width: min(400px, 90%); padding: 30px 24px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
     .login-box img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--gold); display: block; margin: 0 auto 10px; }
     .login-box h2 { text-align: center; color: var(--hijau); margin: 0 0 5px; }
     .login-box p { text-align: center; font-size: 13px; color: #666; margin: 0 0 20px; }
+    
+    .login-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
+    .login-tab { flex: 1; text-align: center; padding: 10px; font-weight: bold; cursor: pointer; color: #888; }
+    .login-tab.active { color: var(--hijau); border-bottom: 3px solid var(--hijau); margin-bottom: -2px; }
+
     input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
     .btn-login { width: 100%; padding: 12px; background: var(--hijau); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     
-    /* DASHBOARD MENU */
     .container { max-width: 1000px; margin: 30px auto; padding: 0 16px; }
     .welcome { background: white; padding: 20px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); border-left: 5px solid var(--hijau); }
     .welcome h3 { margin: 0 0 5px; color: var(--hijau); }
     .welcome p { margin: 0; font-size: 14px; color: #666; }
     
-    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
-    .menu-card { background: white; padding: 25px 20px; border-radius: 14px; text-align: center; text-decoration: none; color: var(--text); box-shadow: 0 2px 9px rgba(0,0,0,0.07); transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .menu-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+    .menu-card { background: white; padding: 25px 20px; border-radius: 14px; text-align: center; text-decoration: none; color: var(--text); box-shadow: 0 2px 9px rgba(0,0,0,0.07); transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb;}
+    .menu-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: var(--hijau); }
     .menu-card .icon { font-size: 40px; margin-bottom: 10px; }
     .menu-card h4 { margin: 0; color: var(--hijau); font-size: 18px; }
     .menu-card p { margin: 5px 0 0; font-size: 12px; color: #888; }
@@ -49,15 +76,28 @@
     <div class="login-box">
       <img src="fotogroupxi-6.png" alt="logo" />
       <h2>SIPADAK XI-6</h2>
-      <p>MAN 3 BOGOR - XI-6</p>
+      <p>MAN 3 BOGOR</p>
       
-      <label>Username</label>
-      <input id="loginUser" type="text" placeholder="Masukkan username" />
+      <div class="login-tabs">
+        <div class="login-tab active" id="tabGuru" onclick="gantiTabLogin('guru')">Guru / Admin</div>
+        <div class="login-tab" id="tabSiswa" onclick="gantiTabLogin('siswa')">Siswa</div>
+      </div>
+
+      <div id="formGuru">
+        <label>Username</label>
+        <input id="loginUser" type="text" placeholder="admin / sekretaris" />
+        <label>Password</label>
+        <input id="loginPass" type="password" placeholder="Masukkan password" />
+      </div>
+
+      <div id="formSiswa" class="hidden">
+        <label>Email</label>
+        <input id="loginEmail" type="email" placeholder="Masukkan Email Siswa" />
+        <label>Password</label>
+        <input id="loginPassSiswa" type="password" placeholder="Password bawaan: 12345" />
+      </div>
       
-      <label>Password</label>
-      <input id="loginPass" type="password" placeholder="Masukkan password" />
-      
-      <button class="btn-login" onclick="prosesLogin()">🔐 MASUK</button>
+      <button class="btn-login" id="btnLogin" onclick="prosesLogin()">🔐 MASUK</button>
       <div id="loginMessage"></div>
     </div>
   </div>
@@ -67,80 +107,114 @@
     <div class="header">
       <img src="fotogroupxi-6.png" alt="logo" />
       <div class="brand">
-        SEBELAS ENAM
-        <small id="infoUser">MAN 3 BOGOR - Sistem Pangakalan Data Kelas XI-6 (SIPADAK XI-6)</small>
+        SIPADAK XI-6
+        <small id="infoUser">MAN 3 BOGOR</small>
       </div>
       <button class="logout" onclick="logout()">🚪 KELUAR</button>
     </div>
 
     <div class="container">
       <div class="welcome">
-        <h3>Selamat Datang!</h3>
+        <h3 id="welcomeText">Selamat Datang!</h3>
         <p>Silakan pilih menu di bawah ini untuk mengelola data.</p>
       </div>
 
       <div class="menu-grid">
-        <!-- Menu Admin -->
         <a href="pelanggaran.html" class="menu-card" id="menuPelanggaran">
-          <div class="icon">📝</div>
-          <h4>Input Pelanggaran</h4>
-          <p>Catat pelanggaran siswa</p>
+          <div class="icon">📝</div><h4>Input Pelanggaran</h4><p>Catat pelanggaran siswa</p>
         </a>
         
         <a href="rekap.html" class="menu-card" id="menuRekap">
-          <div class="icon">📊</div>
-          <h4>Rekap Poin</h4>
-          <p>Lihat akumulasi poin siswa</p>
+          <div class="icon">📊</div><h4>Rekap Poin</h4><p>Lihat akumulasi poin siswa</p>
         </a>
         
         <a href="nilai.html" class="menu-card" id="menuNilai">
-          <div class="icon">⭐</div>
-          <h4>Input Nilai</h4>
-          <p>Catat nilai mata pelajaran</p>
+          <div class="icon">⭐</div><h4>Input Nilai</h4><p>Catat nilai mata pelajaran</p>
         </a>
 
-        <!-- Menu Semua Role -->
-        <a href="absensi.html" class="menu-card">
-          <div class="icon">📋</div>
-          <h4>Absensi Siswa</h4>
-          <p>Catat kehadiran harian</p>
+        <a href="absensi.html" class="menu-card" id="menuAbsensi">
+          <div class="icon">📋</div><h4>Absensi Siswa</h4><p>Catat kehadiran harian</p>
         </a>
 
         <a href="kelola-siswa.html" class="menu-card" id="menuKelolaSiswa">
-          <div class="icon">📤</div>
-          <h4>Kelola Siswa</h4>
-          <p>Upload data siswa via Excel</p>
+          <div class="icon">📤</div><h4>Kelola Siswa</h4><p>Upload data siswa via Excel</p>
+        </a>
+
+        <a href="kelola-akun.html" class="menu-card" id="menuKelolaAkun">
+          <div class="icon">👤</div><h4>Akun Siswa</h4><p>Daftarkan Email Siswa</p>
         </a>
       </div>
     </div>
   </div>
 
   <script>
-    // DAFTAR AKUN
-    const AKUN = {
-      "admin": { pass: "sipadak2026", role: "admin", nama: "Dashboard Induk" },
+    let modeLogin = "guru"; 
+
+    function gantiTabLogin(mode) {
+      modeLogin = mode;
+      document.getElementById("tabGuru").classList.toggle("active", mode === "guru");
+      document.getElementById("tabSiswa").classList.toggle("active", mode === "siswa");
+      document.getElementById("formGuru").classList.toggle("hidden", mode !== "guru");
+      document.getElementById("formSiswa").classList.toggle("hidden", mode !== "siswa");
+      document.getElementById("loginMessage").textContent = "";
+    }
+
+    const AKUN_GURU = {
+      "admin": { pass: "tatib2026", role: "admin", nama: "Dashboard Induk" },
       "sekretaris": { pass: "sekretaris123", role: "sekretaris", nama: "Sekretaris Siswa" }
     };
 
-    function prosesLogin() {
-      const user = document.getElementById("loginUser").value.trim();
-      const pass = document.getElementById("loginPass").value.trim();
+    async function prosesLogin() {
       const pesan = document.getElementById("loginMessage");
 
-      if (AKUN[user] && AKUN[user].pass === pass) {
-        localStorage.setItem("siTatibLogin", "true");
-        localStorage.setItem("siTatibRole", AKUN[user].role);
-        localStorage.setItem("siTatibNama", AKUN[user].nama);
+      if (modeLogin === "guru") {
+        const user = document.getElementById("loginUser").value.trim();
+        const pass = document.getElementById("loginPass").value.trim();
+
+        if (AKUN_GURU[user] && AKUN_GURU[user].pass === pass) {
+          simpanSesi(AKUN_GURU[user].role, AKUN_GURU[user].nama);
+          masukAplikasi(AKUN_GURU[user].role, AKUN_GURU[user].nama);
+        } else {
+          pesan.textContent = "❌ Username atau password Guru salah!";
+        }
+      } 
+      else if (modeLogin === "siswa") {
+        const email = document.getElementById("loginEmail").value.trim();
+        const pass = document.getElementById("loginPassSiswa").value.trim();
         
-        document.getElementById("loginScreen").classList.add("hidden");
-        document.getElementById("appArea").classList.remove("hidden");
-        pesan.textContent = "";
+        pesan.textContent = "⏳ Memeriksa akun...";
         
-        aturTampilan(AKUN[user].role, AKUN[user].nama);
-      } else {
-        pesan.textContent = "❌ Username atau password salah!";
-        document.getElementById("loginPass").value = "";
+        try {
+          // Cek akun siswa dari Firebase
+          const { doc, getDoc } = window.fbFunc;
+          const docRef = doc(window.fbDB, "AkunSiswa", email);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists() && docSnap.data().password === pass) {
+            const data = docSnap.data();
+            simpanSesi("siswa", data.nama);
+            masukAplikasi("siswa", data.nama);
+          } else {
+            pesan.textContent = "❌ Email belum terdaftar atau password salah!";
+          }
+        } catch (error) {
+          console.error(error);
+          pesan.textContent = "❌ Gagal koneksi ke database (Cek config Firebase).";
+        }
       }
+    }
+
+    function simpanSesi(role, nama) {
+      localStorage.setItem("siTatibLogin", "true");
+      localStorage.setItem("siTatibRole", role);
+      localStorage.setItem("siTatibNama", nama);
+    }
+
+    function masukAplikasi(role, nama) {
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("appArea").classList.remove("hidden");
+      document.getElementById("loginMessage").textContent = "";
+      aturTampilan(role, nama);
     }
 
     function logout() {
@@ -151,21 +225,28 @@
       location.reload();
     }
 
-        function aturTampilan(role, nama) {
-      document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK XI-6 <br><span style="color:#f6e27a;font-size:11px;">Login: ${nama}</span>`;
+    function aturTampilan(role, nama) {
+      document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK <br><span style="color:#f6e27a;font-size:11px;">Login: ${nama}</span>`;
+      
+      const wText = document.getElementById("welcomeText");
+      if(role === 'siswa') wText.textContent = `Selamat Datang, ${nama}!`;
+      else wText.textContent = `Selamat Datang, ${nama}`;
 
       if (role === "sekretaris") {
-        // Sembunyikan menu selain Absensi
         document.getElementById("menuPelanggaran").style.display = "none";
         document.getElementById("menuRekap").style.display = "none";
         document.getElementById("menuNilai").style.display = "none";
-        document.getElementById("menuKelolaSiswa").style.display = "none"; // Sembunyikan Kelola Siswa juga
-      } else {
-        // Tampilkan semua menu untuk Admin
-        document.getElementById("menuPelanggaran").style.display = "flex";
-        document.getElementById("menuRekap").style.display = "flex";
-        document.getElementById("menuNilai").style.display = "flex";
-        document.getElementById("menuKelolaSiswa").style.display = "flex";
+        document.getElementById("menuKelolaSiswa").style.display = "none";
+        document.getElementById("menuKelolaAkun").style.display = "none";
+      } 
+      else if (role === "siswa") {
+        document.getElementById("menuPelanggaran").style.display = "none";
+        document.getElementById("menuRekap").style.display = "none";
+        document.getElementById("menuKelolaSiswa").style.display = "none";
+        document.getElementById("menuKelolaAkun").style.display = "none";
+      }
+      else {
+        document.querySelectorAll('.menu-card').forEach(card => card.style.display = "flex");
       }
     }
 
@@ -173,15 +254,9 @@
       const sudah = localStorage.getItem("siTatibLogin");
       const role = localStorage.getItem("siTatibRole");
       const nama = localStorage.getItem("siTatibNama");
-
-      if (sudah === "true" && role) {
-        document.getElementById("loginScreen").classList.add("hidden");
-        document.getElementById("appArea").classList.remove("hidden");
-        aturTampilan(role, nama);
-      }
+      if (sudah === "true" && role) masukAplikasi(role, nama);
     }
 
-    // Jalankan cek login saat halaman dimuat
     window.onload = cekLogin;
   </script>
 </body>
