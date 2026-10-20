@@ -1,1 +1,45 @@
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+  // Konfigurasi Firebase Anda
+  const firebaseConfig = { /* ... isi dengan config Anda ... */ };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Fungsi ini dipanggil saat tombol "LOGIN" diklik
+  window.prosesLogin = async function() {
+    const email = document.getElementById('inputEmail').value;
+    const password = document.getElementById('inputPassword').value;
+
+    try {
+      // 1. Coba login ke Firebase Auth
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // 2. Cek apakah email ini terdaftar di koleksi "Siswa"
+      const q = query(collection(db, "Siswa"), where("email", "==", user.email));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        // ==========================================
+        // JIKA DITEMUKAN DI TABEL SISWA -> LEMPAR KE DASHBOARD SISWA
+        // ==========================================
+        alert("Login Berhasil sebagai Siswa!");
+        window.location.href = "dashboard-siswa.html"; // Pastikan nama file ini benar
+      } else {
+        // ==========================================
+        // JIKA TIDAK DITEMUKAN -> BERARTI GURU/ADMIN -> LEMPAR KE DASHBOARD INDUK
+        // ==========================================
+        alert("Login Berhasil sebagai Guru/Admin!");
+        window.location.href = "dashboard-induk.html"; // Atau index.html (Dashboard Induk Anda)
+      }
+
+    } catch (error) {
+      alert("Login Gagal: Email atau Password salah.");
+      console.error(error);
+    }
+  }
+</script>
