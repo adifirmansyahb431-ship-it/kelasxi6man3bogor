@@ -87,7 +87,7 @@
         async function ambilDataSiswa(email) {
             try {
                 // Cari data berdasarkan email yang tersimpan di sesi
-                const q = query(collection(db, "Siswa"), where("email", "==", email));
+                const q = query(collection(db, "AkunSiswa"), where("email", "==", email));
                 const querySnapshot = await getDocs(q);
 
                 if (!querySnapshot.empty) {
