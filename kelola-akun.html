@@ -9,6 +9,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    // TAMBAHAN: Import Firebase Auth untuk membuat akun login
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
@@ -21,8 +23,10 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app); // Inisialisasi Auth
 
     window.fbDB = db;
+    window.fbAuth = auth; // Simpan auth ke global window
     window.fbFunc = { collection, getDocs, doc, setDoc, deleteDoc, getDoc };
     
     window.dispatchEvent(new Event('firebaseReady'));
@@ -68,7 +72,7 @@
 
     <div class="card">
       <h3>Form Data Siswa</h3>
-      <p style="font-size:12px; color:#666; margin-top:-5px;">Isi data dengan lengkap. Email akan digunakan siswa untuk login.</p>
+      <p style="font-size:12px; color:#666; margin-top:-5px;">Isi data dengan lengkap. Email & Password akan digunakan siswa untuk login.</p>
       
       <div class="grid-2">
         <div>
@@ -103,7 +107,7 @@
         </div>
         <div>
           <label>Password (Bawaan: 12345)</label>
-          <input type="text" id="passSiswa" value="12345" readonly style="background:#eee;">
+          <input type="text" id="passSiswa" value="12345">
         </div>
       </div>
 
@@ -148,7 +152,7 @@
       const db = window.fbDB;
 
       try {
-        const querySnapshot = await getDocs(collection(db, "Siswa"));
+        const querySnapshot = await getDocs(collection(db, "Siswa")); // Ubah ke Siswa
         const select = document.getElementById("pilihSiswa");
         let opsi = '<option value="">Pilih Siswa</option>';
         
@@ -172,24 +176,17 @@
       const { collection, getDocs } = window.fbFunc;
       const db = window.fbDB;
 
+      // Cari data di koleksi Siswa
       const qSnapshot = await getDocs(collection(db, "Siswa"));
       qSnapshot.forEach(doc => {
         if(doc.data().nama === nama) {
           document.getElementById("nisSiswa").value = doc.data().nis || "";
           document.getElementById("nisnSiswa").value = doc.data().nisn || "";
+          document.getElementById("emailSiswa").value = doc.data().email || "";
+          document.getElementById("noHpSiswa").value = doc.data().noHp || "";
+          document.getElementById("alamatSiswa").value = doc.data().alamat || "";
         }
       });
-
-      if(dataAkunSiswa[nama]) {
-        const akun = dataAkunSiswa[nama];
-        document.getElementById("emailSiswa").value = akun.email || "";
-        document.getElementById("noHpSiswa").value = akun.noHp || "";
-        document.getElementById("alamatSiswa").value = akun.alamat || "";
-      } else {
-        document.getElementById("emailSiswa").value = "";
-        document.getElementById("noHpSiswa").value = "";
-        document.getElementById("alamatSiswa").value = "";
-      }
     });
 
     async function muatDataAkun() {
@@ -198,7 +195,8 @@
       const tbody = document.getElementById("listAkun");
 
       try {
-        const querySnapshot = await getDocs(collection(db, "AkunSiswa"));
+        // Baca dari koleksi Siswa
+        const querySnapshot = await getDocs(collection(db, "Siswa"));
         dataAkunSiswa = {};
         tbody.innerHTML = "";
 
@@ -239,6 +237,9 @@
       });
     }
 
+    // ==========================================
+    // FUNGSI SIMPAN YANG SUDAH DIPERBAIKI TOTAL
+    // ==========================================
     async function simpanAkun() {
       const nama = document.getElementById("pilihSiswa").value;
       const email = document.getElementById("emailSiswa").value.trim();
@@ -250,7 +251,7 @@
       const pass = document.getElementById("passSiswa").value;
       const fileFoto = document.getElementById("fotoSiswa").files[0];
 
-      if(!nama || !email) return alert("Nama dan Email wajib diisi!");
+      if(!nama || !email || !pass) return alert("Nama, Email, dan Password wajib diisi!");
 
       const btn = document.getElementById("btnSimpan");
       btn.textContent = "⏳ Menyimpan...";
@@ -258,9 +259,14 @@
 
       const { doc, setDoc } = window.fbFunc;
       const db = window.fbDB;
+      const auth = window.fbAuth;
 
       try {
-        const docId = nama.replace(/\s+/g, '_');
+        // 1. BUAT AKUN LOGIN (Authentication)
+        await createUserWithEmailAndPassword(auth, email, pass);
+        
+        // 2. SIMPAN DATA PROFIL KE FIRESTORE (Koleksi "Siswa")
+        const docId = nama.replace(/\s+/g, '_').toUpperCase();
         let fotoBase64 = dataAkunSiswa[nama] ? (dataAkunSiswa[nama].foto || "") : "";
 
         if(fileFoto) {
@@ -275,13 +281,13 @@
           kelas: kelas,
           noHp: noHp,
           alamat: alamat,
-          password: pass,
+          role: "siswa", // PENTING UNTUK DASHBOARD
           foto: fotoBase64
         };
 
-        await setDoc(doc(db, "AkunSiswa", docId), dataAkun);
+        await setDoc(doc(db, "Siswa", docId), dataAkun);
 
-        alert("✅ Akun dan profil siswa berhasil disimpan!");
+        alert("✅ Akun Login dan Profil Siswa berhasil dibuat!");
         
         // Reset form
         document.getElementById("pilihSiswa").value = "";
@@ -296,7 +302,13 @@
 
       } catch (error) {
         console.error(error);
-        alert("❌ Gagal menyimpan data.");
+        if (error.code === 'auth/email-already-in-use') {
+          alert("❌ Gagal: Email ini sudah terdaftar sebagai akun login. Gunakan email lain.");
+        } else if (error.code === 'auth/weak-password') {
+          alert("❌ Gagal: Password terlalu lemah (minimal 6 karakter).");
+        } else {
+          alert("❌ Gagal menyimpan data: " + error.message);
+        }
       } finally {
         btn.textContent = "💾 SIMPAN DATA & AKUN";
         btn.disabled = false;
@@ -304,14 +316,15 @@
     }
 
     async function hapusAkun(docId) {
-      if(!confirm("Hapus akun siswa ini?")) return;
+      if(!confirm("Hapus akun siswa ini dari database?")) return;
       
       const { doc, deleteDoc } = window.fbFunc;
       const db = window.fbDB;
 
       try {
-        await deleteDoc(doc(db, "AkunSiswa", docId));
-        muatAkunSiswa();
+        await deleteDoc(doc(db, "Siswa", docId)); // Hapus dari koleksi Siswa
+        alert("Data berhasil dihapus.");
+        muatDataAkun(); // Perbaikan: sebelumnya typo muatAkunSiswa()
       } catch (error) {
         console.error(error);
         alert("Gagal menghapus akun.");
