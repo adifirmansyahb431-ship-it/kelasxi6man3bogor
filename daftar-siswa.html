@@ -1,1 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daftar Akun Siswa - SIPADAK XI-6</title>
+  
+  <!-- FIREBASE LIBRARY -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.fbDB = db;
+    window.fbFunc = { collection, getDocs, doc, setDoc };
+    
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Segoe UI, sans-serif; background: linear-gradient(135deg, #0a3622 0%, #1a5c3a 100%); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;}
+    
+    .card { background: white; border-radius: 20px; padding: 30px; width: 100%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .logo-wrap { text-align: center; margin-bottom: 20px; }
+    .logo-wrap img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; }
+    .logo-wrap h2 { color: var(--hijau); margin: 10px 0 5px; font-size: 24px;}
+    .logo-wrap p { color: #666; margin: 0; font-size: 13px; }
+    
+    label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; color: #333;}
+    input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; font-family: inherit;}
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    
+    button { width: 100%; padding: 14px; background: var(--hijau); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px;}
+    button:hover { background: #1a5c3a; }
+    
+    .link-login { text-align: center; margin-top: 15px; font-size: 13px; color: #666; }
+    .link-login a { color: var(--hijau); font-weight: bold; text-decoration: none; }
+    
+    .status { margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 13px; display: none; text-align: center;}
+    .status.success { background: #e8f5e9; color: #1b5e20; display: block; }
+    .status.error { background: #ffebee; color: #b71c1c; display: block; }
+    .status.info { background: #e3f2fd; color: #0d47a1; display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="logo-wrap">
+      <img src="fotogroupxi-6.png" alt="logo" />
+      <h2>Daftar Akun Siswa</h2>
+      <p>SIPADAK XI-6 - MAN 3 BOGOR</p>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <label>Nama Lengkap</label>
+        <input type="text" id="regNama" placeholder="Sesuai data kelas">
+      </div>
+      <div>
+        <label>NISN</label>
+        <input type="text" id="regNisn" placeholder="NISN">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <label>NIS</label>
+        <input type="text" id="regNis" placeholder="NIS">
+      </div>
+      <div>
+        <label>No HP</label>
+        <input type="number" id="regHp" placeholder="08xxxx">
+      </div>
+    </div>
+
+    <label>Alamat</label>
+    <input type="text" id="regAlamat" placeholder="Kp. Sukamaju...">
+
+    <label>Email Aktif</label>
+    <input type="email" id="regEmail" placeholder="contoh@gmail.com">
+
+    <label>Password</label>
+    <input type="password" id="regPass" placeholder="Buat password rahasia">
+
+    <button onclick="prosesDaftar()" id="btnDaftar">📝 DAFTAR SEKARANG</button>
+    <div id="pesanStatus" class="status"></div>
+
+    <div class="link-login">
+      Sudah punya akun? <a href="index.html">Login di sini</a>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('firebaseReady', () => {
+      // Cek jika siswa sudah login, langsung lempar ke dashboard
+      if(localStorage.getItem("siTatibLogin") === "true") {
+        window.location.href = "index.html";
+      }
+    });
+
+    async function prosesDaftar() {
+      const nama = document.getElementById("regNama").value.trim().toUpperCase();
+      const nisn = document.getElementById("regNisn").value.trim();
+      const nis = document.getElementById("regNis").value.trim();
+      const noHp = document.getElementById("regHp").value.trim();
+      const alamat = document.getElementById("regAlamat").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const pass = document.getElementById("regPass").value.trim();
+      
+      const status = document.getElementById("pesanStatus");
+      const btn = document.getElementById("btnDaftar");
+
+      // Validasi
+      if(!nama || !nis || !email || !pass) {
+        status.className = "status error";
+        status.textContent = "❌ Lengkapi Nama, NIS, Email, dan Password!";
+        return;
+      }
+      if(pass.length < 5) {
+        status.className = "status error";
+        status.textContent = "❌ Password minimal 5 karakter!";
+        return;
+      }
+
+      status.className = "status info";
+      status.textContent = "⏳ Mendaftarkan akun...";
+      btn.disabled = true;
+
+      const { collection, getDocs, doc, setDoc } = window.fbFunc;
+      const db = window.fbDB;
+
+      try {
+        // 1. Cek apakah email sudah terdaftar
+        const cekEmail = await getDocs(collection(db, "AkunSiswa"));
+        let emailTerdaftar = false;
+        cekEmail.forEach(d => {
+          if(d.data().email === email) emailTerdaftar = true;
+        });
+
+        if(emailTerdaftar) {
+          status.className = "status error";
+          status.textContent = "❌ Email sudah terdaftar! Gunakan email lain atau login.";
+          btn.disabled = false;
+          return;
+        }
+
+        // 2. Cek apakah nama siswa ada di database kelas
+        const cekSiswa = await getDocs(collection(db, "Siswa"));
+        let namaSesuai = false;
+        cekSiswa.forEach(d => {
+          if(d.data().nama === nama) namaSesuai = true;
+        });
+
+        if(!namaSesuai) {
+          status.className = "status error";
+          status.textContent = "❌ Nama tidak terdaftar di kelas XI-6. Hubungi Admin/Guru.";
+          btn.disabled = false;
+          return;
+        }
+
+        // 3. Simpan Akun Baru
+        const docId = nama.replace(/\s+/g, '_');
+        const dataAkun = {
+          nama: nama,
+          email: email,
+          nis: nis,
+          nisn: nisn,
+          kelas: "XI-6",
+          noHp: noHp,
+          alamat: alamat,
+          password: pass,
+          foto: ""
+        };
+
+        await setDoc(doc(db, "AkunSiswa", docId), dataAkun);
+
+        // 4. Simpan Sesi Login Otomatis
+        localStorage.setItem("siTatibLogin", "true");
+        localStorage.setItem("siTatibRole", "siswa");
+        localStorage.setItem("siTatibNama", nama);
+
+        status.className = "status success";
+        status.textContent = "✅ Berhasil! Mengalihkan ke Dashboard...";
+        
+        // 5. Lempar ke Dashboard
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1500);
+
+      } catch (error) {
+        console.error(error);
+        status.className = "status error";
+        status.textContent = "❌ Gagal mendaftar. Cek koneksi internet.";
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
