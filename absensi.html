@@ -4,15 +4,44 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Absensi Kelas - SIPADAK XI-6</title>
+  
   <!-- Library Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
+  <!-- FIREBASE LIBRARY -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    // ================= KONFIGURASI FIREBASE =================
+    // GANTI BAGIAN INI DENGAN CONFIG DARI FIREBASE CONSOLE KAMU
+    const firebaseConfig = {
+      apiKey: "ISI_API_KEY_KAMU",
+      authDomain: "ISI_AUTH_DOMAIN_KAMU",
+      projectId: "ISI_PROJECT_ID_KAMU",
+      storageBucket: "ISI_STORAGE_BUCKET_KAMU",
+      messagingSenderId: "ISI_SENDER_ID_KAMU",
+      appId: "ISI_APP_ID_KAMU"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Ekspos ke window agar bisa dipakai script biasa di bawah
+    window.fbDB = db;
+    window.fbFunc = { collection, getDocs, doc, setDoc, deleteDoc, query, where };
+    
+    // Beri sinyal bahwa Firebase siap
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
     .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100;}
     .header h1 { margin: 0; font-size: 20px; }
-    .container { max-width: 1250px; margin: 20px auto; padding: 0 16px; }
+    .container { max-width: 1300px; margin: 20px auto; padding: 0 16px; }
     .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
     
     .top-action { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; background: white; padding: 15px; border-radius: 14px; box-shadow: 0 2px 9px rgba(0,0,0,0.07);}
@@ -24,7 +53,6 @@
     .btn-save { background: #16a085; }
     .btn-print { background: #e67e22; }
     .btn-download { background: #2471a3; }
-    .btn-delete-day { background: #c0392b; }
     
     /* Kotak Rekap Total Harian */
     .rekap-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
@@ -38,9 +66,9 @@
 
     /* Tabel Absensi */
     .table-responsive { overflow-x: auto; border: 1px solid #ddd; border-radius: 8px; }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 800px; }
     th, td { border-bottom: 1px solid #e5e7eb; padding: 10px; text-align: left; vertical-align: middle; }
-    th { background: #f8fafc; font-weight: bold; position: sticky; top: 0; }
+    th { background: #f8fafc; font-weight: bold; position: sticky; top: 0; text-align: center;}
     
     .status-select { padding: 8px; border-radius: 6px; font-weight: bold; border: 1px solid #ccc; width: 130px; cursor: pointer; text-align: center; }
     .status-select.Hadir { background: #e8f8f5; color: #1abc9c; border-color: #1abc9c; }
@@ -51,21 +79,9 @@
     .input-ket { padding: 8px; border: 1px solid #ccc; border-radius: 6px; width: 100%; }
     .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
 
-    /* Kolom Akumulasi yang bisa diedit */
-    .kolom-akumulasi { background: #fafafa; text-align: center; font-weight: bold; border-left: 2px dashed #ccc; }
-    .th-akumulasi { background: #e2e8f0; text-align: center; border-left: 2px dashed #ccc; }
-    .total-input { width: 100%; border: none; background: transparent; text-align: center; font-weight: bold; font-size: 15px; padding: 5px 0;}
-    .total-input::-webkit-outer-spin-button, .total-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    
-    .teks-hadir { color: #2ecc71; }
-    .teks-sakit { color: #d4ac0d; }
-    .teks-izin { color: #3498db; }
-    .teks-alpa { color: #e74c3c; }
-
     /* Tombol Aksi di Tabel */
-    .btn-aksi-kecil { border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; color: white; display: inline-block; margin: 2px 0;}
+    .btn-aksi-kecil { border: none; padding: 6px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; color: white; display: block; width: 100%; margin-bottom: 4px;}
     .btn-hapus-baris { background: #e74c3c; }
-    .btn-reset-baris { background: #f39c12; }
 
     /* Area Tanda Tangan */
     .ttd-section { display: none; margin-top: 40px; page-break-inside: avoid; }
@@ -84,17 +100,16 @@
       .header { display: none; }
       .print-header { display: block; }
       .ttd-section { display: block !important; }
-      .status-select, .input-ket, .total-input { border: none !important; background: transparent !important; appearance: none; font-weight: bold; padding: 0; width: 100%; color: black !important; text-align: left;}
-      .r-hadir, .r-sakit, .r-izin, .r-alpa, .teks-hadir, .teks-sakit, .teks-izin, .teks-alpa { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .status-select, .input-ket { border: none !important; background: transparent !important; appearance: none; font-weight: bold; padding: 0; width: 100%; color: black !important; text-align: left;}
+      .r-hadir, .r-sakit, .r-izin, .r-alpa { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       table, th, td { border: 1px solid #000; }
     }
-    @media (max-width: 600px) { .rekap-box { grid-template-columns: 1fr 1fr; } .btn { width: 100%; margin-bottom: 5px;} .action-buttons { width: 100%; flex-direction: column;} .ttd-flex { flex-direction: column; align-items: center; gap: 30px;} .ttd-box { width: 100%; } }
   </style>
 </head>
 <body>
   <div class="header no-print">
     <h1>📋 Absensi Kelas</h1>
-    <span id="roleUser">MAN 3 BOGOR</span>
+    <span id="roleUser">Memuat...</span>
   </div>
 
   <div class="container">
@@ -102,7 +117,7 @@
 
     <div class="print-header">
       <h2 style="margin:0;">DAFTAR HADIR SISWA</h2>
-      <h3 style="margin:5px 0;">MAN 3 BOGOR - KELAS XI.6</h3>
+      <h3 style="margin:5px 0;">SIPADAK XI-6 - MAN 3 BOGOR</h3>
     </div>
 
     <div class="top-action no-print">
@@ -110,10 +125,9 @@
       <input type="date" id="absensiTanggal" onchange="muatDataAbsensi()">
       
       <div class="action-buttons">
-        <button class="btn btn-delete-day" onclick="hapusTanggalIni()">🗑️ Hapus Tgl Ini</button>
         <button class="btn btn-download" onclick="downloadExcel()">⬇️ Download Rekap</button>
         <button class="btn btn-print" onclick="window.print()">🖨️ Cetak / PDF</button>
-        <button class="btn btn-save" onclick="simpanSemuaAbsensi()">💾 SIMPAN</button>
+        <button class="btn btn-save" onclick="simpanSemuaAbsensi()" id="btnSimpan">💾 SIMPAN</button>
       </div>
     </div>
 
@@ -129,24 +143,22 @@
         <table>
           <thead>
             <tr>
-              <th style="width: 50px; text-align: center;">No</th>
+              <th style="width: 40px;">No</th>
               <th>Nama Siswa</th>
-              <th style="width: 130px;">Status (Hari Ini)</th>
-              <th style="width: 200px;">Keterangan</th>
-              <th class="th-akumulasi" style="width: 50px;" title="Total Hadir">H</th>
-              <th class="th-akumulasi" style="width: 50px;" title="Total Sakit">S</th>
-              <th class="th-akumulasi" style="width: 50px;" title="Total Izin">I</th>
-              <th class="th-akumulasi" style="width: 50px;" title="Total Alpa">A</th>
-              <th style="width: 100px; text-align: center;" class="no-print">Aksi</th>
+              <th style="width: 130px;">Status</th>
+              <th style="width: 180px;">Keterangan</th>
+              <th style="width: 80px;" class="no-print">Aksi</th>
             </tr>
           </thead>
-          <tbody id="listAbsensi"></tbody>
+          <tbody id="listAbsensi">
+            <tr><td colspan="5" style="text-align:center;">Memuat data dari Firebase...</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
 
     <div class="ttd-section" id="areaTtd">
-      <div class="ttd-tanggal" id="titimangsa">Jonggol, 19 Oktober 2026</div>
+      <div class="ttd-tanggal" id="titimangsa">Jonggol, 20 Oktober 2026</div>
       <div class="ttd-flex">
         <div class="ttd-box">
           <p>Wali Kelas,</p>
@@ -163,66 +175,86 @@
   </div>
 
   <script>
+    // Cek Sesi Login
     if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
-    const userRole = localStorage.getItem("siTatibRole");
-    const userName = localStorage.getItem("siTatibNama");
-    document.getElementById("roleUser").textContent = userName || "MAN 3 BOGOR";
+    document.getElementById("roleUser").textContent = localStorage.getItem("siTatibNama") || "SIPADAK";
 
-    const ABSENSI_KEY = "siTatibAbsensi";
-    const MANUAL_TOTAL_KEY = "siTatibManualTotal"; // Menyimpan nilai H,S,I,A yang diedit manual
-    
-    let absensiDb = [];
-    let manualTotal = {};
-    let listSiswa = [];
+    let listSiswaGlobal = [];
+    let dataAbsensiHariIni = {};
 
-    window.onload = function() {
+    // Tunggu sampai Firebase siap
+    window.addEventListener('firebaseReady', () => {
       document.getElementById('absensiTanggal').valueAsDate = new Date();
+      inisialisasiHalaman();
+    });
+
+    async function inisialisasiHalaman() {
+      const { collection, getDocs } = window.fbFunc;
+      const db = window.fbDB;
+      const tbody = document.getElementById("listAbsensi");
       
-      absensiDb = JSON.parse(localStorage.getItem(ABSENSI_KEY) || "[]");
-      manualTotal = JSON.parse(localStorage.getItem(MANUAL_TOTAL_KEY) || "{}");
-      listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
-      
-      if (listSiswa.length === 0) {
-        listSiswa = ["ADINDA RIZKY AYU PUTRI", "AHMAD FAQIH ALFAIQ", "AIA TRINIYULIYANTI"]; 
+      try {
+        // 1. Ambil Daftar Siswa dari Firebase
+        const querySnapshot = await getDocs(collection(db, "Siswa"));
+        listSiswaGlobal = [];
+        querySnapshot.forEach((doc) => {
+          listSiswaGlobal.push(doc.data().nama);
+        });
+
+        if(listSiswaGlobal.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data siswa di database. Silakan upload via menu Kelola Siswa.</td></tr>';
+          return;
+        }
+
+        // 2. Muat Data Absensi
+        muatDataAbsensi();
+
+      } catch (error) {
+        console.error("Error Firebase:", error);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal terhubung ke database. Cek konfigurasi Firebase.</td></tr>';
       }
+    }
 
-      muatDataAbsensi();
-    };
-
-    function muatDataAbsensi() {
+    async function muatDataAbsensi() {
       const tgl = document.getElementById('absensiTanggal').value;
+      if(!tgl || listSiswaGlobal.length === 0) return;
+
+      const tbody = document.getElementById("listAbsensi");
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat absensi tanggal ' + tgl + '...</td></tr>';
+      
+      // Update Tanggal TTD
+      const dateObj = new Date(tgl);
+      document.getElementById('titimangsa').textContent = `Jonggol, ${dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+
+      const { collection, getDocs, query, where } = window.fbFunc;
+      const db = window.fbDB;
+
+      try {
+        dataAbsensiHariIni = {};
+        // Ambil absensi khusus tanggal ini
+        const q = query(collection(db, "Absensi"), where("tanggal", "==", tgl));
+        const querySnapshot = await getDocs(q);
+        
+        querySnapshot.forEach((doc) => {
+          dataAbsensiHariIni[doc.data().nama] = doc.data();
+        });
+
+        renderTabel(tgl);
+
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat absensi.</td></tr>';
+      }
+    }
+
+    function renderTabel(tgl) {
       const tbody = document.getElementById("listAbsensi");
       tbody.innerHTML = "";
 
-      if(tgl) {
-        const dateObj = new Date(tgl);
-        const options = { day: 'numeric', month: 'long', year: 'numeric' };
-        document.getElementById('titimangsa').textContent = `Jonggol, ${dateObj.toLocaleDateString('id-ID', options)}`;
-      }
-
-      const dataHariIni = absensiDb.filter(a => a.tgl === tgl);
-
-      listSiswa.forEach((siswa, index) => {
-        const record = dataHariIni.find(a => a.nama === siswa);
+      listSiswaGlobal.forEach((siswa, index) => {
+        const record = dataAbsensiHariIni[siswa];
         const status = record ? record.status : "Hadir";
         const ket = record ? (record.ket || "") : "";
-
-        // Ambil Nilai Total (Jika belum pernah diedit manual, hitung dari riwayat)
-        let tH = 0, tS = 0, tI = 0, tA = 0;
-        if (manualTotal[siswa]) {
-            tH = manualTotal[siswa].H;
-            tS = manualTotal[siswa].S;
-            tI = manualTotal[siswa].I;
-            tA = manualTotal[siswa].A;
-        } else {
-            const riwayatSiswa = absensiDb.filter(a => a.nama === siswa);
-            riwayatSiswa.forEach(r => {
-              if(r.status === 'Hadir') tH++;
-              else if(r.status === 'Sakit') tS++;
-              else if(r.status === 'Izin') tI++;
-              else if(r.status === 'Alpa') tA++;
-            });
-        }
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -237,17 +269,8 @@
             </select>
           </td>
           <td><input type="text" class="input-ket" value="${ket}" placeholder="-"></td>
-          
-          <!-- Kolom Total yang Bisa Diedit -->
-          <td class="kolom-akumulasi"><input type="number" class="total-input teks-hadir" value="${tH}" onchange="editManualTotal('${siswa.replace(/'/g, "\\'")}', 'H', this.value)"></td>
-          <td class="kolom-akumulasi"><input type="number" class="total-input teks-sakit" value="${tS}" onchange="editManualTotal('${siswa.replace(/'/g, "\\'")}', 'S', this.value)"></td>
-          <td class="kolom-akumulasi"><input type="number" class="total-input teks-izin" value="${tI}" onchange="editManualTotal('${siswa.replace(/'/g, "\\'")}', 'I', this.value)"></td>
-          <td class="kolom-akumulasi"><input type="number" class="total-input teks-alpa" value="${tA}" onchange="editManualTotal('${siswa.replace(/'/g, "\\'")}', 'A', this.value)"></td>
-          
-          <!-- Tombol Aksi -->
           <td class="no-print" style="text-align:center;">
             <button class="btn-aksi-kecil btn-hapus-baris" onclick="hapusAbsensiSiswa('${siswa.replace(/'/g, "\\'")}')">Hapus</button>
-            <button class="btn-aksi-kecil btn-reset-baris" onclick="resetTotalSiswa('${siswa.replace(/'/g, "\\'")}')">Reset</button>
           </td>
         `;
         tr.setAttribute('data-nama', siswa);
@@ -277,85 +300,69 @@
       document.getElementById('totalAlpa').textContent = alpa;
     }
 
-    // ==================== EDIT MANUAL TOTAL (H, S, I, A) ====================
-    function editManualTotal(nama, tipe, val) {
-        if (!manualTotal[nama]) manualTotal[nama] = { H: 0, S: 0, I: 0, A: 0 };
-        manualTotal[nama][tipe] = Number(val);
-        localStorage.setItem(MANUAL_TOTAL_KEY, JSON.stringify(manualTotal));
-    }
-
-    // ==================== RESET TOTAL KE NOL ====================
-    function resetTotalSiswa(nama) {
-        if (!confirm(`Yakin ingin mereset (menghapus) total H/S/I/A untuk ${nama} menjadi 0?`)) return;
-        manualTotal[nama] = { H: 0, S: 0, I: 0, A: 0 };
-        localStorage.setItem(MANUAL_TOTAL_KEY, JSON.stringify(manualTotal));
-        muatDataAbsensi(); // Refresh tabel
-    }
-
-    function simpanSemuaAbsensi() {
+    // ==================== SIMPAN KE FIREBASE ====================
+    async function simpanSemuaAbsensi() {
       const tgl = document.getElementById('absensiTanggal').value;
       if(!tgl) return alert("Pilih tanggal terlebih dahulu!");
+
+      const btn = document.getElementById('btnSimpan');
+      btn.textContent = "⏳ Menyimpan...";
+      btn.disabled = true;
 
       const rows = document.querySelectorAll('#listAbsensi tr');
-      let dataBaru = [];
+      const { doc, setDoc } = window.fbFunc;
+      const db = window.fbDB;
 
-      rows.forEach(tr => {
-        const nama = tr.getAttribute('data-nama');
-        const status = tr.querySelector('.status-select').value;
-        const ket = tr.querySelector('.input-ket').value.trim();
-        dataBaru.push({ id: Date.now() + Math.random(), tgl: tgl, nama: nama, status: status, ket: ket });
-      });
+      try {
+        let promises = [];
 
-      let dataLain = absensiDb.filter(a => a.tgl !== tgl);
-      let dataGabungan = [...dataLain, ...dataBaru];
+        for (let tr of rows) {
+          const nama = tr.getAttribute('data-nama');
+          const status = tr.querySelector('.status-select').value;
+          const ket = tr.querySelector('.input-ket').value.trim();
 
-      localStorage.setItem(ABSENSI_KEY, JSON.stringify(dataGabungan));
-      absensiDb = dataGabungan;
-      
-      alert(`✅ Absensi tanggal ${tgl} berhasil disimpan!`);
+          // ID Dokumen: Tanggal_Nama (Tanpa Spasi)
+          const docId = `${tgl}_${nama.replace(/\s+/g, '')}`;
+          const docRef = doc(db, "Absensi", docId);
+
+          const data = { tanggal: tgl, nama: nama, status: status, ket: ket };
+          promises.push(setDoc(docRef, data));
+        }
+
+        await Promise.all(promises);
+        alert(`✅ Absensi tanggal ${tgl} berhasil disimpan ke Server!`);
+        
+        // Refresh data dari server untuk memastikan sinkron
+        muatDataAbsensi();
+
+      } catch (error) {
+        console.error(error);
+        alert("❌ Gagal menyimpan ke database. Cek koneksi internet.");
+      } finally {
+        btn.textContent = "💾 SIMPAN";
+        btn.disabled = false;
+      }
     }
 
-    function hapusAbsensiSiswa(namaSiswa) {
+    async function hapusAbsensiSiswa(namaSiswa) {
       const tgl = document.getElementById('absensiTanggal').value;
-      if(!confirm(`Hapus data absensi ${namaSiswa} pada tanggal ${tgl}?\n\n(Status dropdown akan kembali menjadi 'Hadir')`)) return;
+      if(!confirm(`Hapus data absensi ${namaSiswa} pada tanggal ${tgl}?\n(Status akan kembali menjadi 'Hadir')`)) return;
 
-      absensiDb = absensiDb.filter(a => !(a.tgl === tgl && a.nama === namaSiswa));
-      localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
-      muatDataAbsensi(); 
-    }
+      const { doc, deleteDoc } = window.fbFunc;
+      const db = window.fbDB;
+      const docId = `${tgl}_${namaSiswa.replace(/\s+/g, '')}`;
 
-    function hapusTanggalIni() {
-      const tgl = document.getElementById('absensiTanggal').value;
-      if(!tgl) return alert("Pilih tanggal terlebih dahulu!");
-      
-      if(!confirm(`Hapus SEMUA data absensi tanggal ${tgl}?\n\nData yang dihapus tidak bisa dikembalikan.`)) return;
-
-      absensiDb = absensiDb.filter(a => a.tgl !== tgl);
-      localStorage.setItem(ABSENSI_KEY, JSON.stringify(absensiDb));
-      
-      alert(`Data absensi tanggal ${tgl} telah dihapus.`);
-      muatDataAbsensi();
+      try {
+        await deleteDoc(doc(db, "Absensi", docId));
+        muatDataAbsensi(); // Refresh
+      } catch (error) {
+        console.error(error);
+        alert("Gagal menghapus data.");
+      }
     }
 
     function downloadExcel() {
-      if(absensiDb.length === 0) return alert("Belum ada data absensi untuk didownload!");
-
-      const headers = ["Tanggal", "Nama Siswa", "Status", "Keterangan"];
-      const wsData = [headers];
-
-      const sortedData = [...absensiDb].sort((a,b) => {
-        if(a.tgl !== b.tgl) return a.tgl.localeCompare(b.tgl);
-        return a.nama.localeCompare(b.nama);
-      });
-
-      sortedData.forEach(a => {
-        wsData.push([a.tgl, a.nama, a.status, a.ket || "-"]);
-      });
-
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Rekap Absensi");
-      XLSX.writeFile(wb, "Rekap_Absensi_SI-TATIB.xlsx");
+      alert("Fitur Download Excel akan dihubungkan ke Firebase pada tahap selanjutnya.");
     }
   </script>
 </body>
