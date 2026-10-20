@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Akun Siswa - SIPADAK XI-6</title>
+  
+  <!-- FIREBASE LIBRARY -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.fbDB = db;
+    window.fbFunc = { collection, getDocs, doc, setDoc, deleteDoc, getDoc };
+    
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
+    h3 { margin-top: 0; color: var(--hijau); }
+    label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; font-family: inherit;}
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+    
+    button { border: none; border-radius: 8px; padding: 12px; font-weight: bold; cursor: pointer; }
+    .btn-save { background: #16a085; color: white; width: 100%; font-size: 15px;}
+    .btn-save:hover { background: #12876f; }
+    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+    
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
+    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; vertical-align: middle; }
+    th { background: #f5f5f5; }
+    .foto-profil { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #16a085; }
+    .btn-hapus { background: #e74c3c; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; }
+    
+    @media (max-width: 600px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>👤 Akun & Profil Siswa</h1>
+    <span>SIPADAK XI-6</span>
+  </div>
+
+  <div class="container">
+    <a href="index.html" class="btn-back">⬅ Kembali ke Dashboard</a>
+
+    <div class="card">
+      <h3>Form Data Siswa</h3>
+      <p style="font-size:12px; color:#666; margin-top:-5px;">Isi data dengan lengkap. Email akan digunakan siswa untuk login.</p>
+      
+      <div class="grid-2">
+        <div>
+          <label>Nama Siswa</label>
+          <select id="pilihSiswa"><option value="">Memuat data...</option></select>
+        </div>
+        <div>
+          <label>Email (Untuk Login)</label>
+          <input type="email" id="emailSiswa" placeholder="contoh@gmail.com">
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div>
+          <label>NIS</label>
+          <input type="text" id="nisSiswa" placeholder="NIS">
+        </div>
+        <div>
+          <label>NISN</label>
+          <input type="text" id="nisnSiswa" placeholder="NISN">
+        </div>
+        <div>
+          <label>Kelas</label>
+          <input type="text" id="kelasSiswa" value="XI-6" readonly style="background:#eee;">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>No. HP</label>
+          <input type="number" id="noHpSiswa" placeholder="08xxxx">
+        </div>
+        <div>
+          <label>Password (Bawaan: 12345)</label>
+          <input type="text" id="passSiswa" value="12345" readonly style="background:#eee;">
+        </div>
+      </div>
+
+      <label>Alamat Lengkap</label>
+      <textarea id="alamatSiswa" rows="2" placeholder="Kp. Sukamaju..."></textarea>
+
+      <label>Foto Profil (Opsional)</label>
+      <input type="file" id="fotoSiswa" accept="image/*" style="border:none; padding:0; margin-bottom:20px;">
+
+      <button class="btn-save" onclick="simpanAkun()" id="btnSimpan">💾 SIMPAN DATA & AKUN</button>
+    </div>
+
+    <div class="card">
+      <h3>Daftar Akun Terdaftar</h3>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nama</th>
+              <th>Email</th>
+              <th>NIS/NISN</th>
+              <th>No HP</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="listAkun">
+            <tr><td colspan="6" style="text-align:center;">Memuat data dari Firebase...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+
+    let dataAkunSiswa = {};
+
+    window.addEventListener('firebaseReady', async () => {
+      const { collection, getDocs } = window.fbFunc;
+      const db = window.fbDB;
+
+      try {
+        const querySnapshot = await getDocs(collection(db, "Siswa"));
+        const select = document.getElementById("pilihSiswa");
+        let opsi = '<option value="">Pilih Siswa</option>';
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          opsi += `<option value="${data.nama}">${data.nama}</option>`;
+        });
+        select.innerHTML = opsi;
+
+        muatDataAkun();
+
+      } catch (error) {
+        console.error("Error load siswa:", error);
+      }
+    });
+
+    document.getElementById("pilihSiswa").addEventListener("change", async function() {
+      const nama = this.value;
+      if(!nama) return;
+
+      const { collection, getDocs } = window.fbFunc;
+      const db = window.fbDB;
+
+      const qSnapshot = await getDocs(collection(db, "Siswa"));
+      qSnapshot.forEach(doc => {
+        if(doc.data().nama === nama) {
+          document.getElementById("nisSiswa").value = doc.data().nis || "";
+          document.getElementById("nisnSiswa").value = doc.data().nisn || "";
+        }
+      });
+
+      if(dataAkunSiswa[nama]) {
+        const akun = dataAkunSiswa[nama];
+        document.getElementById("emailSiswa").value = akun.email || "";
+        document.getElementById("noHpSiswa").value = akun.noHp || "";
+        document.getElementById("alamatSiswa").value = akun.alamat || "";
+      } else {
+        document.getElementById("emailSiswa").value = "";
+        document.getElementById("noHpSiswa").value = "";
+        document.getElementById("alamatSiswa").value = "";
+      }
+    });
+
+    async function muatDataAkun() {
+      const { collection, getDocs } = window.fbFunc;
+      const db = window.fbDB;
+      const tbody = document.getElementById("listAkun");
+
+      try {
+        const querySnapshot = await getDocs(collection(db, "AkunSiswa"));
+        dataAkunSiswa = {};
+        tbody.innerHTML = "";
+
+        if(querySnapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada akun siswa terdaftar.</td></tr>';
+          return;
+        }
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          dataAkunSiswa[data.nama] = data;
+
+          const foto = data.foto || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.nama) + '&background=16a085&color=fff';
+
+          tbody.innerHTML += `
+            <tr>
+              <td><img src="${foto}" class="foto-profil"></td>
+              <td><b>${data.nama}</b></td>
+              <td>${data.email || "-"}</td>
+              <td>${data.nis || "-"}<br><small>${data.nisn || "-"}</small></td>
+              <td>${data.noHp || "-"}</td>
+              <td><button class="btn-hapus" onclick="hapusAkun('${doc.id}')">Hapus</button></td>
+            </tr>
+          `;
+        });
+
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    function getBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    async function simpanAkun() {
+      const nama = document.getElementById("pilihSiswa").value;
+      const email = document.getElementById("emailSiswa").value.trim();
+      const nis = document.getElementById("nisSiswa").value.trim();
+      const nisn = document.getElementById("nisnSiswa").value.trim();
+      const kelas = document.getElementById("kelasSiswa").value;
+      const noHp = document.getElementById("noHpSiswa").value.trim();
+      const alamat = document.getElementById("alamatSiswa").value.trim();
+      const pass = document.getElementById("passSiswa").value;
+      const fileFoto = document.getElementById("fotoSiswa").files[0];
+
+      if(!nama || !email) return alert("Nama dan Email wajib diisi!");
+
+      const btn = document.getElementById("btnSimpan");
+      btn.textContent = "⏳ Menyimpan...";
+      btn.disabled = true;
+
+      const { doc, setDoc } = window.fbFunc;
+      const db = window.fbDB;
+
+      try {
+        const docId = nama.replace(/\s+/g, '_');
+        let fotoBase64 = dataAkunSiswa[nama] ? (dataAkunSiswa[nama].foto || "") : "";
+
+        if(fileFoto) {
+          fotoBase64 = await getBase64(fileFoto);
+        }
+
+        const dataAkun = {
+          nama: nama,
+          email: email,
+          nis: nis,
+          nisn: nisn,
+          kelas: kelas,
+          noHp: noHp,
+          alamat: alamat,
+          password: pass,
+          foto: fotoBase64
+        };
+
+        await setDoc(doc(db, "AkunSiswa", docId), dataAkun);
+
+        alert("✅ Akun dan profil siswa berhasil disimpan!");
+        
+        // Reset form
+        document.getElementById("pilihSiswa").value = "";
+        document.getElementById("emailSiswa").value = "";
+        document.getElementById("nisSiswa").value = "";
+        document.getElementById("nisnSiswa").value = "";
+        document.getElementById("noHpSiswa").value = "";
+        document.getElementById("alamatSiswa").value = "";
+        document.getElementById("fotoSiswa").value = "";
+
+        muatDataAkun();
+
+      } catch (error) {
+        console.error(error);
+        alert("❌ Gagal menyimpan data.");
+      } finally {
+        btn.textContent = "💾 SIMPAN DATA & AKUN";
+        btn.disabled = false;
+      }
+    }
+
+    async function hapusAkun(docId) {
+      if(!confirm("Hapus akun siswa ini?")) return;
+      
+      const { doc, deleteDoc } = window.fbFunc;
+      const db = window.fbDB;
+
+      try {
+        await deleteDoc(doc(db, "AkunSiswa", docId));
+        muatAkunSiswa();
+      } catch (error) {
+        console.error(error);
+        alert("Gagal menghapus akun.");
+      }
+    }
+  </script>
+</body>
+</html>
