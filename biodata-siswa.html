@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biodata Siswa - SIPADAK XI-6</title>
+    <style>
+        :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
+        
+        .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+        .header h1 { margin: 0; font-size: 20px; }
+        .btn-logout { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 9px 14px; font-weight: 700; cursor: pointer; }
+        
+        .container { max-width: 700px; margin: 30px auto; padding: 0 16px; }
+        .card { background: white; padding: 25px; border-radius: 14px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); border-top: 5px solid var(--hijau); }
+        
+        h2 { color: var(--hijau); text-align: center; margin-top: 0; margin-bottom: 25px; border-bottom: 2px dashed #ccc; padding-bottom: 15px; }
+        
+        .info-row { display: flex; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .info-row:last-child { border-bottom: none; }
+        .label { font-weight: bold; width: 150px; color: #555; }
+        .value { flex: 1; color: #111; font-weight: 500; }
+        
+        .loading { text-align: center; color: #888; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>
+            <h1>SIPADAK XI-6</h1>
+            <small style="color:white;">MAN 3 BOGOR</small>
+        </div>
+        <button class="btn-logout" onclick="logout()">🚪 KELUAR</button>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Biodata Siswa</h2>
+            
+            <div id="loading" class="loading">Memuat data profil...</div>
+            
+            <div id="dataSiswa" style="display: none;">
+                <div class="info-row"><div class="label">Nama Lengkap</div><div class="value" id="out-nama"></div></div>
+                <div class="info-row"><div class="label">NIS</div><div class="value" id="out-nis"></div></div>
+                <div class="info-row"><div class="label">NISN</div><div class="value" id="out-nisn"></div></div>
+                <div class="info-row"><div class="label">Kelas</div><div class="value" id="out-kelas"></div></div>
+                <div class="info-row"><div class="label">Email</div><div class="value" id="out-email"></div></div>
+                <div class="info-row"><div class="label">No. HP</div><div class="value" id="out-hp"></div></div>
+                <div class="info-row"><div class="label">Alamat</div><div class="value" id="out-alamat"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Konfigurasi Firebase (Sama dengan file lain)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+            authDomain: "sipadak-xi6.firebaseapp.com",
+            projectId: "sipadak-xi6",
+            storageBucket: "sipadak-xi6.firebasestorage.app",
+            messagingSenderId: "981787419124",
+            appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Cek Sesi Login
+        const sudahLogin = localStorage.getItem("siTatibLogin");
+        const role = localStorage.getItem("siTatibRole");
+        const emailLogin = localStorage.getItem("siTatibEmail");
+
+        // Jika belum login atau bukan siswa, kembalikan ke halaman login
+        if (sudahLogin !== "true" || role !== "siswa" || !emailLogin) {
+            window.location.href = "index.html";
+        } else {
+            // Jika valid, ambil data dari Firestore
+            ambilDataSiswa(emailLogin);
+        }
+
+        async function ambilDataSiswa(email) {
+            try {
+                // Cari data berdasarkan email yang tersimpan di sesi
+                const q = query(collection(db, "Siswa"), where("email", "==", email));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const data = querySnapshot.docs[0].data();
+                    
+                    // Isi elemen HTML dengan data dari Firebase
+                    document.getElementById('out-nama').innerText = data.nama || "-";
+                    document.getElementById('out-nis').innerText = data.nis || "-";
+                    document.getElementById('out-nisn').innerText = data.nisn || "-";
+                    document.getElementById('out-kelas').innerText = data.kelas || "-";
+                    document.getElementById('out-email').innerText = data.email || "-";
+                    document.getElementById('out-hp').innerText = data.noHp || "-";
+                    document.getElementById('out-alamat').innerText = data.alamat || "-";
+
+                    // Sembunyikan loading, tampilkan data
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('dataSiswa').style.display = 'block';
+                } else {
+                    document.getElementById('loading').innerText = "Data profil tidak ditemukan di database.";
+                }
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').innerText = "Gagal memuat data. Periksa koneksi internet.";
+            }
+        }
+
+        // Fungsi Logout
+        window.logout = function() {
+            if(confirm("Yakin ingin keluar?")) {
+                localStorage.removeItem("siTatibLogin");
+                localStorage.removeItem("siTatibRole");
+                localStorage.removeItem("siTatibNama");
+                localStorage.removeItem("siTatibEmail");
+                window.location.href = "index.html";
+            }
+        }
+    </script>
+</body>
+</html>
