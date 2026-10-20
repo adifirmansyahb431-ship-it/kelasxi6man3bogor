@@ -8,18 +8,12 @@
   <!-- Library Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   
-  <!-- FIREBASE LIBRARY -->
+  <!-- FIREBASE LIBRARY (DIPERBAIKI) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     // ================= KONFIGURASI FIREBASE =================
-      <!-- FIREBASE LIBRARY -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-    // ================= KONFIGURASI FIREBASE (SUDAH DIISI) =================
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
       authDomain: "sipadak-xi6.firebaseapp.com",
@@ -27,19 +21,6 @@
       storageBucket: "sipadak-xi6.firebasestorage.app",
       messagingSenderId: "981787419124",
       appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
-    };
-
-    // Inisialisasi Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Ekspos ke window agar bisa dipakai script biasa di bawah
-    window.fbDB = db;
-    window.fbFunc = { collection, getDocs, doc, setDoc, deleteDoc, query, where };
-    
-    // Beri sinyal bahwa Firebase siap
-    window.dispatchEvent(new Event('firebaseReady'));
-  </script>
     };
 
     const app = initializeApp(firebaseConfig);
@@ -140,6 +121,7 @@
 
     <div class="top-action no-print">
       <label>Tanggal:</label>
+      <!-- Input date dibiarkan kosong, akan diisi oleh JS -->
       <input type="date" id="absensiTanggal" onchange="muatDataAbsensi()">
       
       <div class="action-buttons">
@@ -192,16 +174,17 @@
     </div>
   </div>
 
+  <!-- Script Utama (TANPA type="module" agar tidak bocor ke layar) -->
   <script>
-    // Cek Sesi Login
     if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
     document.getElementById("roleUser").textContent = localStorage.getItem("siTatibNama") || "SIPADAK";
 
     let listSiswaGlobal = [];
     let dataAbsensiHariIni = {};
 
-    // Tunggu sampai Firebase siap
+    // Fungsi ini dipanggil setelah Firebase berhasil dimuat
     window.addEventListener('firebaseReady', () => {
+      // Set tanggal ke hari ini
       document.getElementById('absensiTanggal').valueAsDate = new Date();
       inisialisasiHalaman();
     });
@@ -212,7 +195,7 @@
       const tbody = document.getElementById("listAbsensi");
       
       try {
-        // 1. Ambil Daftar Siswa dari Firebase
+        // Ambil daftar siswa dari Firebase
         const querySnapshot = await getDocs(collection(db, "Siswa"));
         listSiswaGlobal = [];
         querySnapshot.forEach((doc) => {
@@ -224,12 +207,12 @@
           return;
         }
 
-        // 2. Muat Data Absensi
+        // Muat data absensi untuk tanggal yang dipilih
         muatDataAbsensi();
 
       } catch (error) {
         console.error("Error Firebase:", error);
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal terhubung ke database. Cek konfigurasi Firebase.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal terhubung ke database.</td></tr>';
       }
     }
 
@@ -336,6 +319,8 @@
 
         for (let tr of rows) {
           const nama = tr.getAttribute('data-nama');
+          if(!nama) continue; // Skip baris loading jika ada
+
           const status = tr.querySelector('.status-select').value;
           const ket = tr.querySelector('.input-ket').value.trim();
 
