@@ -137,7 +137,7 @@
           const db = window.fbDB;
           
           // CARI DATA SISWA DI KOLEKSI "Siswa"
-          const q = query(collection(db, "Siswa"), where("email", "==", email), where("password", "==", pass));
+          const q = query(collection(db, "AkunSiswa"), where("email", "==", email), where("password", "==", pass));
           const querySnapshot = await getDocs(q);
 
           if (!querySnapshot.empty) {
