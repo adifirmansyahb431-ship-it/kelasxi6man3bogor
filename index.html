@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login - SIPADAK XI-6</title>
   
-  <!-- FIREBASE LIBRARY -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-    // ================= KONFIGURASI FIREBASE =================
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
       authDomain: "sipadak-xi6.firebaseapp.com",
@@ -21,79 +20,72 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.fbDB = db;
-    window.fbFunc = { collection, getDocs, query, where };
-    
-    window.dispatchEvent(new Event('firebaseReady'));
+    window.db = getFirestore(app);
+    window.auth = getAuth(app);
+    window.fbFunc = { doc, getDoc, signInWithEmailAndPassword };
   </script>
 
   <style>
-    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    :root { --hijau: #0a3622; --gold: #d4af37; }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    
-    .login-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a3622 0%, #1a5c3a 100%); z-index: 100; }
+    body { margin: 0; font-family: Segoe UI, sans-serif; background: linear-gradient(135deg, #0a3622 0%, #1a5c3a 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
     .login-box { background: white; width: min(400px, 90%); padding: 30px 24px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
     .login-box img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--gold); display: block; margin: 0 auto 10px; }
     .login-box h2 { text-align: center; color: var(--hijau); margin: 0 0 5px; }
     .login-box p { text-align: center; font-size: 13px; color: #666; margin: 0 0 20px; }
-    
     .login-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
     .login-tab { flex: 1; text-align: center; padding: 10px; font-weight: bold; cursor: pointer; color: #888; }
     .login-tab.active { color: var(--hijau); border-bottom: 3px solid var(--hijau); margin-bottom: -2px; }
-
     input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
     .btn-login { width: 100%; padding: 12px; background: var(--hijau); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     .hidden { display: none !important; }
     #loginMessage { color: #e74c3c; text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; height: 18px; }
     
+    /* Style untuk tombol daftar */
     .link-daftar { text-align: center; margin-top: 15px; font-size: 13px; }
     .link-daftar a { color: var(--hijau); font-weight: bold; text-decoration: none; }
   </style>
 </head>
 <body>
 
-  <!-- LAYAR LOGIN (Hanya ini yang ada di index.html) -->
-  <div id="loginScreen" class="login-screen">
-    <div class="login-box">
-      <img src="fotogroupxi-6.png" alt="logo" />
-      <h2>SIPADAK XI-6</h2>
-      <p>MAN 3 BOGOR</p>
+  <div class="login-box">
+    <img src="fotogroupxi-6.png" alt="logo" />
+    <h2>SIPADAK XI-6</h2>
+    <p>MAN 3 BOGOR</p>
 
-      <div class="login-tabs">
-        <div class="login-tab active" id="tabGuru" onclick="gantiTabLogin('guru')">Guru / Admin</div>
-        <div class="login-tab" id="tabSiswa" onclick="gantiTabLogin('siswa')">Siswa</div>
-      </div>
-
-      <div id="formGuru">
-        <label>Username</label>
-        <input id="loginUser" type="text" placeholder="admin / sekretaris" />
-        <label>Password</label>
-        <input id="loginPass" type="password" placeholder="Masukkan password" />
-      </div>
-
-      <div id="formSiswa" class="hidden">
-        <label>Email</label>
-        <input id="loginEmail" type="email" placeholder="Masukkan Email Siswa" />
-        <label>Password</label>
-        <input id="loginPassSiswa" type="password" placeholder="Password" />
-      </div>
-      
-      <button class="btn-login" id="btnLogin" onclick="prosesLogin()">🔐 MASUK</button>
-      <div id="loginMessage"></div>
+    <div class="login-tabs">
+      <div class="login-tab active" id="tabGuru" onclick="gantiTab('guru')">Guru / Admin</div>
+      <div class="login-tab" id="tabSiswa" onclick="gantiTab('siswa')">Siswa</div>
     </div>
+
+    <div id="formGuru">
+      <label>Username</label>
+      <input id="loginUser" type="text" placeholder="admin / sekretaris" />
+      <label>Password</label>
+      <input id="loginPass" type="password" placeholder="Masukkan password" />
+    </div>
+
+    <div id="formSiswa" class="hidden">
+      <label>Email</label>
+      <input id="loginEmail" type="email" placeholder="Masukkan Email Siswa" />
+      <label>Password</label>
+      <input id="loginPassSiswa" type="password" placeholder="Password" />
+    </div>
+    
+    <button class="btn-login" onclick="prosesLogin()">🔐 MASUK</button>
+    <div id="loginMessage"></div>
+
+    <!-- TOMBOL DAFTAR SUDAH DITAMBAHKAN DI SINI -->
+    <div class="link-daftar">
+      Belum punya akun siswa? <a href="daftar-siswa.html">Daftar di sini</a>
+    </div>
+
   </div>
 
   <script>
     let modeLogin = "guru"; 
 
-    window.addEventListener('firebaseReady', () => {
-      cekLogin();
-    });
-
-    function gantiTabLogin(mode) {
+    function gantiTab(mode) {
       modeLogin = mode;
       document.getElementById("tabGuru").classList.toggle("active", mode === "guru");
       document.getElementById("tabSiswa").classList.toggle("active", mode === "siswa");
@@ -115,12 +107,9 @@
         const pass = document.getElementById("loginPass").value.trim();
 
         if (AKUN_GURU[user] && AKUN_GURU[user].pass === pass) {
-          // Simpan Sesi Guru
           localStorage.setItem("siTatibLogin", "true");
           localStorage.setItem("siTatibRole", AKUN_GURU[user].role);
           localStorage.setItem("siTatibNama", AKUN_GURU[user].nama);
-          
-          // Lempar ke Dashboard Induk (buat file baru bernama dashboard-induk.html)
           window.location.href = "dashboard-induk.html"; 
         } else {
           pesan.textContent = "❌ Username atau password Guru salah!";
@@ -133,50 +122,31 @@
         pesan.textContent = "⏳ Memeriksa akun...";
         
         try {
-          const { collection, getDocs, query, where } = window.fbFunc;
-          const db = window.fbDB;
-          
-          // CARI DATA SISWA DI KOLEKSI "Siswa"
-          const q = query(collection(db, "AkunSiswa"), where("email", "==", email), where("password", "==", pass));
-          const querySnapshot = await getDocs(q);
+          const { signInWithEmailAndPassword, doc, getDoc } = window.fbFunc;
+          const auth = window.auth;
+          const db = window.db;
 
-          if (!querySnapshot.empty) {
-            // Login Berhasil
-            const dataSiswa = querySnapshot.docs[0].data();
-            
-            // Simpan Sesi Siswa
+          // 1. Login ke Firebase Auth (Sistem Keamanan Firebase)
+          const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+          const user = userCredential.user;
+
+          // 2. Cek Profil di Koleksi "AkunSiswa" berdasarkan UID
+          const docRef = doc(db, "AkunSiswa", user.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const dataSiswa = docSnap.data();
             localStorage.setItem("siTatibLogin", "true");
             localStorage.setItem("siTatibRole", "siswa");
             localStorage.setItem("siTatibNama", dataSiswa.nama);
-            localStorage.setItem("siTatibEmail", email);
             
-            pesan.textContent = "✅ Login Berhasil! Mengalihkan...";
-            
-            // LEMPAR KE HALAMAN BIODATA SISWA (BUKAN DASHBOARD INDUK)
-            setTimeout(() => {
-              window.location.href = "biodata-siswa.html";
-            }, 1000);
-            
+            window.location.href = "biodata-siswa.html";
           } else {
-            pesan.textContent = "❌ Email belum terdaftar atau password salah!";
+             pesan.textContent = "❌ Akun login ada, tapi data profil tidak ditemukan.";
           }
         } catch (error) {
           console.error(error);
-          pesan.textContent = "❌ Gagal koneksi ke database.";
-        }
-      }
-    }
-
-    function cekLogin() {
-      // Jika sudah login, arahkan ke halaman yang sesuai
-      const sudah = localStorage.getItem("siTatibLogin");
-      const role = localStorage.getItem("siTatibRole");
-      
-      if (sudah === "true") {
-        if (role === "siswa") {
-          window.location.href = "biodata-siswa.html";
-        } else {
-          window.location.href = "dashboard-induk.html";
+          pesan.textContent = "❌ Email atau Password salah!";
         }
       }
     }
