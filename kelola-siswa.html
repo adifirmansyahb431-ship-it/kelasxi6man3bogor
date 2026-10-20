@@ -26,7 +26,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Ekspos ke window agar bisa dipakai script biasa di bawah
     window.fbDB = db;
     window.fbFunc = { collection, getDocs, doc, setDoc };
     
@@ -39,7 +38,7 @@
     body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
     .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
     .header h1 { margin: 0; font-size: 20px; }
-    .container { max-width: 800px; margin: 20px auto; padding: 0 16px; }
+    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; }
     .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
     h3 { margin-top: 0; color: var(--hijau); }
     .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
@@ -48,14 +47,17 @@
     .upload-box:hover { border-color: #16a085; background: #f0fdf4; }
     .upload-box input { display: none; }
     
-    table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 15px; }
-    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; }
+    th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
     th { background: #f5f5f5; }
     
     .status { margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 14px; display: none; }
     .status.success { background: #e8f5e9; color: #1b5e20; display: block; border-left: 4px solid #2e7d32; }
     .status.error { background: #ffebee; color: #b71c1c; display: block; border-left: 4px solid #d32f2f; }
     .status.info { background: #e3f2fd; color: #0d47a1; display: block; border-left: 4px solid #1976d2; }
+    
+    .btn-save { width: 100%; margin-top: 15px; padding: 12px; background: #16a085; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px;}
+    .btn-save:hover { background: #12876f; }
   </style>
 </head>
 <body>
@@ -69,7 +71,7 @@
 
     <div class="card">
       <h3>Upload Data Siswa dari Excel</h3>
-      <p style="font-size:13px; color:#666;">Format Excel: Pastikan kolom pertama berjudul <b>Nama</b> dan kolom kedua berjudul <b>Email</b>.</p>
+      <p style="font-size:13px; color:#666;">Pastikan file Excel memiliki header: <b>NIS, NISN, NAMA SISWA, L/P, KELAS</b>.</p>
       
       <label class="upload-box">
         <input type="file" id="fileExcel" accept=".xlsx,.xls" onchange="bacaFileExcel(event)">
@@ -85,25 +87,29 @@
         <h4>Preview 5 Data Pertama:</h4>
         <div style="overflow-x:auto;">
           <table>
-            <thead><tr><th>Nama Siswa</th><th>Email</th></tr></thead>
+            <thead>
+              <tr>
+                <th>NIS</th>
+                <th>NISN</th>
+                <th>Nama Siswa</th>
+                <th>L/P</th>
+                <th>Kelas</th>
+              </tr>
+            </thead>
             <tbody id="previewTbody"></tbody>
           </table>
         </div>
-        <button class="btn-save" style="width:100%; margin-top:15px; padding:12px; background:#16a085; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="simpanKeFirebase()">💾 SIMPAN KE DATABASE FIREBASE</button>
+        <button class="btn-save" onclick="simpanKeFirebase()">💾 SIMPAN SEMUA DATA KE DATABASE</button>
       </div>
     </div>
   </div>
 
   <script>
-    if(localStorage.getItem("siTatibLogin") !== "true" || localStorage.getItem("siTatibRole") !== "admin") {
-      // window.location.href = "index.html"; // Buka komentar ini jika ingin memproteksi halaman
+    if(localStorage.getItem("siTatibLogin") !== "true") {
+      window.location.href = "index.html";
     }
 
     let dataSiswaExcel = [];
-
-    window.addEventListener('firebaseReady', () => {
-      console.log("Firebase siap untuk upload.");
-    });
 
     function bacaFileExcel(event) {
       const file = event.target.files[0];
@@ -121,7 +127,6 @@
           const firstSheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[firstSheetName];
           
-          // Konversi ke JSON
           const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
           
           if (json.length < 2) {
@@ -130,31 +135,38 @@
             return;
           }
 
-          // Cari indeks kolom NAMA dan EMAIL
+          // Deteksi Kolom berdasarkan Header Excel
           const header = json[0];
-          let idxNama = -1;
-          let idxEmail = -1;
+          let idxNis = -1, idxNisn = -1, idxNama = -1, idxJk = -1, idxKelas = -1;
 
           for (let i = 0; i < header.length; i++) {
-            const h = String(header[i] || "").toUpperCase();
-            if (h.includes("NAMA")) idxNama = i;
-            if (h.includes("EMAIL")) idxEmail = i;
+            const h = String(header[i] || "").toUpperCase().trim();
+            if (h === "NIS") idxNis = i;
+            else if (h === "NISN") idxNisn = i;
+            else if (h.includes("NAMA")) idxNama = i;
+            else if (h === "L/P" || h === "JK" || h.includes("KELAMIN")) idxJk = i;
+            else if (h === "KELAS") idxKelas = i;
           }
 
           if (idxNama === -1) {
             status.className = "status error";
-            status.textContent = "❌ Kolom 'Nama' tidak ditemukan di baris pertama Excel!";
+            status.textContent = "❌ Kolom 'NAMA SISWA' tidak ditemukan di file Excel!";
             return;
           }
 
-          // Ambil data (skip baris header)
+          // Ambil data (lewati baris 1)
           dataSiswaExcel = [];
           for (let i = 1; i < json.length; i++) {
             const row = json[i];
-            if (row[idxNama]) {
+            const nama = row[idxNama];
+            
+            if (nama && String(nama).trim() !== "") {
               dataSiswaExcel.push({
-                nama: String(row[idxNama]).trim(),
-                email: idxEmail !== -1 ? String(row[idxEmail]).trim() : ""
+                nis: idxNis !== -1 ? String(row[idxNis] || "") : "",
+                nisn: idxNisn !== -1 ? String(row[idxNisn] || "") : "",
+                nama: String(nama).trim().toUpperCase(),
+                jk: idxJk !== -1 ? String(row[idxJk] || "").trim().toUpperCase() : "",
+                kelas: idxKelas !== -1 ? String(row[idxKelas] || "").trim().toUpperCase() : "XI-6"
               });
             }
           }
@@ -165,7 +177,15 @@
           tbody.innerHTML = "";
           
           dataSiswaExcel.slice(0, 5).forEach((s) => {
-            tbody.innerHTML += `<tr><td>${s.nama}</td><td>${s.email}</td></tr>`;
+            tbody.innerHTML += `
+              <tr>
+                <td>${s.nis}</td>
+                <td>${s.nisn}</td>
+                <td><b>${s.nama}</b></td>
+                <td style="text-align:center;">${s.jk}</td>
+                <td style="text-align:center;">${s.kelas}</td>
+              </tr>
+            `;
           });
 
           status.className = "status success";
@@ -192,33 +212,38 @@
 
       try {
         let promises = [];
+        
+        // Simpan setiap siswa ke collection "Siswa"
         dataSiswaExcel.forEach((siswa) => {
           // Gunakan Nama (tanpa spasi) sebagai ID Dokumen agar tidak duplikat
           const docId = siswa.nama.replace(/\s+/g, '_');
           const docRef = doc(db, "Siswa", docId);
           
+          // Data yang disimpan lengkap
           const data = { 
+            nis: siswa.nis,
+            nisn: siswa.nisn,
             nama: siswa.nama, 
-            email: siswa.email 
+            jk: siswa.jk,
+            kelas: siswa.kelas
           };
           promises.push(setDoc(docRef, data));
         });
 
-        // Tunggu semua data selesai diupload
         await Promise.all(promises);
 
         status.className = "status success";
-        status.textContent = `🎉 BERHASIL! ${dataSiswaExcel.length} data siswa telah tersimpan permanen di Firebase.`;
-        alert("Data siswa berhasil disimpan ke Database Awan! Sekarang data bisa dibuka di HP/Laptop lain.");
-
-        // Kosongkan preview
+        status.textContent = `🎉 BERHASIL! ${dataSiswaExcel.length} data siswa tersimpan di Firebase.`;
+        alert("Data siswa berhasil disimpan ke Database Awan!");
+        
+        // Reset form
         document.getElementById("previewArea").style.display = "none";
         document.getElementById("fileExcel").value = "";
-
+        
       } catch (error) {
         console.error(error);
         status.className = "status error";
-        status.textContent = "❌ Gagal menyimpan ke Firebase. Pastikan aturan database (Rules) mengizinkan Write, atau cek koneksi internet.";
+        status.textContent = "❌ Gagal menyimpan. Pastikan Rules Firebase mengizinkan Write (allow write: if true).";
       }
     }
   </script>
