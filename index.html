@@ -8,25 +8,26 @@
   <!-- FIREBASE LIBRARY -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     // ================= KONFIGURASI FIREBASE =================
-    // GANTI BAGIAN INI DENGAN CONFIG DARI FIREBASE CONSOLE KAMU
     const firebaseConfig = {
-      apiKey: "ISI_API_KEY_KAMU",
-      authDomain: "ISI_AUTH_DOMAIN_KAMU",
-      projectId: "ISI_PROJECT_ID_KAMU",
-      storageBucket: "ISI_STORAGE_BUCKET_KAMU",
-      messagingSenderId: "ISI_SENDER_ID_KAMU",
-      appId: "ISI_APP_ID_KAMU"
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Simpan fungsi ke window agar bisa dipakai di luar module
+    // Ekspos ke window agar bisa dipakai script biasa di bawah
     window.fbDB = db;
-    window.fbFunc = { collection, getDocs, doc, setDoc, deleteDoc, getDoc };
+    window.fbFunc = { collection, getDocs, doc, getDoc };
+    
+    window.dispatchEvent(new Event('firebaseReady'));
   </script>
 
   <style>
@@ -67,6 +68,9 @@
     
     .hidden { display: none !important; }
     #loginMessage { color: #e74c3c; text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; height: 18px; }
+    
+    .link-daftar { text-align: center; margin-top: 15px; font-size: 13px; }
+    .link-daftar a { color: var(--hijau); font-weight: bold; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -94,11 +98,16 @@
         <label>Email</label>
         <input id="loginEmail" type="email" placeholder="Masukkan Email Siswa" />
         <label>Password</label>
-        <input id="loginPassSiswa" type="password" placeholder="Password bawaan: 12345" />
+        <input id="loginPassSiswa" type="password" placeholder="Password" />
       </div>
       
       <button class="btn-login" id="btnLogin" onclick="prosesLogin()">🔐 MASUK</button>
       <div id="loginMessage"></div>
+
+      <!-- LINK DAFTAR SISWA -->
+      <div class="link-daftar">
+        Belum punya akun siswa? <a href="daftar-siswa.html">Daftar di sini</a>
+      </div>
     </div>
   </div>
 
@@ -150,6 +159,11 @@
   <script>
     let modeLogin = "guru"; 
 
+    // Tunggu sampai Firebase siap
+    window.addEventListener('firebaseReady', () => {
+      cekLogin();
+    });
+
     function gantiTabLogin(mode) {
       modeLogin = mode;
       document.getElementById("tabGuru").classList.toggle("active", mode === "guru");
@@ -185,15 +199,25 @@
         pesan.textContent = "⏳ Memeriksa akun...";
         
         try {
-          // Cek akun siswa dari Firebase
-          const { doc, getDoc } = window.fbFunc;
-          const docRef = doc(window.fbDB, "AkunSiswa", email);
-          const docSnap = await getDoc(docRef);
+          const { collection, getDocs } = window.fbFunc;
+          const db = window.fbDB;
+          
+          // Ambil semua data akun siswa dan cocokkan email & password
+          const querySnapshot = await getDocs(collection(db, "AkunSiswa"));
+          let loginBerhasil = false;
+          let namaSiswa = "";
 
-          if (docSnap.exists() && docSnap.data().password === pass) {
-            const data = docSnap.data();
-            simpanSesi("siswa", data.nama);
-            masukAplikasi("siswa", data.nama);
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if(data.email === email && data.password === pass) {
+              loginBerhasil = true;
+              namaSiswa = data.nama;
+            }
+          });
+
+          if (loginBerhasil) {
+            simpanSesi("siswa", namaSiswa);
+            masukAplikasi("siswa", namaSiswa);
           } else {
             pesan.textContent = "❌ Email belum terdaftar atau password salah!";
           }
@@ -256,8 +280,6 @@
       const nama = localStorage.getItem("siTatibNama");
       if (sudah === "true" && role) masukAplikasi(role, nama);
     }
-
-    window.onload = cekLogin;
   </script>
 </body>
 </html>
