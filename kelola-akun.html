@@ -248,8 +248,8 @@
     // ==========================================
     async function simpanAkun() {
       const nama = document.getElementById("pilihSiswa").value;
-      const email = document.getElementById("emailSiswa").value.trim();
       const nis = document.getElementById("nisSiswa").value.trim();
+      const email = nis + "@sipadak.com"; // Mengubah NIS menjadi email dummy untuk login
       const nisn = document.getElementById("nisnSiswa").value.trim();
       const kelas = document.getElementById("kelasSiswa").value;
       const noHp = document.getElementById("noHpSiswa").value.trim();
@@ -257,7 +257,7 @@
       const pass = document.getElementById("passSiswa").value;
       const fileFoto = document.getElementById("fotoSiswa").files[0];
 
-      if(!nama || !email || !pass) return alert("Nama, Email, dan Password wajib diisi!");
+     if(!nama || !nis || !pass) return alert("Nama, NIS, dan Password wajib diisi!");
 
       const btn = document.getElementById("btnSimpan");
       btn.textContent = "⏳ Menyimpan...";
