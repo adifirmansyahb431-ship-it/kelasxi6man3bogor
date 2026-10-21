@@ -9,7 +9,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    // TAMBAHAN: Import Firebase Auth untuk membuat akun login
+    // IMPORT AUTH UNTUK MEMBUAT AKUN LOGIN
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -26,8 +26,8 @@
     const auth = getAuth(app); // Inisialisasi Auth
 
     window.fbDB = db;
-    window.fbAuth = auth; // Simpan auth ke global window
-    window.fbFunc = { collection, getDocs, doc, setDoc, deleteDoc, getDoc };
+    window.fbAuth = auth;
+    window.fbFunc = { collection, getDocs, doc, setDoc, deleteDoc, getDoc, createUserWithEmailAndPassword };
     
     window.dispatchEvent(new Event('firebaseReady'));
   </script>
@@ -43,21 +43,16 @@
     h3 { margin-top: 0; color: var(--hijau); }
     label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; }
     input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; font-family: inherit;}
-    
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-    
     button { border: none; border-radius: 8px; padding: 12px; font-weight: bold; cursor: pointer; }
     .btn-save { background: #16a085; color: white; width: 100%; font-size: 15px;}
-    .btn-save:hover { background: #12876f; }
     .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
-    
     table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
     th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; vertical-align: middle; }
     th { background: #f5f5f5; }
     .foto-profil { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #16a085; }
     .btn-hapus { background: #e74c3c; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; }
-    
     @media (max-width: 600px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -68,12 +63,13 @@
   </div>
 
   <div class="container">
-    <a href="dashboard-induk.html" class="btn-back...">⬅ Kembali ke Dashboard</a>
+    <a href="dashboard-induk.html" class="btn-back">⬅ Kembali ke Dashboard</a>
 
     <div class="card">
       <h3>Form Data Siswa</h3>
-      <p style="font-size:12px; color:#666; margin-top:-5px;">Isi data dengan lengkap. Email & Password akan digunakan siswa untuk login.</p>
-          <div class="grid-2">
+      <p style="font-size:12px; color:#666; margin-top:-5px;">Isi data dengan lengkap. NIS & Password akan digunakan siswa untuk login.</p>
+      
+      <div class="grid-2">
         <div>
           <label>Nama Siswa</label>
           <select id="pilihSiswa"><option value="">Memuat data...</option></select>
@@ -85,29 +81,14 @@
       </div>
 
       <div class="grid-3">
-        <div>
-          <label>NIS</label>
-          <input type="text" id="nisSiswa" placeholder="NIS">
-        </div>
-        <div>
-          <label>NISN</label>
-          <input type="text" id="nisnSiswa" placeholder="NISN">
-        </div>
-        <div>
-          <label>Kelas</label>
-          <input type="text" id="kelasSiswa" value="XI-6" readonly style="background:#eee;">
-        </div>
+        <div><label>NIS</label><input type="text" id="nisSiswa" placeholder="NIS"></div>
+        <div><label>NISN</label><input type="text" id="nisnSiswa" placeholder="NISN"></div>
+        <div><label>Kelas</label><input type="text" id="kelasSiswa" value="XI-6" readonly style="background:#eee;"></div>
       </div>
 
       <div class="grid-2">
-        <div>
-          <label>No. HP</label>
-          <input type="number" id="noHpSiswa" placeholder="08xxxx">
-        </div>
-        <div>
-          <label>Password (Bawaan: 12345)</label>
-          <input type="text" id="passSiswa" value="12345">
-        </div>
+        <div><label>No. HP</label><input type="number" id="noHpSiswa" placeholder="08xxxx"></div>
+        <div><label>Password (Bawaan: 12345)</label><input type="text" id="passSiswa" value="12345"></div>
       </div>
 
       <label>Alamat Lengkap</label>
@@ -127,7 +108,7 @@
             <tr>
               <th>Foto</th>
               <th>Nama</th>
-              <th>Email</th>
+              <th>Email (NIS)</th>
               <th>NIS/NISN</th>
               <th>No HP</th>
               <th>Aksi</th>
@@ -142,12 +123,10 @@
   </div>
 
   <script>
-        // Cek Sesi Login (Hanya boleh diakses Guru/Admin)
+    // Cek Sesi Login (Hanya Guru/Admin)
     const isLogin = localStorage.getItem("siTatibLogin");
     const roleUser = localStorage.getItem("siTatibRole");
-
     if (isLogin !== "true" || roleUser === "siswa" || !roleUser) {
-      // Jika belum login, atau yang login adalah siswa, tendang ke halaman login
       window.location.href = "index.html";
     }
 
@@ -158,7 +137,7 @@
       const db = window.fbDB;
 
       try {
-        const querySnapshot = await getDocs(collection(db, "Siswa")); // Ubah ke Siswa
+        const querySnapshot = await getDocs(collection(db, "Siswa"));
         const select = document.getElementById("pilihSiswa");
         let opsi = '<option value="">Pilih Siswa</option>';
         
@@ -182,13 +161,13 @@
       const { collection, getDocs } = window.fbFunc;
       const db = window.fbDB;
 
-      // Cari data di koleksi Siswa
       const qSnapshot = await getDocs(collection(db, "Siswa"));
       qSnapshot.forEach(doc => {
         if(doc.data().nama === nama) {
           document.getElementById("nisSiswa").value = doc.data().nis || "";
           document.getElementById("nisnSiswa").value = doc.data().nisn || "";
-          document.getElementById("emailSiswa").value = doc.data().email || "";
+          // Otomatis isi kolom Email (Untuk Login) dengan NIS
+          document.getElementById("emailSiswa").value = doc.data().nis || "";
           document.getElementById("noHpSiswa").value = doc.data().noHp || "";
           document.getElementById("alamatSiswa").value = doc.data().alamat || "";
         }
@@ -201,7 +180,6 @@
       const tbody = document.getElementById("listAkun");
 
       try {
-        // Baca dari koleksi Siswa
         const querySnapshot = await getDocs(collection(db, "Siswa"));
         dataAkunSiswa = {};
         tbody.innerHTML = "";
@@ -243,13 +221,10 @@
       });
     }
 
-    // ==========================================
-    // FUNGSI SIMPAN YANG SUDAH DIPERBAIKI TOTAL
-    // ==========================================
     async function simpanAkun() {
       const nama = document.getElementById("pilihSiswa").value;
       const nis = document.getElementById("nisSiswa").value.trim();
-      const email = nis + "@sipadak.com"; // Mengubah NIS menjadi email dummy untuk login
+      const email = nis + "@sipadak.com"; // Mengubah NIS menjadi email dummy
       const nisn = document.getElementById("nisnSiswa").value.trim();
       const kelas = document.getElementById("kelasSiswa").value;
       const noHp = document.getElementById("noHpSiswa").value.trim();
@@ -257,21 +232,22 @@
       const pass = document.getElementById("passSiswa").value;
       const fileFoto = document.getElementById("fotoSiswa").files[0];
 
-     if(!nama || !nis || !pass) return alert("Nama, NIS, dan Password wajib diisi!");
+      if(!nama || !nis || !pass) return alert("Nama, NIS, dan Password wajib diisi!");
 
       const btn = document.getElementById("btnSimpan");
       btn.textContent = "⏳ Menyimpan...";
       btn.disabled = true;
 
-      const { doc, setDoc } = window.fbFunc;
+      const { doc, setDoc, createUserWithEmailAndPassword } = window.fbFunc;
       const db = window.fbDB;
       const auth = window.fbAuth;
 
       try {
-        // 1. BUAT AKUN LOGIN (Authentication)
-        await createUserWithEmailAndPassword(auth, email, pass);
-        
-        // 2. SIMPAN DATA PROFIL KE FIRESTORE (Koleksi "Siswa")
+        // 1. Buat Akun Login di Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        const uid = userCredential.user.uid;
+
+        // 2. Simpan Profil ke Firestore (Koleksi "Siswa")
         const docId = nama.replace(/\s+/g, '_').toUpperCase();
         let fotoBase64 = dataAkunSiswa[nama] ? (dataAkunSiswa[nama].foto || "") : "";
 
@@ -287,7 +263,7 @@
           kelas: kelas,
           noHp: noHp,
           alamat: alamat,
-          role: "siswa", // PENTING UNTUK DASHBOARD
+          role: "siswa",
           foto: fotoBase64
         };
 
@@ -297,9 +273,9 @@
         
         // Reset form
         document.getElementById("pilihSiswa").value = "";
-        document.getElementById("emailSiswa").value = "";
         document.getElementById("nisSiswa").value = "";
         document.getElementById("nisnSiswa").value = "";
+        document.getElementById("emailSiswa").value = "";
         document.getElementById("noHpSiswa").value = "";
         document.getElementById("alamatSiswa").value = "";
         document.getElementById("fotoSiswa").value = "";
@@ -309,7 +285,7 @@
       } catch (error) {
         console.error(error);
         if (error.code === 'auth/email-already-in-use') {
-          alert("❌ Gagal: Email ini sudah terdaftar sebagai akun login. Gunakan email lain.");
+          alert("❌ Gagal: NIS ini sudah terdaftar sebagai akun login.");
         } else if (error.code === 'auth/weak-password') {
           alert("❌ Gagal: Password terlalu lemah (minimal 6 karakter).");
         } else {
@@ -328,9 +304,8 @@
       const db = window.fbDB;
 
       try {
-        await deleteDoc(doc(db, "Siswa", docId)); // Hapus dari koleksi Siswa
-        alert("Data berhasil dihapus.");
-        muatDataAkun(); // Perbaikan: sebelumnya typo muatAkunSiswa()
+        await deleteDoc(doc(db, "Siswa", docId));
+        muatDataAkun();
       } catch (error) {
         console.error(error);
         alert("Gagal menghapus akun.");
