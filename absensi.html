@@ -13,7 +13,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // ================= KONFIGURASI FIREBASE =================
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
       authDomain: "sipadak-xi6.firebaseapp.com",
@@ -51,7 +50,6 @@
     .btn-print { background: #e67e22; }
     .btn-download { background: #2471a3; }
     
-    /* Kotak Rekap Total Harian */
     .rekap-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
     .rekap-item { background: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-top: 4px solid #ccc; }
     .rekap-item h2 { margin: 0; font-size: 28px; }
@@ -61,7 +59,6 @@
     .r-izin { border-top-color: #3498db; color: #3498db; }
     .r-alpa { border-top-color: #e74c3c; color: #e74c3c; }
 
-    /* Tabel Absensi */
     .table-responsive { overflow-x: auto; border: 1px solid #ddd; border-radius: 8px; }
     table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 1100px; }
     th, td { border-bottom: 1px solid #e5e7eb; padding: 8px; text-align: left; vertical-align: middle; }
@@ -76,7 +73,6 @@
     .input-ket { padding: 8px; border: 1px solid #ccc; border-radius: 6px; width: 100%; }
     .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
 
-    /* Kolom Akumulasi */
     .kolom-akumulasi { text-align: center; border-left: 1px dashed #ccc; }
     .th-akumulasi { border-left: 1px dashed #ccc; }
     .total-input { width: 45px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 4px; text-align: center; font-weight: bold; font-size: 14px; padding: 5px; }
@@ -87,12 +83,10 @@
     .teks-izin { color: #3498db; }
     .teks-alpa { color: #e74c3c; }
 
-    /* Tombol Aksi */
     .btn-aksi-kecil { border: none; padding: 6px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; color: white; display: block; width: 100%; margin-bottom: 4px;}
     .btn-hapus-baris { background: #e74c3c; }
     .btn-reset-baris { background: #f39c12; }
 
-    /* Area Tanda Tangan */
     .ttd-section { display: none; margin-top: 40px; page-break-inside: avoid; }
     .ttd-tanggal { text-align: right; margin-bottom: 20px; font-size: 14px; }
     .ttd-flex { display: flex; justify-content: space-between; text-align: center; font-size: 14px; }
@@ -100,14 +94,13 @@
     .ttd-nama { margin-top: 40px; margin-bottom: 5px; font-weight: bold; text-decoration: underline; display: inline-block; }
     .print-header { display: none; text-align: center; margin-bottom: 20px; }
 
-    /* CSS KHUSUS CETAK */
     @media print {
       body { background: white; color: black; }
       .no-print { display: none !important; }
       .container { max-width: 100%; margin: 0; padding: 0; }
       .card, .top-action, .rekap-item { box-shadow: none !important; border: 1px solid #000; }
       .header { display: none; }
-      .print-header { display: block; }
+      .print-header { display: flex !important; }
       .ttd-section { display: block !important; }
       .status-select, .input-ket, .total-input { border: none !important; background: transparent !important; appearance: none; font-weight: bold; padding: 0; width: 100%; color: black !important; text-align: left;}
       .r-hadir, .r-sakit, .r-izin, .r-alpa, .teks-hadir, .teks-sakit, .teks-izin, .teks-alpa { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -124,7 +117,7 @@
   <div class="container">
     <a href="dashboard-induk.html" class="btn-back no-print">⬅ Kembali ke Dashboard</a>
 
-        <div class="print-header" style="display: flex; align-items: center; justify-content: center; gap: 20px; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
+    <div class="print-header" style="display: flex; align-items: center; justify-content: center; gap: 20px; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
       <img src="fotogroupxi-6.png" alt="Logo" style="width: 80px; height: 80px; object-fit: contain;">
       <div style="text-align: center;">
         <h2 style="margin:0; font-size: 22px;">DAFTAR HADIR SISWA</h2>
@@ -173,23 +166,19 @@
       </div>
     </div>
 
-      <div class="ttd-section" id="areaTtd">
-    <div class="ttd-flex">
-      <!-- Blok Kepala Madrasah (Kiri) -->
-      <div class="ttd-box">
-        <p>Mengetahui,<br>Kepala Madrasah,</p>
-        <div class="ttd-nama">Dr. H. Rizalah Luqman Al Farabi, S.Pd.I., M.Pd.</div>
-        <p style="margin: 0; font-size: 13px; padding-top: 5px;">NIP. 198404012009011006</p>
-      </div>
-      
-      <!-- Blok Wali Kelas (Kanan) -->
-      <div class="ttd-box">
-        <!-- Tanggal sejajar dengan Wali Kelas -->
-        <div class="ttd-tanggal" id="titimangsa" style="text-align: center; margin-bottom: 15px;">Jonggol, 21 Oktober 2026</div>
-        
-        <p>Wali Kelas,</p>
-        <div class="ttd-nama">ADI FIRMANSYAH, S.E.</div>
-        <p style="margin: 0; font-size: 13px; padding-top: 5px;">NIP. 198301112025211003</p>
+    <div class="ttd-section" id="areaTtd">
+      <div class="ttd-flex">
+        <div class="ttd-box">
+          <p>Mengetahui,<br>Kepala Madrasah,</p>
+          <div class="ttd-nama">Dr. H. Rizalah Luqman Al Farabi, S.Pd.I., M.Pd.</div>
+          <p style="margin: 0; font-size: 13px; padding-top: 5px;">NIP. 198404012009011006</p>
+        </div>
+        <div class="ttd-box">
+          <div class="ttd-tanggal" id="titimangsa" style="text-align: center; margin-bottom: 15px;">Jonggol, 21 Oktober 2026</div>
+          <p>Wali Kelas,</p>
+          <div class="ttd-nama">ADI FIRMANSYAH, S.E.</div>
+          <p style="margin: 0; font-size: 13px; padding-top: 5px;">NIP. 198301112025211003</p>
+        </div>
       </div>
     </div>
   </div> 
@@ -200,7 +189,7 @@
 
     let listSiswaGlobal = [];
     let dataAbsensiHariIni = {};
-    let dataTotalManual = {}; // Menyimpan hasil edit manual H,S,I,A
+    let dataTotalManual = {};
 
     window.addEventListener('firebaseReady', () => {
       document.getElementById('absensiTanggal').valueAsDate = new Date();
@@ -213,7 +202,6 @@
       const tbody = document.getElementById("listAbsensi");
       
       try {
-        // 1. Ambil Daftar Siswa
         const querySnapshot = await getDocs(collection(db, "Siswa"));
         listSiswaGlobal = [];
         querySnapshot.forEach((doc) => {
@@ -221,17 +209,15 @@
         });
 
         if(listSiswaGlobal.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Belum ada data siswa di database. Silakan upload via menu Kelola Siswa.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Belum ada data siswa di database.</td></tr>';
           return;
         }
 
-        // 2. Ambil Data Total Manual (Rekap)
         const snapshotTotal = await getDocs(collection(db, "TotalRekap"));
         snapshotTotal.forEach((doc) => {
           dataTotalManual[doc.id] = doc.data();
         });
 
-        // 3. Muat Data Absensi
         muatDataAbsensi();
 
       } catch (error) {
@@ -279,8 +265,7 @@
         const status = record ? record.status : "Hadir";
         const ket = record ? (record.ket || "") : "";
 
-        // Ambil Nilai Total (Dari edit manual di database, atau 0)
-        const manual = dataTotalManual[siswa] || { H: 0, S: 0, I: 0, A: 0 };
+        const manual = dataTotalManual[siswa.replace(/\s+/g, '_')] || { H: 0, S: 0, I: 0, A: 0 };
         let tH = manual.H || 0;
         let tS = manual.S || 0;
         let tI = manual.I || 0;
@@ -317,8 +302,22 @@
       hitungTotalHarian();
     }
 
+    // FUNGSI YANG DIPERBAIKI: Otomatis menambah H/S/I/A saat status diubah
     function ubahStatus(selectElement) {
       selectElement.className = "status-select " + selectElement.value;
+      
+      const tr = selectElement.closest('tr');
+      const inputH = tr.querySelectorAll('.total-input')[0];
+      const inputS = tr.querySelectorAll('.total-input')[1];
+      const inputI = tr.querySelectorAll('.total-input')[2];
+      const inputA = tr.querySelectorAll('.total-input')[3];
+
+      // Logika menambah angka (Hanya jika nilainya valid)
+      if (selectElement.value === "Hadir") inputH.value = (parseInt(inputH.value) || 0) + 1;
+      else if (selectElement.value === "Sakit") inputS.value = (parseInt(inputS.value) || 0) + 1;
+      else if (selectElement.value === "Izin") inputI.value = (parseInt(inputI.value) || 0) + 1;
+      else if (selectElement.value === "Alpa") inputA.value = (parseInt(inputA.value) || 0) + 1;
+
       hitungTotalHarian();
     }
 
@@ -337,40 +336,37 @@
       document.getElementById('totalAlpa').textContent = alpa;
     }
 
-    // ==================== EDIT MANUAL TOTAL (Disimpan ke Firebase) ====================
     async function editManualTotal(nama, tipe, val) {
       const db = window.fbDB;
       const { doc, setDoc } = window.fbFunc;
       
-      if (!dataTotalManual[nama]) dataTotalManual[nama] = { H: 0, S: 0, I: 0, A: 0 };
-      dataTotalManual[nama][tipe] = Number(val);
+      if (!dataTotalManual[nama.replace(/\s+/g, '_')]) dataTotalManual[nama.replace(/\s+/g, '_')] = { H: 0, S: 0, I: 0, A: 0 };
+      dataTotalManual[nama.replace(/\s+/g, '_')][tipe] = Number(val);
 
       try {
-        await setDoc(doc(db, "TotalRekap", nama.replace(/\s+/g, '_')), dataTotalManual[nama]);
+        await setDoc(doc(db, "TotalRekap", nama.replace(/\s+/g, '_')), dataTotalManual[nama.replace(/\s+/g, '_')]);
       } catch(e) {
         console.error("Gagal simpan total", e);
       }
     }
 
-    // ==================== RESET TOTAL KE NOL ====================
     async function resetTotalSiswa(nama) {
-      if (!confirm(`Yakin ingin mereset (menghapus) total H/S/I/A untuk ${nama} menjadi 0?`)) return;
+      if (!confirm(`Yakin ingin mereset total H/S/I/A untuk ${nama} menjadi 0?`)) return;
       
       const db = window.fbDB;
       const { doc, setDoc } = window.fbFunc;
       
-      dataTotalManual[nama] = { H: 0, S: 0, I: 0, A: 0 };
+      dataTotalManual[nama.replace(/\s+/g, '_')] = { H: 0, S: 0, I: 0, A: 0 };
       
       try {
-        await setDoc(doc(db, "TotalRekap", nama.replace(/\s+/g, '_')), dataTotalManual[nama]);
+        await setDoc(doc(db, "TotalRekap", nama.replace(/\s+/g, '_')), dataTotalManual[nama.replace(/\s+/g, '_')]);
         muatDataAbsensi(); 
       } catch(e) {
         console.error("Gagal reset", e);
-        alert("Gagal reset data.");
       }
     }
 
-    // ==================== SIMPAN ABSENSI HARIAN ====================
+    // FUNGSI YANG DIPERBAIKI: Menyimpan Absensi + Total Rekap
     async function simpanSemuaAbsensi() {
       const tgl = document.getElementById('absensiTanggal').value;
       if(!tgl) return alert("Pilih tanggal terlebih dahulu!");
@@ -393,15 +389,30 @@
           const status = tr.querySelector('.status-select').value;
           const ket = tr.querySelector('.input-ket').value.trim();
 
+          // Simpan Absensi Harian
           const docId = `${tgl}_${nama.replace(/\s+/g, '')}`;
           const docRef = doc(db, "Absensi", docId);
-
           const data = { tanggal: tgl, nama: nama, status: status, ket: ket };
           promises.push(setDoc(docRef, data));
+
+          // Simpan Total Akumulasi (H, S, I, A)
+          const totalH = parseInt(tr.querySelectorAll('.total-input')[0].value) || 0;
+          const totalS = parseInt(tr.querySelectorAll('.total-input')[1].value) || 0;
+          const totalI = parseInt(tr.querySelectorAll('.total-input')[2].value) || 0;
+          const totalA = parseInt(tr.querySelectorAll('.total-input')[3].value) || 0;
+
+          const rekapRef = doc(db, "TotalRekap", nama.replace(/\s+/g, '_'));
+          promises.push(setDoc(rekapRef, { 
+            nama: nama,
+            H: totalH, 
+            S: totalS, 
+            I: totalI, 
+            A: totalA 
+          }));
         }
 
         await Promise.all(promises);
-        alert(`✅ Absensi tanggal ${tgl} berhasil disimpan!`);
+        alert(`✅ Absensi dan Rekap tanggal ${tgl} berhasil disimpan!`);
         muatDataAbsensi();
 
       } catch (error) {
@@ -415,7 +426,7 @@
 
     async function hapusAbsensiSiswa(namaSiswa) {
       const tgl = document.getElementById('absensiTanggal').value;
-      if(!confirm(`Hapus data absensi ${namaSiswa} pada tanggal ${tgl}?\n(Status akan kembali menjadi 'Hadir')`)) return;
+      if(!confirm(`Hapus data absensi ${namaSiswa} pada tanggal ${tgl}?`)) return;
 
       const { doc, deleteDoc } = window.fbFunc;
       const db = window.fbDB;
@@ -426,15 +437,13 @@
         muatDataAbsensi();
       } catch (error) {
         console.error(error);
-        alert("Gagal menghapus data.");
       }
     }
 
-        function downloadExcel() {
+    function downloadExcel() {
       const tgl = document.getElementById('absensiTanggal').value;
       if(!tgl) return alert("Pilih tanggal terlebih dahulu!");
 
-      // 1. Ambil semua baris tabel yang sedang tampil
       const rows = document.querySelectorAll('#listAbsensi tr');
       if(rows.length === 0 || rows[0].innerText.includes("Memuat data")) {
         return alert("Tidak ada data untuk didownload.");
@@ -442,13 +451,11 @@
 
       let dataExcel = [];
 
-      // 2. Looping data dari tabel
       rows.forEach((tr, index) => {
         const nama = tr.querySelector('td:nth-child(2)').innerText;
         const status = tr.querySelector('.status-select').value;
         const ket = tr.querySelector('.input-ket').value;
         
-        // Ambil nilai total H, S, I, A
         const totalH = tr.querySelectorAll('.total-input')[0].value;
         const totalS = tr.querySelectorAll('.total-input')[1].value;
         const totalI = tr.querySelectorAll('.total-input')[2].value;
@@ -466,12 +473,10 @@
         });
       });
 
-      // 3. Buat file Excel
       const ws = XLSX.utils.json_to_sheet(dataExcel);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Absensi");
       
-      // 4. Simpan file dengan nama sesuai tanggal
       XLSX.writeFile(wb, `Rekap_Absensi_${tgl}.xlsx`);
     }
   </script>
