@@ -143,7 +143,14 @@
   </div>
 
   <script>
-    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+        // Cek Sesi Login (Hanya boleh diakses Guru/Admin)
+    const isLogin = localStorage.getItem("siTatibLogin");
+    const roleUser = localStorage.getItem("siTatibRole");
+
+    if (isLogin !== "true" || roleUser === "siswa" || !roleUser) {
+      // Jika belum login, atau yang login adalah siswa, tendang ke halaman login
+      window.location.href = "index.html";
+    }
 
     let dataAkunSiswa = {};
 
