@@ -430,8 +430,49 @@
       }
     }
 
-    function downloadExcel() {
-      alert("Fitur Download Excel akan dihubungkan ke Firebase pada tahap selanjutnya.");
+        function downloadExcel() {
+      const tgl = document.getElementById('absensiTanggal').value;
+      if(!tgl) return alert("Pilih tanggal terlebih dahulu!");
+
+      // 1. Ambil semua baris tabel yang sedang tampil
+      const rows = document.querySelectorAll('#listAbsensi tr');
+      if(rows.length === 0 || rows[0].innerText.includes("Memuat data")) {
+        return alert("Tidak ada data untuk didownload.");
+      }
+
+      let dataExcel = [];
+
+      // 2. Looping data dari tabel
+      rows.forEach((tr, index) => {
+        const nama = tr.querySelector('td:nth-child(2)').innerText;
+        const status = tr.querySelector('.status-select').value;
+        const ket = tr.querySelector('.input-ket').value;
+        
+        // Ambil nilai total H, S, I, A
+        const totalH = tr.querySelectorAll('.total-input')[0].value;
+        const totalS = tr.querySelectorAll('.total-input')[1].value;
+        const totalI = tr.querySelectorAll('.total-input')[2].value;
+        const totalA = tr.querySelectorAll('.total-input')[3].value;
+
+        dataExcel.push({
+          "No": index + 1,
+          "Nama Siswa": nama,
+          "Status Hari Ini": status,
+          "Keterangan": ket,
+          "Total Hadir (H)": totalH,
+          "Total Sakit (S)": totalS,
+          "Total Izin (I)": totalI,
+          "Total Alpa (A)": totalA
+        });
+      });
+
+      // 3. Buat file Excel
+      const ws = XLSX.utils.json_to_sheet(dataExcel);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Absensi");
+      
+      // 4. Simpan file dengan nama sesuai tanggal
+      XLSX.writeFile(wb, `Rekap_Absensi_${tgl}.xlsx`);
     }
   </script>
 </body>
