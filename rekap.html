@@ -15,6 +15,7 @@
     h3 { margin-top: 0; color: var(--hijau); }
     input { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
     .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+    .btn-print { background: #e67e22; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
     th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
     th { background: #f5f5f5; }
@@ -23,27 +24,82 @@
     .Sedang { background: #f1c40f; color: #333; }
     .Berat { background: #e74c3c; }
     .SangatBerat { background: #000; }
+
+    /* CSS KHUSUS CETAK */
+    @media print {
+      body { background: white; color: black; }
+      .no-print { display: none !important; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      .card { box-shadow: none !important; border: none; padding: 0; }
+      
+      .print-header { display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 15px; }
+      
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      th, td { border: 1px solid #000 !important; padding: 8px; text-align: left; }
+      th { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      .ttd-section { display: block !important; margin-top: 50px; page-break-inside: avoid; }
+      .ttd-flex { display: flex; justify-content: space-between; text-align: center; }
+      .ttd-box { width: 45%; }
+      .ttd-nama { margin-top: 60px; font-weight: bold; text-decoration: underline; }
+    }
   </style>
 </head>
 <body>
-  <div class="header">
+  <div class="header no-print">
     <h1>📊 Rekap Poin Siswa</h1>
     <span>MAN 3 BOGOR</span>
   </div>
 
   <div class="container">
-    <a href="dashboard-induk.html" class="btn-back...">⬅ Kembali ke Dashboard</a>
+    <!-- Tombol Aksi (Kembali & Cetak) -->
+    <div class="no-print" style="display: flex; gap: 10px; margin-bottom: 15px;">
+      <a href="dashboard-induk.html" class="btn-back" style="margin-bottom: 0;">⬅ Kembali ke Dashboard</a>
+      <button onclick="window.print()" class="btn-print">🖨️ Cetak / PDF</button>
+    </div>
+
+    <!-- Kop Surat untuk Cetak -->
+    <div class="print-header" style="display: none;">
+      <img src="fotogroupxi-6.png" alt="Logo" style="height: 80px; margin-bottom: 10px;">
+      <h2 style="margin: 0;">REKAP POIN PELANGGARAN SISWA</h2>
+      <h3 style="margin: 5px 0;">SIPADAK XI-6 - MAN 3 BOGOR</h3>
+      <p style="margin: 0; font-size: 14px;">Tahun Ajaran 2026/2027</p>
+    </div>
 
     <div class="card">
       <h3>Akumulasi Poin Pelanggaran</h3>
-      <input type="text" id="cariSiswa" placeholder="Cari nama siswa..." onkeyup="tampilRekap()">
+      <input type="text" id="cariSiswa" placeholder="Cari nama siswa..." onkeyup="tampilRekap()" class="no-print">
+      
       <div style="overflow-x: auto;">
         <table>
           <thead>
-            <tr><th>No</th><th>Nama Siswa</th><th>Kelas</th><th>Jml Pelanggaran</th><th>Total Poin</th><th>Kategori</th></tr>
+            <tr>
+              <th>No</th>
+              <th>Nama Siswa</th>
+              <th>Kelas</th>
+              <th>Jml Pelanggaran</th>
+              <th>Total Poin</th>
+              <th>Kategori</th>
+            </tr>
           </thead>
           <tbody id="rekapSiswa"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Tanda Tangan untuk Cetak -->
+    <div class="ttd-section" style="display: none;">
+      <div class="ttd-flex">
+        <div class="ttd-box">
+          <p>Mengetahui,<br>Kepala Madrasah,</p>
+          <div class="ttd-nama">Dr. H. Rizalah Luqman Al Farabi, S.Pd.I., M.Pd.</div>
+          <p style="margin: 0;">NIP. 198404012009011006</p>
+        </div>
+        <div class="ttd-box">
+          <p>Bogor, ........................ 2026<br>Guru BK / Wali Kelas,</p>
+          <div class="ttd-nama">ADI FIRMANSYAH, S.E.</div>
+          <p style="margin: 0;">NIP. 198301112025211003</p>
+        </div>
       </div>
     </div>
   </div>
@@ -54,6 +110,8 @@
     let db = [];
 
     window.onload = function() {
+      // Catatan: Data ini diambil dari LocalStorage. 
+      // Jika ingin data dari Firebase, kode pengambilan data perlu disesuaikan.
       db = JSON.parse(localStorage.getItem("siTatibData") || "[]");
       tampilRekap();
     };
