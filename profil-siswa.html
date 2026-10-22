@@ -7,7 +7,7 @@
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    // Tambahkan collection, getDocs, setDoc untuk fitur absensi
+    // Import lengkap termasuk query & where untuk cek absen ganda
     import { getFirestore, doc, updateDoc, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -21,6 +21,7 @@
 
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
+    // Daftarkan semua fungsi ke global window
     window.fbFunc = { doc, updateDoc, collection, addDoc, getDocs, query, where };
   </script>
 
@@ -34,10 +35,14 @@
     label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; margin-top: 15px; }
     input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
     input[readonly] { background: #eee; }
-    button.btn-save { background: #16a085; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 15px;}
+    
+    .btn-save { background: #16a085; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 15px;}
     .btn-absen { background: #e67e22; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
+    .btn-password { background: #3498db; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
+    
     .foto-profil { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 15px; border: 3px solid #16a085; }
     #statusLokasi { text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; }
+    hr { margin-top: 30px; margin-bottom: 15px; border: 1px solid #eee; }
   </style>
 </head>
 <body>
@@ -52,6 +57,7 @@
     
     <img id="fotoTampil" src="https://ui-avatars.com/api/?name=Siswa&background=16a085&color=fff" class="foto-profil" alt="Foto Profil">
     
+    <!-- FORM EDIT PROFIL -->
     <form id="formProfil" onsubmit="simpanProfil(event)">
       <label>Nama Lengkap</label>
       <input type="text" id="inNama" readonly>
@@ -71,12 +77,18 @@
       <button type="submit" class="btn-save">💾 SIMPAN PERUBAHAN</button>
     </form>
 
+    <!-- FITUR GANTI PASSWORD -->
+    <hr>
+    <h3 style="text-align: center; color: #0a3622;">Ganti Password</h3>
+    <label>Password Baru (Min. 6 Karakter)</label>
+    <input type="password" id="inPassBaru" placeholder="Masukkan password baru Anda">
+    <button type="button" onclick="gantiPassword()" class="btn-password">🔑 SIMPAN PASSWORD BARU</button>
+
     <!-- FITUR ABSENSI LOKASI -->
-    <hr style="margin-top: 30px; border: 1px solid #eee;">
+    <hr>
     <h3 style="text-align: center; color: #0a3622;">Absensi Kehadiran</h3>
     <button type="button" onclick="absensiLokasi()" class="btn-absen">📍 ABSEN SEKARANG (Cek Lokasi)</button>
     <p id="statusLokasi"></p>
-    <!-- END FITUR ABSENSI LOKASI -->
 
   </div>
 
@@ -99,9 +111,12 @@
       }
     }
 
+    // ==========================================
+    // FUNGSI SIMPAN PROFIL (NOMOR HP, ALAMAT, FOTO)
+    // ==========================================
     async function simpanProfil(e) {
       e.preventDefault();
-      const btn = e.target.querySelector('button');
+      const btn = e.target.querySelector('button[type="submit"]');
       btn.textContent = "⏳ Menyimpan...";
       btn.disabled = true;
 
@@ -123,7 +138,6 @@
         const { doc, updateDoc } = window.fbFunc;
         const db = window.db;
 
-        // Update data di Firestore berdasarkan ID Dokumen
         await updateDoc(doc(db, "Siswa", dataLogin.idDoc), {
           noHp: noHp,
           alamat: alamat,
@@ -132,7 +146,6 @@
         
         alert("✅ Profil berhasil diperbarui!");
         
-        // Update LocalStorage
         dataLogin.noHp = noHp;
         dataLogin.alamat = alamat;
         dataLogin.foto = fotoBase64;
@@ -149,18 +162,38 @@
       }
     }
 
-    function logout() {
-      if(confirm("Yakin ingin keluar?")) {
-        localStorage.removeItem("dataSiswaLogin");
-        localStorage.removeItem("siTatibLogin");
-        localStorage.removeItem("siTatibRole");
-        localStorage.removeItem("siTatibNama");
-        window.location.href = "index.html";
+    // ==========================================
+    // FUNGSI GANTI PASSWORD
+    // ==========================================
+    async function gantiPassword() {
+      const passBaru = document.getElementById("inPassBaru").value;
+
+      if (passBaru.length < 6) {
+        alert("❌ Password minimal 6 karakter!");
+        return;
+      }
+
+      if (!confirm("Yakin ingin mengganti password Anda?")) return;
+
+      try {
+        const { doc, updateDoc } = window.fbFunc;
+        const db = window.db;
+
+        await updateDoc(doc(db, "Siswa", dataLogin.idDoc), {
+          password: passBaru
+        });
+
+        alert("✅ Password berhasil diubah! Gunakan password baru ini saat login.");
+        document.getElementById("inPassBaru").value = ""; 
+
+      } catch (error) {
+        console.error(error);
+        alert("❌ Gagal mengganti password: " + error.message);
       }
     }
 
     // ==========================================
-    // FITUR ABSENSI BERDASARKAN LOKASI (GPS)
+    // FUNGSI ABSENSI LOKASI & PENCEGAH GANDA
     // ==========================================
     
     // Koordinat MAN 3 Bogor
@@ -186,17 +219,32 @@
           const jarak = hitungJarak(latSiswa, lngSiswa, KOORDINAT_SEKOLAH.lat, KOORDINAT_SEKOLAH.lng);
           
           if (jarak <= RADIUS_MAKSIMAL_METER) {
-            status.textContent = `⏳ Jarak sesuai (${Math.round(jarak)}m). Menyimpan absensi...`;
+            status.textContent = `⏳ Jarak sesuai (${Math.round(jarak)}m). Mengecek data absensi...`;
             status.style.color = "#333";
 
-            // Simpan ke Firestore (Koleksi "Absensi")
             try {
-              const { collection, addDoc } = window.fbFunc;
+              const { collection, getDocs, addDoc, query, where } = window.fbFunc;
               const db = window.db;
               
-              const tglHariIni = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
-              const jamSekarang = new Date().toLocaleTimeString('id-ID');
+              const tglHariIni = new Date().toISOString().split('T')[0]; 
+              
+              // Cek Absen Ganda
+              const q = query(
+                collection(db, "Absensi"), 
+                where("nama", "==", dataLogin.nama), 
+                where("tanggal", "==", tglHariIni)
+              );
+              
+              const querySnapshot = await getDocs(q);
 
+              if (!querySnapshot.empty) {
+                status.textContent = `⚠️ Anda sudah melakukan absensi hari ini (${tglHariIni}).`;
+                status.style.color = "#e67e22";
+                return; 
+              }
+
+              // Simpan Absensi Baru
+              const jamSekarang = new Date().toLocaleTimeString('id-ID');
               await addDoc(collection(db, "Absensi"), {
                 tanggal: tglHariIni,
                 nama: dataLogin.nama,
@@ -207,9 +255,10 @@
 
               status.textContent = `✅ Absensi Berhasil! Jarak Anda ${Math.round(jarak)} meter dari sekolah.`;
               status.style.color = "green";
+
             } catch (error) {
               console.error(error);
-              status.textContent = "❌ Gagal menyimpan absensi ke database.";
+              status.textContent = "❌ Gagal memeriksa atau menyimpan absensi.";
               status.style.color = "red";
             }
 
@@ -222,13 +271,13 @@
           status.textContent = "❌ Gagal mengambil lokasi. Pastikan GPS aktif dan izin diberikan.";
           status.style.color = "red";
         },
-        { enableHighAccuracy: true } // Meminta akurasi GPS tertinggi
+        { enableHighAccuracy: true } 
       );
     }
 
-    // Fungsi Rumus Haversine untuk menghitung jarak antara 2 koordinat
+    // Rumus Haversine
     function hitungJarak(lat1, lon1, lat2, lon2) {
-      const R = 6371e3; // Radius bumi dalam meter
+      const R = 6371e3;
       const p1 = lat1 * Math.PI/180;
       const p2 = lat2 * Math.PI/180;
       const dp = (lat2-lat1) * Math.PI/180;
@@ -239,7 +288,20 @@
                 Math.sin(dl/2) * Math.sin(dl/2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-      return R * c; // Hasil dalam meter
+      return R * c;
+    }
+
+    // ==========================================
+    // FUNGSI LOGOUT
+    // ==========================================
+    function logout() {
+      if(confirm("Yakin ingin keluar?")) {
+        localStorage.removeItem("dataSiswaLogin");
+        localStorage.removeItem("siTatibLogin");
+        localStorage.removeItem("siTatibRole");
+        localStorage.removeItem("siTatibNama");
+        window.location.href = "index.html";
+      }
     }
   </script>
 </body>
