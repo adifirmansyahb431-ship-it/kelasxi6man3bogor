@@ -34,14 +34,15 @@
     /* CSS BACKGROUND FOTO GRUP TRANSPARAN */
     .card { 
       background-color: white; 
-      background-image: url('2026-10-22 at 12.19.59.png'); /* Pastikan nama file ini sesuai dengan yang di-upload */
+      /* Pastikan nama file ini sesuai dengan yang di-upload (tanpa spasi) */
+      background-image: url('fotogroup.png'); 
       background-repeat: no-repeat;
       background-position: center;
-      background-size: cover; 
+      background-size: contain; /* Mengubah ke contain agar foto utuh tidak terpotong */
       
-      /* Efek transparan (watermark) */
+      /* Efek transparan (watermark) - Diperjelas */
       background-blend-mode: overlay; 
-      background-color: rgba(255, 255, 255, 0.85); /* 85% putih, 15% foto */
+      background-color: rgba(255, 255, 255, 0.70); /* 0.70 = Foto terlihat 30% lebih jelas */
       
       padding: 25px; 
       border-radius: 14px; 
