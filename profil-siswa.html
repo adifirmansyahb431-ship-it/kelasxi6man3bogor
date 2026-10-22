@@ -26,51 +26,157 @@
   </script>
 
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #f3f5f4; margin: 0; padding: 20px; }
-    .header { background: #0a3622; color: #f6e27a; padding: 15px 22px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #d4af37; margin: -20px -20px 20px -20px; }
-    .header h1 { margin: 0; font-size: 20px; }
-    .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    /* --- GAYA GEN Z: GRADIENT & GLASSMORPHISM --- */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      /* Background Gradasi Pink-Purple-Blue */
+      background: linear-gradient(135deg, #f6d365 0%, #fda085 50%, #a18cd1 100%);
+      background-attachment: fixed;
+      margin: 0; 
+      padding: 20px; 
+      min-height: 100vh;
+    }
+
+    .header { 
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      color: #333; 
+      padding: 15px 22px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      border-radius: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    }
+    .header h1 { margin: 0; font-size: 20px; font-weight: 700; color: #4a2c7a; }
     
-    /* CSS BACKGROUND FOTO GRUP TRANSPARAN */
+    .btn-logout { 
+      background: #ff4757; 
+      color: white; 
+      border: none; 
+      padding: 8px 15px; 
+      border-radius: 20px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+      transition: 0.3s;
+    }
+    .btn-logout:hover { transform: scale(1.05); }
+
+    /* EFEK KACA (GLASSMORPHISM) UNTUK CARD */
     .card { 
-      background-color: white; 
-      /* Pastikan nama file ini sesuai dengan yang di-upload (tanpa spasi) */
-      background-image: url('2026-10-22 at 12.19.59.png'); 
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: contain; /* Mengubah ke contain agar foto utuh tidak terpotong */
-      
-      /* Efek transparan (watermark) - Diperjelas */
-      background-blend-mode: overlay; 
-      background-color: rgba(255, 255, 255, 0.70); /* 0.70 = Foto terlihat 30% lebih jelas */
+      /* Efek Kaca Transparan */
+      background: rgba(255, 255, 255, 0.6); 
+      backdrop-filter: blur(12px); 
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
       
       padding: 25px; 
-      border-radius: 14px; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+      border-radius: 24px; 
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); 
       max-width: 600px; 
       margin: 0 auto; 
       margin-bottom: 20px; 
       position: relative;
       z-index: 1;
+      /* Background foto grup tetap ada tapi dipudarkan oleh efek kaca */
+      background-image: url('fotogroup.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      background-blend-mode: overlay;
     }
     
-    h2, h3 { color: #0a3622; text-align: center; margin-top: 0; }
-    label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; margin-top: 15px; }
-    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.9); }
-    input[readonly] { background: #eee; }
+    h2, h3 { color: #4a2c7a; text-align: center; margin-top: 0; font-weight: 700; }
     
-    .btn-save { background: #16a085; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 15px;}
-    .btn-password { background: #3498db; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
-    .btn-absen { background: #e67e22; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
+    label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 5px; margin-top: 15px; color: #4a2c7a; }
     
-    .foto-profil { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 15px; border: 3px solid #16a085; }
-    #statusLokasi { text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; }
-    hr { margin-top: 30px; margin-bottom: 15px; border: 1px solid #eee; }
+    input { 
+      width: 100%; 
+      padding: 12px 15px; 
+      border: 2px solid rgba(255,255,255,0.5); 
+      border-radius: 12px; 
+      box-sizing: border-box; 
+      background: rgba(255,255,255,0.8); 
+      font-family: 'Poppins', sans-serif;
+      transition: 0.3s;
+    }
+    input:focus { outline: none; border-color: #a18cd1; background: white; }
+    input[readonly] { background: rgba(230, 230, 230, 0.8); color: #666; }
+    
+    /* TOMBOL WARNA NEON/POP */
+    .btn-save { 
+      background: #00b894; /* Hijau Neon */
+      color: white; 
+      border: none; 
+      padding: 14px; 
+      border-radius: 12px; 
+      width: 100%; 
+      font-weight: 700; 
+      cursor: pointer; 
+      margin-top: 20px; 
+      font-size: 15px;
+      box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
+      transition: 0.3s;
+    }
+    .btn-save:hover { transform: translateY(-2px); }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; background: rgba(255,255,255,0.9); }
-    th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
-    th { background: #f5f5f5; }
-    .hadir { color: #27ae60; font-weight: bold; }
+    .btn-password { 
+      background: #0984e3; /* Biru Terang */
+      color: white; 
+      border: none; 
+      padding: 14px; 
+      border-radius: 12px; 
+      width: 100%; 
+      font-weight: 700; 
+      cursor: pointer; 
+      margin-top: 10px; 
+      font-size: 15px; 
+      box-shadow: 0 4px 15px rgba(9, 132, 227, 0.4);
+      transition: 0.3s;
+    }
+    .btn-password:hover { transform: translateY(-2px); }
+
+    .btn-absen { 
+      background: #fdcb6e; /* Kuning/Oranye Ceria */
+      color: #333; 
+      border: none; 
+      padding: 14px; 
+      border-radius: 12px; 
+      width: 100%; 
+      font-weight: 700; 
+      cursor: pointer; 
+      margin-top: 10px; 
+      font-size: 15px; 
+      box-shadow: 0 4px 15px rgba(253, 203, 110, 0.5);
+      transition: 0.3s;
+    }
+    .btn-absen:hover { transform: translateY(-2px); }
+    
+    .foto-profil { 
+      width: 110px; 
+      height: 110px; 
+      border-radius: 50%; 
+      object-fit: cover; 
+      display: block; 
+      margin: 0 auto 15px; 
+      border: 4px solid white; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    #statusLokasi { text-align: center; font-size: 13px; font-weight: 700; margin-top: 10px; }
+    
+    hr { margin-top: 30px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.1); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; background: rgba(255,255,255,0.7); border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid rgba(0,0,0,0.05); padding: 10px; text-align: left; }
+    th { background: rgba(255,255,255,0.9); color: #4a2c7a; }
+    .hadir { color: #00b894; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -83,7 +189,7 @@
   <div class="card">
     <h2>Data Diri Saya</h2>
     
-    <img id="fotoTampil" src="https://ui-avatars.com/api/?name=Siswa&background=16a085&color=fff" class="foto-profil" alt="Foto Profil">
+    <img id="fotoTampil" src="https://ui-avatars.com/api/?name=Siswa&background=a18cd1&color=fff" class="foto-profil" alt="Foto Profil">
     
     <form id="formProfil" onsubmit="simpanProfil(event)">
       <label>Nama Lengkap</label>
