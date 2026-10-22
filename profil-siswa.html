@@ -20,10 +20,8 @@
 
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    // Daftarkan semua fungsi ke global
     window.fbFunc = { doc, updateDoc, collection, addDoc, getDocs, query, where };
     
-    // Kirim sinyal bahwa Firebase sudah siap
     window.dispatchEvent(new Event('firebaseReady'));
   </script>
 
@@ -115,7 +113,6 @@
   </div>
 
   <script>
-    // Ambil data dari LocalStorage
     const dataLogin = JSON.parse(localStorage.getItem("dataSiswaLogin"));
 
     if (!dataLogin) {
@@ -131,13 +128,9 @@
         document.getElementById("fotoTampil").src = dataLogin.foto;
       }
 
-      // Panggil fungsi memuat riwayat saat halaman dibuka
       muatRiwayatAbsensi();
     }
 
-    // ==========================================
-    // FUNGSI SIMPAN PROFIL
-    // ==========================================
     async function simpanProfil(e) {
       e.preventDefault();
       const btn = e.target.querySelector('button[type="submit"]');
@@ -186,9 +179,6 @@
       }
     }
 
-    // ==========================================
-    // FUNGSI GANTI PASSWORD
-    // ==========================================
     async function gantiPassword() {
       const passBaru = document.getElementById("inPassBaru").value;
 
@@ -216,16 +206,12 @@
       }
     }
 
-    // ==========================================
-    // FUNGSI MEMUAT RIWAYAT ABSENSI
-    // ==========================================
     async function muatRiwayatAbsensi() {
       const tbody = document.getElementById("tabelRiwayat");
       
       try {
-        // Pastikan fbFunc sudah siap
         if (!window.fbFunc) {
-          setTimeout(muatRiwayatAbsensi, 500); // Coba lagi dalam 0.5 detik
+          setTimeout(muatRiwayatAbsensi, 500); 
           return;
         }
 
@@ -271,7 +257,7 @@
     }
 
     // ==========================================
-    // FUNGSI ABSENSI LOKASI
+    // ABSENSI LOKASI + VALIDASI JAM
     // ==========================================
     const KOORDINAT_SEKOLAH = { lat: -6.4582213, lng: 107.0547609 }; 
     const RADIUS_MAKSIMAL_METER = 200; 
@@ -280,6 +266,21 @@
       const status = document.getElementById("statusLokasi");
       status.textContent = "⏳ Mendeteksi lokasi Anda...";
       status.style.color = "#333";
+
+      // VALIDASI JAM
+      const sekarang = new Date();
+      const jam = sekarang.getHours();
+      const menit = sekarang.getMinutes();
+      const waktuSekarang = jam + (menit / 60); 
+      
+      const batasMasuk = 6.5;  // Jam 06:30
+      const batasPulang = 15.5; // Jam 15:30
+
+      if (waktuSekarang > batasMasuk && waktuSekarang < batasPulang) {
+        status.innerHTML = `❌ <b>Gagal!</b> Absensi hanya dibuka pada:<br>🕒 Jam 06:00 - 06:30 WIB (Masuk)<br>🕒 Jam 15:30 WIB ke atas (Pulang)<br><br>Waktu sekarang: ${jam}:${menit < 10 ? '0'+menit : menit} WIB`;
+        status.style.color = "red";
+        return;
+      }
 
       if (!navigator.geolocation) {
         status.textContent = "❌ Browser Anda tidak mendukung fitur lokasi.";
@@ -313,16 +314,18 @@
                 return; 
               }
 
-              const jamSekarang = new Date().toLocaleTimeString('id-ID');
+              let tipeAbsen = waktuSekarang <= batasMasuk ? "Masuk" : "Pulang";
+              const jamSekarangStr = new Date().toLocaleTimeString('id-ID');
+              
               await addDoc(collection(db, "Absensi"), {
                 tanggal: tglHariIni,
                 nama: dataLogin.nama,
                 nis: dataLogin.nis,
                 status: "Hadir",
-                keterangan: `Absen Lokasi (Jam: ${jamSekarang})`
+                keterangan: `Absen ${tipeAbsen} (Jam: ${jamSekarangStr})`
               });
 
-              status.textContent = `✅ Absensi Berhasil! Jarak Anda ${Math.round(jarak)} meter dari sekolah.`;
+              status.textContent = `✅ Absensi ${tipeAbsen} Berhasil! Jarak Anda ${Math.round(jarak)} meter dari sekolah.`;
               status.style.color = "green";
               
               muatRiwayatAbsensi();
