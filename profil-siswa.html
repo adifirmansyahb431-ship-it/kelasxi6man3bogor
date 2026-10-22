@@ -7,7 +7,7 @@
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, doc, updateDoc, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, doc, updateDoc, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
@@ -20,7 +20,7 @@
 
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    window.fbFunc = { doc, updateDoc, collection, addDoc, getDocs, query, where, orderBy };
+    window.fbFunc = { doc, updateDoc, collection, addDoc, getDocs, query, where };
   </script>
 
   <style>
@@ -28,15 +28,15 @@
     .header { background: #0a3622; color: #f6e27a; padding: 15px 22px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #d4af37; margin: -20px -20px 20px -20px; }
     .header h1 { margin: 0; font-size: 20px; }
     .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .card { background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; margin-bottom: 20px;}
-    h2 { color: #0a3622; text-align: center; margin-top: 0; }
+    .card { background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; margin-bottom: 20px; }
+    h2, h3 { color: #0a3622; text-align: center; margin-top: 0; }
     label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; margin-top: 15px; }
     input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
     input[readonly] { background: #eee; }
     
     .btn-save { background: #16a085; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 15px;}
-    .btn-absen { background: #e67e22; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
     .btn-password { background: #3498db; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
+    .btn-absen { background: #e67e22; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
     
     .foto-profil { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 15px; border: 3px solid #16a085; }
     #statusLokasi { text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; }
@@ -56,6 +56,7 @@
     <button class="btn-logout" onclick="logout()">KELUAR</button>
   </div>
 
+  <!-- CARD 1: DATA DIRI, PASSWORD, ABSEN -->
   <div class="card">
     <h2>Data Diri Saya</h2>
     
@@ -80,28 +81,26 @@
       <button type="submit" class="btn-save">💾 SIMPAN PERUBAHAN</button>
     </form>
 
-    <!-- FITUR GANTI PASSWORD -->
     <hr>
-    <h3 style="text-align: center; color: #0a3622;">Ganti Password</h3>
+    <h3>Ganti Password</h3>
     <label>Password Baru (Min. 6 Karakter)</label>
     <input type="password" id="inPassBaru" placeholder="Masukkan password baru Anda">
     <button type="button" onclick="gantiPassword()" class="btn-password">🔑 SIMPAN PASSWORD BARU</button>
 
-    <!-- FITUR ABSENSI LOKASI -->
     <hr>
-    <h3 style="text-align: center; color: #0a3622;">Absensi Kehadiran</h3>
+    <h3>Absensi Kehadiran</h3>
     <button type="button" onclick="absensiLokasi()" class="btn-absen">📍 ABSEN SEKARANG (Cek Lokasi)</button>
     <p id="statusLokasi"></p>
   </div>
 
-  <!-- CARD BARU: RIWAYAT ABSENSI -->
+  <!-- CARD 2: RIWAYAT ABSENSI -->
   <div class="card">
-    <h3 style="text-align: center; color: #0a3622; margin-top: 0;">Riwayat Absensi Saya</h3>
+    <h3>Riwayat Absensi Saya</h3>
     <div style="overflow-x: auto;">
       <table>
         <thead>
           <tr>
-            <th>No</th>
+            <th style="text-align:center;">No</th>
             <th>Tanggal</th>
             <th>Status</th>
             <th>Keterangan</th>
@@ -135,57 +134,6 @@
       muatRiwayatAbsensi();
     }
 
-    // ==========================================
-    // FUNGSI MEMUAT RIWAYAT ABSENSI
-    // ==========================================
-    async function muatRiwayatAbsensi() {
-      const tbody = document.getElementById("tabelRiwayat");
-      
-      try {
-        const { collection, getDocs, query, where } = window.fbFunc;
-        const db = window.db;
-
-        // Ambil data absensi khusus siswa ini
-        const q = query(collection(db, "Absensi"), where("nama", "==", dataLogin.nama));
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada riwayat absensi.</td></tr>';
-          return;
-        }
-
-        let dataRiwayat = [];
-        querySnapshot.forEach((doc) => {
-          dataRiwayat.push(doc.data());
-        });
-
-        // Urutkan berdasarkan tanggal terbaru (descending)
-        dataRiwayat.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-
-        tbody.innerHTML = "";
-        dataRiwayat.forEach((row, index) => {
-          // Format tanggal agar mudah dibaca (Contoh: 22 Okt 2026)
-          const tglFormat = new Date(row.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-          
-          tbody.innerHTML += `
-            <tr>
-              <td style="text-align:center;">${index + 1}</td>
-              <td>${tglFormat}</td>
-              <td class="hadir">${row.status}</td>
-              <td>${row.keterangan || "-"}</td>
-            </tr>
-          `;
-        });
-
-      } catch (error) {
-        console.error(error);
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat riwayat.</td></tr>';
-      }
-    }
-
-    // (Fungsi simpanProfil, gantiPassword, absensiLokasi, dan logout tetap sama seperti sebelumnya)
-    // ... Salin fungsi-fungsi tersebut dari kode sebelumnya ke sini ...
-    
     // ==========================================
     // FUNGSI SIMPAN PROFIL
     // ==========================================
@@ -264,6 +212,52 @@
       } catch (error) {
         console.error(error);
         alert("❌ Gagal mengganti password: " + error.message);
+      }
+    }
+
+    // ==========================================
+    // FUNGSI MEMUAT RIWAYAT ABSENSI
+    // ==========================================
+    async function muatRiwayatAbsensi() {
+      const tbody = document.getElementById("tabelRiwayat");
+      
+      try {
+        const { collection, getDocs, query, where } = window.fbFunc;
+        const db = window.db;
+
+        const q = query(collection(db, "Absensi"), where("nama", "==", dataLogin.nama));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada riwayat absensi.</td></tr>';
+          return;
+        }
+
+        let dataRiwayat = [];
+        querySnapshot.forEach((doc) => {
+          dataRiwayat.push(doc.data());
+        });
+
+        // Urutkan berdasarkan tanggal terbaru
+        dataRiwayat.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+        tbody.innerHTML = "";
+        dataRiwayat.forEach((row, index) => {
+          const tglFormat = new Date(row.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+          
+          tbody.innerHTML += `
+            <tr>
+              <td style="text-align:center;">${index + 1}</td>
+              <td>${tglFormat}</td>
+              <td class="hadir">${row.status}</td>
+              <td>${row.keterangan || "-"}</td>
+            </tr>
+          `;
+        });
+
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat riwayat.</td></tr>';
       }
     }
 
