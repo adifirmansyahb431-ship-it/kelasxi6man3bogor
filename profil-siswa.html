@@ -30,10 +30,32 @@
     .header { background: #0a3622; color: #f6e27a; padding: 15px 22px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #d4af37; margin: -20px -20px 20px -20px; }
     .header h1 { margin: 0; font-size: 20px; }
     .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .card { background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; margin-bottom: 20px; }
+    
+    /* CSS BACKGROUND FOTO GRUP TRANSPARAN */
+    .card { 
+      background-color: white; 
+      background-image: url('fotogroup.png'); /* Pastikan nama file ini sesuai dengan yang di-upload */
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover; 
+      
+      /* Efek transparan (watermark) */
+      background-blend-mode: overlay; 
+      background-color: rgba(255, 255, 255, 0.85); /* 85% putih, 15% foto */
+      
+      padding: 25px; 
+      border-radius: 14px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+      max-width: 600px; 
+      margin: 0 auto; 
+      margin-bottom: 20px; 
+      position: relative;
+      z-index: 1;
+    }
+    
     h2, h3 { color: #0a3622; text-align: center; margin-top: 0; }
     label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; margin-top: 15px; }
-    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.9); }
     input[readonly] { background: #eee; }
     
     .btn-save { background: #16a085; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 15px;}
@@ -44,7 +66,7 @@
     #statusLokasi { text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; }
     hr { margin-top: 30px; margin-bottom: 15px; border: 1px solid #eee; }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; background: rgba(255,255,255,0.9); }
     th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
     th { background: #f5f5f5; }
     .hadir { color: #27ae60; font-weight: bold; }
