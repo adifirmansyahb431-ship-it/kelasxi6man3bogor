@@ -20,7 +20,11 @@
 
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
+    // Daftarkan semua fungsi ke global
     window.fbFunc = { doc, updateDoc, collection, addDoc, getDocs, query, where };
+    
+    // Kirim sinyal bahwa Firebase sudah siap
+    window.dispatchEvent(new Event('firebaseReady'));
   </script>
 
   <style>
@@ -42,7 +46,6 @@
     #statusLokasi { text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; }
     hr { margin-top: 30px; margin-bottom: 15px; border: 1px solid #eee; }
 
-    /* Style Tabel Riwayat Absensi */
     table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
     th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
     th { background: #f5f5f5; }
@@ -56,7 +59,6 @@
     <button class="btn-logout" onclick="logout()">KELUAR</button>
   </div>
 
-  <!-- CARD 1: DATA DIRI, PASSWORD, ABSEN -->
   <div class="card">
     <h2>Data Diri Saya</h2>
     
@@ -93,7 +95,6 @@
     <p id="statusLokasi"></p>
   </div>
 
-  <!-- CARD 2: RIWAYAT ABSENSI -->
   <div class="card">
     <h3>Riwayat Absensi Saya</h3>
     <div style="overflow-x: auto;">
@@ -222,6 +223,12 @@
       const tbody = document.getElementById("tabelRiwayat");
       
       try {
+        // Pastikan fbFunc sudah siap
+        if (!window.fbFunc) {
+          setTimeout(muatRiwayatAbsensi, 500); // Coba lagi dalam 0.5 detik
+          return;
+        }
+
         const { collection, getDocs, query, where } = window.fbFunc;
         const db = window.db;
 
@@ -238,26 +245,28 @@
           dataRiwayat.push(doc.data());
         });
 
-        // Urutkan berdasarkan tanggal terbaru
         dataRiwayat.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
         tbody.innerHTML = "";
         dataRiwayat.forEach((row, index) => {
-          const tglFormat = new Date(row.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-          
+          let tglFormat = row.tanggal || "-";
+          try {
+             tglFormat = new Date(row.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+          } catch(e) {}
+
           tbody.innerHTML += `
             <tr>
               <td style="text-align:center;">${index + 1}</td>
               <td>${tglFormat}</td>
-              <td class="hadir">${row.status}</td>
+              <td class="hadir">${row.status || "-"}</td>
               <td>${row.keterangan || "-"}</td>
             </tr>
           `;
         });
 
       } catch (error) {
-        console.error(error);
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat riwayat.</td></tr>';
+        console.error("Error memuat riwayat:", error);
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">Gagal: ${error.message}</td></tr>`;
       }
     }
 
@@ -316,7 +325,6 @@
               status.textContent = `✅ Absensi Berhasil! Jarak Anda ${Math.round(jarak)} meter dari sekolah.`;
               status.style.color = "green";
               
-              // Muat ulang tabel riwayat setelah absen berhasil
               muatRiwayatAbsensi();
 
             } catch (error) {
