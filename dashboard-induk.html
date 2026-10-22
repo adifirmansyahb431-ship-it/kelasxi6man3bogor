@@ -6,27 +6,100 @@
   <title>Dashboard Induk - SIPADAK XI-6</title>
   
   <style>
-    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; --card: #ffffff; }
+    :root { 
+      --dark-bg: #070b19; /* Warna latar belakang luar angkasa gelap */
+      --card-bg: #11182c; /* Warna kotak menu */
+      --neon-cyan: #00f3ff; /* Warna garis neon biru */
+      --gold: #d4af37; 
+      --text: #e2e8f0; 
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
     
-    .header { background: var(--hijau); color: #f6e27a; display: flex; align-items: center; gap: 15px; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
-    .header img { height: 60px; width: 60px; background: white; border-radius: 10px; padding: 4px; object-fit: cover; }
-    .header .brand { flex: 1; font-size: 20px; font-weight: 800; line-height: 1.2; }
-    .header .brand small { display: block; font-size: 14px; color: white; font-weight: 600; margin-top: 2px; }
-    .header .logout { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 9px 14px; font-weight: 700; cursor: pointer; }
+    /* BACKGROUND DIGITAL FUTURISTIK */
+    body { 
+      margin: 0; 
+      font-family: 'Segoe UI', sans-serif; 
+      background-color: var(--dark-bg);
+      /* Efek Grid Sirkuit */
+      background-image: 
+        linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+      color: var(--text); 
+      min-height: 100vh;
+    }
+
+    /* HEADER GAYA DIGITAL */
+    .header { 
+      background: rgba(7, 11, 25, 0.9); 
+      color: var(--neon-cyan); 
+      display: flex; 
+      align-items: center; 
+      gap: 15px; 
+      padding: 15px 22px; 
+      border-bottom: 2px solid var(--neon-cyan); 
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header img { height: 50px; width: 50px; background: white; border-radius: 8px; padding: 2px; object-fit: cover; }
+    .header .brand { flex: 1; font-size: 20px; font-weight: 800; line-height: 1.2; text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);}
+    .header .brand small { display: block; font-size: 13px; color: #aaa; font-weight: 600; margin-top: 2px; text-shadow: none;}
+    .header .logout { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 9px 14px; font-weight: 700; cursor: pointer; box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
 
     .container { max-width: 1000px; margin: 30px auto; padding: 0 16px; }
-    .welcome { background: white; padding: 20px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); border-left: 5px solid var(--hijau); }
-    .welcome h3 { margin: 0 0 5px; color: var(--hijau); }
-    .welcome p { margin: 0; font-size: 14px; color: #666; }
     
-    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
-    .menu-card { background: white; padding: 25px 20px; border-radius: 14px; text-align: center; text-decoration: none; color: var(--text); box-shadow: 0 2px 9px rgba(0,0,0,0.07); transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb;}
-    .menu-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: var(--hijau); }
-    .menu-card .icon { font-size: 40px; margin-bottom: 10px; }
-    .menu-card h4 { margin: 0; color: var(--hijau); font-size: 18px; }
+    /* KOTAK SAMBUTAN GAYA KACA DIGITAL */
+    .welcome { 
+      background: rgba(17, 24, 44, 0.8); 
+      padding: 20px; 
+      border-radius: 14px; 
+      margin-bottom: 25px; 
+      border: 1px solid rgba(0, 243, 255, 0.2); 
+      border-left: 4px solid var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+    }
+    .welcome h3 { margin: 0 0 5px; color: var(--neon-cyan); text-shadow: 0 0 5px rgba(0, 243, 255, 0.4);}
+    .welcome p { margin: 0; font-size: 14px; color: #aaa; }
+    
+    /* MENU CARD FUTURISTIK */
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+    .menu-card { 
+      background: var(--card-bg); 
+      padding: 25px 20px; 
+      border-radius: 14px; 
+      text-align: center; 
+      text-decoration: none; 
+      color: var(--text); 
+      transition: 0.3s; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      border: 1px solid rgba(0, 243, 255, 0.1);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* EFEK NEON SAAT DISENTUH */
+    .menu-card:hover { 
+      transform: translateY(-5px); 
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.3); 
+      border-color: var(--neon-cyan); 
+    }
+    .menu-card .icon { font-size: 40px; margin-bottom: 10px; filter: drop-shadow(0 0 8px rgba(0, 243, 255, 0.6)); }
+    .menu-card h4 { margin: 0; color: #fff; font-size: 18px; letter-spacing: 0.5px; }
     .menu-card p { margin: 5px 0 0; font-size: 12px; color: #888; }
+    
+    .hidden { display: none !important; }
+    
+    /* RESPONSIF MOBILE */
+    @media (max-width: 600px) {
+      .header .brand { font-size: 16px; }
+      .header .brand small { font-size: 11px; }
+    }
   </style>
 </head>
 <body>
@@ -64,8 +137,8 @@
       </a>
 
       <a href="rekap-bulanan.html" class="menu-card" id="menuRekapBulanan">
-  <div class="icon">📅</div><h4>Rekap Bulanan</h4><p>Lihat absensi sebulan penuh</p>
-</a>
+        <div class="icon">📅</div><h4>Rekap Bulanan</h4><p>Lihat absensi sebulan penuh</p>
+      </a>
 
       <a href="kelola-siswa.html" class="menu-card" id="menuKelolaSiswa">
         <div class="icon">📤</div><h4>Kelola Siswa</h4><p>Upload data siswa via Excel</p>
@@ -88,7 +161,7 @@
       window.location.href = "index.html";
     } else {
       // Tampilkan Nama di Header
-      document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK <br><span style="color:#f6e27a;font-size:11px;">Login: ${nama}</span>`;
+      document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK <br><span style="color:#00f3ff;font-size:11px;">Login: ${nama}</span>`;
       document.getElementById("welcomeText").textContent = `Selamat Datang, ${nama}`;
 
       // Logika Sembunyikan Menu untuk Sekretaris
