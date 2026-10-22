@@ -26,21 +26,27 @@
   </script>
 
   <style>
-    /* --- GAYA GEN Z: GRADIENT & GLASSMORPHISM --- */
+    /* --- GAYA GEN Z: BACKGROUND FOTO FULL LAYAR + GLASSMORPHISM --- */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
     body { 
       font-family: 'Poppins', sans-serif; 
-      /* Background Gradasi Pink-Purple-Blue */
-      background: linear-gradient(135deg, #f6d365 0%, #fda085 50%, #a18cd1 100%);
+      
+      /* FOTO GRUP SEBAGAI BACKGROUND LAYAR PENUH */
+      /* Pastikan file fotogroup.png ada di repositori */
+      background-image: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url('fotogroup.png');
+      background-size: cover;
+      background-position: center;
       background-attachment: fixed;
+      background-repeat: no-repeat;
+      
       margin: 0; 
       padding: 20px; 
       min-height: 100vh;
     }
 
     .header { 
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.4);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.5);
@@ -70,8 +76,7 @@
 
     /* EFEK KACA (GLASSMORPHISM) UNTUK CARD */
     .card { 
-      /* Efek Kaca Transparan */
-      background: rgba(255, 255, 255, 0.6); 
+      background: rgba(255, 255, 255, 0.85); /* Putih agak pekat agar form terbaca */
       backdrop-filter: blur(12px); 
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.8);
@@ -84,12 +89,6 @@
       margin-bottom: 20px; 
       position: relative;
       z-index: 1;
-      /* Background foto grup tetap ada tapi dipudarkan oleh efek kaca */
-      background-image: url('2026-10-22 at 12.19.59.png');
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: cover;
-      background-blend-mode: overlay;
     }
     
     h2, h3 { color: #4a2c7a; text-align: center; margin-top: 0; font-weight: 700; }
@@ -102,7 +101,7 @@
       border: 2px solid rgba(255,255,255,0.5); 
       border-radius: 12px; 
       box-sizing: border-box; 
-      background: rgba(255,255,255,0.8); 
+      background: rgba(255,255,255,0.9); 
       font-family: 'Poppins', sans-serif;
       transition: 0.3s;
     }
@@ -111,7 +110,7 @@
     
     /* TOMBOL WARNA NEON/POP */
     .btn-save { 
-      background: #00b894; /* Hijau Neon */
+      background: #00b894; 
       color: white; 
       border: none; 
       padding: 14px; 
@@ -127,7 +126,7 @@
     .btn-save:hover { transform: translateY(-2px); }
 
     .btn-password { 
-      background: #0984e3; /* Biru Terang */
+      background: #0984e3; 
       color: white; 
       border: none; 
       padding: 14px; 
@@ -143,7 +142,7 @@
     .btn-password:hover { transform: translateY(-2px); }
 
     .btn-absen { 
-      background: #fdcb6e; /* Kuning/Oranye Ceria */
+      background: #fdcb6e; 
       color: #333; 
       border: none; 
       padding: 14px; 
@@ -173,9 +172,9 @@
     
     hr { margin-top: 30px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.1); }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; background: rgba(255,255,255,0.7); border-radius: 10px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; background: rgba(255,255,255,0.9); border-radius: 10px; overflow: hidden; }
     th, td { border-bottom: 1px solid rgba(0,0,0,0.05); padding: 10px; text-align: left; }
-    th { background: rgba(255,255,255,0.9); color: #4a2c7a; }
+    th { background: rgba(255,255,255,1); color: #4a2c7a; }
     .hadir { color: #00b894; font-weight: 700; }
   </style>
 </head>
