@@ -1,1 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rekap Absensi Bulanan - SIPADAK XI-6</title>
+  
+  <!-- Library Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
+  <!-- FIREBASE LIBRARY -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.fbDB = db;
+    window.fbFunc = { collection, getDocs, query, where };
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .container { max-width: 1400px; margin: 20px auto; padding: 0 16px; }
+    .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
+    
+    .top-action { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; background: white; padding: 15px; border-radius: 14px; box-shadow: 0 2px 9px rgba(0,0,0,0.07);}
+    .top-action label { font-weight: bold; font-size: 15px; margin-right: 10px;}
+    select, input[type="month"] { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; font-weight: bold;}
+    
+    .action-buttons { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap;}
+    .btn { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; color: white;}
+    .btn-print { background: #e67e22; }
+    .btn-download { background: #2471a3; }
+    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+
+    /* Tabel Rekap */
+    .table-responsive { overflow-x: auto; border: 1px solid #000; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 1200px; }
+    th, td { border: 1px solid #000; padding: 4px; text-align: center; vertical-align: middle; }
+    th { background: #f0f0f0; font-weight: bold; }
+    .text-left { text-align: left; }
+    
+    /* Tanda Tangan */
+    .ttd-section { display: none; margin-top: 30px; page-break-inside: avoid; }
+    .ttd-flex { display: flex; justify-content: space-between; text-align: center; font-size: 13px; }
+    .ttd-box { width: 45%; }
+    .ttd-nama { margin-top: 60px; font-weight: bold; text-decoration: underline; display: inline-block; }
+
+    .print-header { display: none; text-align: center; margin-bottom: 20px; }
+
+    /* CSS KHUSUS CETAK */
+    @media print {
+      body { background: white; color: black; }
+      .no-print { display: none !important; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      .card, .top-action { box-shadow: none !important; border: none; padding: 0;}
+      .header { display: none; }
+      .print-header { display: block; }
+      .ttd-section { display: block !important; }
+      .table-responsive { overflow: visible; border: none; }
+      @page { size: landscape; margin: 10mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header no-print">
+    <h1>📊 Rekap Absensi Bulanan</h1>
+    <span id="roleUser">Memuat...</span>
+  </div>
+
+  <div class="container">
+    <a href="dashboard-induk.html" class="btn-back no-print">⬅ Kembali ke Dashboard</a>
+
+    <!-- Kop Surat untuk Cetak -->
+    <div class="print-header">
+      <h2 style="margin:0;">DAFTAR HADIR PESERTA DIDIK</h2>
+      <h3 style="margin:5px 0;">KELAS XI-6 - MAN 3 BOGOR</h3>
+      <hr style="border: 1px solid #000;">
+    </div>
+
+    <div class="top-action no-print">
+      <label>Pilih Bulan:</label>
+      <input type="month" id="pilihBulan" onchange="muatRekapBulanan()">
+      
+      <div class="action-buttons">
+        <button class="btn btn-download" onclick="downloadExcelBulanan()">⬇️ Download Excel</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ Cetak / PDF</button>
+      </div>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div class="table-responsive">
+        <table id="tabelRekap">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width: 30px;">No</th>
+              <th rowspan="2" class="text-left" style="min-width: 200px;">NAMA LENGKAP</th>
+              <th rowspan="2" style="width: 80px;">NISN</th>
+              <th rowspan="2" style="width: 30px;">L/P</th>
+              <!-- Tanggal 1-31 -->
+              <th colspan="31">TANGGAL</th>
+              <th colspan="4">JUMLAH</th>
+            </tr>
+            <tr>
+              <!-- Angka 1-31 -->
+              <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+              <th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th>
+              <th>21</th><th>22</th><th>23</th><th>24</th><th>25</th><th>26</th><th>27</th><th>28</th><th>29</th><th>30</th><th>31</th>
+              <!-- Kolom Jumlah -->
+              <th style="background:#e8f8f5;">H</th><th style="background:#fef9e7;">S</th><th style="background:#ebf5fb;">I</th><th style="background:#fdedec;">A</th>
+            </tr>
+          </thead>
+          <tbody id="bodyRekap">
+            <tr><td colspan="39" style="text-align:center;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tanda Tangan -->
+    <div class="ttd-section">
+      <div class="ttd-flex">
+        <div class="ttd-box">
+          <p>Mengetahui,<br>Kepala Madrasah,</p>
+          <div class="ttd-nama">Dr. H. Rizalah Luqman Al Farabi, S.Pd.I., M.Pd.</div>
+          <p style="margin: 0; font-size: 13px;">NIP. 198404012009011006</p>
+        </div>
+        <div class="ttd-box">
+          <p>Bogor, .................... 2026<br>Wali Kelas,</p>
+          <div class="ttd-nama">ADI FIRMANSYAH, S.E.</div>
+          <p style="margin: 0; font-size: 13px;">NIP. 198301112025211003</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+    document.getElementById("roleUser").textContent = localStorage.getItem("siTatibNama") || "SIPADAK";
+
+    let listSiswa = [];
+    let dataAbsensiBulanIni = {};
+
+    window.addEventListener('firebaseReady', () => {
+      // Set bulan default ke bulan ini (format: YYYY-MM)
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      document.getElementById('pilihBulan').value = `${now.getFullYear()}-${month}`;
+      
+      inisialisasiData();
+    });
+
+    async function inisialisasiData() {
+      const { collection, getDocs } = window.fbFunc;
+      const db = window.fbDB;
+
+      try {
+        // 1. Ambil data siswa
+        const snapSiswa = await getDocs(collection(db, "Siswa"));
+        listSiswa = [];
+        snapSiswa.forEach(doc => {
+          listSiswa.push(doc.data());
+        });
+        
+        // Urutkan nama sesuai abjad
+        listSiswa.sort((a, b) => a.nama.localeCompare(b.nama));
+
+        // 2. Muat rekap
+        muatRekapBulanan();
+
+      } catch (error) {
+        console.error(error);
+        document.getElementById("bodyRekap").innerHTML = '<tr><td colspan="39" style="text-align:center; color:red;">Gagal memuat data siswa.</td></tr>';
+      }
+    }
+
+    async function muatRekapBulanan() {
+      const bulanDipilih = document.getElementById('pilihBulan').value; // Contoh: "2026-10"
+      if(!bulanDipilih) return;
+
+      const tbody = document.getElementById("bodyRekap");
+      tbody.innerHTML = '<tr><td colspan="39" style="text-align:center;">Memuat data absensi bulan ini...</td></tr>';
+
+      const { collection, getDocs, query, where } = window.fbFunc;
+      const db = window.fbDB;
+
+      try {
+        // Ambil semua absensi (kita filter manual berdasarkan awalan tanggal)
+        // Untuk efisiensi di database besar, sebaiknya gunakan query >= dan <=
+        const q = query(collection(db, "Absensi"));
+        const snapAbsensi = await getDocs(q);
+        
+        dataAbsensiBulanIni = {}; // Format: { "Nama": { "1": "H", "2": "S", ... } }
+        
+        snapAbsensi.forEach(doc => {
+          const data = doc.data();
+          const tglStr = data.tanggal; // Format: YYYY-MM-DD
+          
+          // Cek apakah tanggal diawali dengan bulan yang dipilih
+          if(tglStr.startsWith(bulanDipilih)) {
+            const hari = parseInt(tglStr.split('-')[2]).toString(); // Ambil tanggal (1-31)
+            
+            if(!dataAbsensiBulanIni[data.nama]) dataAbsensiBulanIni[data.nama] = {};
+            
+            // Simpan status (H, S, I, A)
+            let kode = "";
+            if(data.status === "Hadir") kode = "H";
+            else if(data.status === "Sakit") kode = "S";
+            else if(data.status === "Izin") kode = "I";
+            else if(data.status === "Alpa") kode = "A";
+            
+            dataAbsensiBulanIni[data.nama][hari] = kode;
+          }
+        });
+
+        renderTabelBulanan();
+
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="39" style="text-align:center; color:red;">Gagal memuat absensi.</td></tr>';
+      }
+    }
+
+    function renderTabelBulanan() {
+      const tbody = document.getElementById("bodyRekap");
+      tbody.innerHTML = "";
+
+      if(listSiswa.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="39" style="text-align:center;">Belum ada data siswa.</td></tr>';
+        return;
+      }
+
+      listSiswa.forEach((siswa, index) => {
+        const nama = siswa.nama;
+        const absensiSiswa = dataAbsensiBulanIni[nama] || {};
+        
+        let totalH = 0, totalS = 0, totalI = 0, totalA = 0;
+
+        // Buat baris tabel
+        let tr = `<tr>
+          <td>${index + 1}</td>
+          <td class="text-left"><b>${nama}</b></td>
+          <td>${siswa.nisn || "-"}</td>
+          <td>${siswa.jk || "-"}</td>`;
+
+        // Looping tanggal 1 - 31
+        for (let tgl = 1; tgl <= 31; tgl++) {
+          const kode = absensiSiswa[tgl.toString()] || ""; // Kosong jika tidak ada data
+          
+          // Hitung total
+          if(kode === "H") totalH++;
+          else if(kode === "S") totalS++;
+          else if(kode === "I") totalI++;
+          else if(kode === "A") totalA++;
+
+          // Tampilkan kode (H/S/I/A)
+          tr += `<td>${kode}</td>`;
+        }
+
+        // Tambahkan kolom total di akhir
+        tr += `
+          <td style="background:#e8f8f5; font-weight:bold;">${totalH}</td>
+          <td style="background:#fef9e7; font-weight:bold;">${totalS}</td>
+          <td style="background:#ebf5fb; font-weight:bold;">${totalI}</td>
+          <td style="background:#fdedec; font-weight:bold;">${totalA}</td>
+        </tr>`;
+
+        tbody.innerHTML += tr;
+      });
+    }
+
+    function downloadExcelBulanan() {
+      const bulan = document.getElementById('pilihBulan').value;
+      if(!bulan) return alert("Pilih bulan terlebih dahulu!");
+
+      if(listSiswa.length === 0) return alert("Belum ada data siswa.");
+
+      let dataExcel = [];
+
+      listSiswa.forEach((siswa, index) => {
+        const nama = siswa.nama;
+        const absensiSiswa = dataAbsensiBulanIni[nama] || {};
+        
+        let row = {
+          "No": index + 1,
+          "Nama Lengkap": nama,
+          "NISN": siswa.nisn || "-",
+          "L/P": siswa.jk || "-"
+        };
+
+        let totalH = 0, totalS = 0, totalI = 0, totalA = 0;
+
+        // Looping tanggal 1-31
+        for (let tgl = 1; tgl <= 31; tgl++) {
+          const kode = absensiSiswa[tgl.toString()] || "";
+          row[`Tgl ${tgl}`] = kode;
+
+          if(kode === "H") totalH++;
+          else if(kode === "S") totalS++;
+          else if(kode === "I") totalI++;
+          else if(kode === "A") totalA++;
+        }
+
+        row["Total H"] = totalH;
+        row["Total S"] = totalS;
+        row["Total I"] = totalI;
+        row["Total A"] = totalA;
+
+        dataExcel.push(row);
+      });
+
+      const ws = XLSX.utils.json_to_sheet(dataExcel);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, `Rekap_${bulan}`);
+      XLSX.writeFile(wb, `Rekap_Absensi_${bulan}.xlsx`);
+    }
+  </script>
+</body>
+</html>
