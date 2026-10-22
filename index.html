@@ -40,8 +40,6 @@
     .btn-login { width: 100%; padding: 12px; background: var(--hijau); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     .hidden { display: none !important; }
     #loginMessage { color: #e74c3c; text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; height: 18px; }
-    
-    /* Style untuk tombol daftar */
     .link-daftar { text-align: center; margin-top: 15px; font-size: 13px; }
     .link-daftar a { color: var(--hijau); font-weight: bold; text-decoration: none; }
   </style>
@@ -66,8 +64,8 @@
     </div>
 
     <div id="formSiswa" class="hidden">
-      <label>Email</label>
-      <input id="loginEmail" type="email" placeholder="Masukkan Email Siswa" />
+      <label>NIS (Nomor Induk Siswa)</label>
+      <input id="loginEmail" type="text" placeholder="Masukkan NIS Anda" />
       <label>Password</label>
       <input id="loginPassSiswa" type="password" placeholder="Password" />
     </div>
@@ -75,7 +73,6 @@
     <button class="btn-login" onclick="prosesLogin()">🔐 MASUK</button>
     <div id="loginMessage"></div>
 
-    <!-- TOMBOL DAFTAR SUDAH DITAMBAHKAN DI SINI -->
     <div class="link-daftar">
       Belum punya akun siswa? <a href="daftar-siswa.html">Daftar di sini</a>
     </div>
@@ -116,8 +113,11 @@
         }
       } 
       else if (modeLogin === "siswa") {
-        const email = document.getElementById("loginEmail").value.trim();
+        const inputNis = document.getElementById("loginEmail").value.trim();
         const pass = document.getElementById("loginPassSiswa").value.trim();
+        
+        // PENTING: Ubah NIS menjadi email dummy
+        const email = inputNis + "@sipadak.com"; 
         
         pesan.textContent = "⏳ Memeriksa akun...";
         
@@ -126,27 +126,37 @@
           const auth = window.auth;
           const db = window.db;
 
-          // 1. Login ke Firebase Auth (Sistem Keamanan Firebase)
+          // 1. Login ke Firebase Auth
           const userCredential = await signInWithEmailAndPassword(auth, email, pass);
           const user = userCredential.user;
 
-          // 2. Cek Profil di Koleksi "AkunSiswa" berdasarkan UID
-          const docRef = doc(db, "AkunSiswa", user.uid);
+          // 2. Cek Profil di Firestore (berdasarkan UID)
+          const docRef = doc(db, "Siswa", user.uid); 
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
             const dataSiswa = docSnap.data();
+            
             localStorage.setItem("siTatibLogin", "true");
             localStorage.setItem("siTatibRole", "siswa");
             localStorage.setItem("siTatibNama", dataSiswa.nama);
+            localStorage.setItem("dataSiswaLogin", JSON.stringify({
+                idDoc: user.uid,
+                nama: dataSiswa.nama,
+                nis: dataSiswa.nis,
+                noHp: dataSiswa.noHp,
+                alamat: dataSiswa.alamat,
+                foto: dataSiswa.foto
+            }));
             
-            window.location.href = "biodata-siswa.html";
+            // Arahkan ke halaman profil siswa
+            window.location.href = "profil-siswa.html"; 
           } else {
-             pesan.textContent = "❌ Akun login ada, tapi data profil tidak ditemukan.";
+             pesan.textContent = "❌ Akun login ada, tapi data profil tidak ditemukan di database.";
           }
         } catch (error) {
           console.error(error);
-          pesan.textContent = "❌ Email atau Password salah!";
+          pesan.textContent = "❌ NIS atau Password salah!";
         }
       }
     }
