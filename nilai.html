@@ -3,7 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Database Nilai - SI-TATIB</title>
+  <title>Database Nilai - SIPADAK XI -6</title>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    window.fbFunc = { collection, addDoc, getDocs, query, where, serverTimestamp };
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
     * { box-sizing: border-box; }
@@ -16,6 +36,12 @@
     
     .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
     
+    /* NAVIGASI TAB */
+    .tabs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .tab-btn { background: #eee; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: #666; transition: 0.2s; }
+    .tab-btn:hover { background: #ddd; }
+    .tab-btn.active { background: var(--hijau); color: white; }
+
     .action-bar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
     .btn-save { background: #16a085; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; flex: 1; }
     .btn-upload { background: #e67e22; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; flex: 1; text-align: center; }
@@ -42,15 +68,25 @@
 <body>
   <div class="header">
     <h1>⭐ Database Nilai Siswa</h1>
-    <span>MAN 3 BOGOR</span>
+    <span id="roleUser">MAN 3 BOGOR</span>
   </div>
 
   <div class="container">
-    <a href="dashboard-induk.html" class="btn-back...">⬅ Kembali ke Dashboard</a>
+    <a href="dashboard-induk.html" class="btn-back">⬅ Kembali ke Dashboard</a>
 
     <div class="card">
-      <h3>Input Nilai (Format Tabel)</h3>
+      <h3 id="judulHalaman">Input Nilai - ASTS</h3>
       
+      <!-- TOMBOL NAVIGASI TAB -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="gantiTab('ASTS', this)">ASTS</button>
+        <button class="tab-btn" onclick="gantiTab('ASAS', this)">ASAS</button>
+        <button class="tab-btn" onclick="gantiTab('Ulangan 1', this)">Ulangan 1</button>
+        <button class="tab-btn" onclick="gantiTab('Ulangan 2', this)">Ulangan 2</button>
+        <button class="tab-btn" onclick="gantiTab('Ulangan 3', this)">Ulangan 3</button>
+        <button class="tab-btn" onclick="gantiTab('Tugas', this)">Tugas</button>
+      </div>
+
       <!-- Tombol Aksi -->
       <div class="action-bar">
         <label class="btn-upload">
@@ -61,7 +97,7 @@
         <button class="btn-download" onclick="downloadExcel()">⬇️ Download Excel</button>
       </div>
       
-      <p style="font-size:13px; color:#666; margin-bottom:15px;">Ketik nilai langsung di dalam kotak tabel, atau upload file Excel yang sudah diisi.</p>
+      <p style="font-size:13px; color:#666; margin-bottom:15px;">Ketik nilai langsung di dalam kotak tabel, atau upload file Excel yang sudah diisi. Pastikan Anda memilih Tab yang benar sebelum menyimpan.</p>
 
       <div class="table-responsive">
         <table id="tabelNilai">
@@ -82,8 +118,8 @@
 
   <script>
     if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
-    
-    // Daftar Mata Pelajaran (Sesuai Excel)
+    document.getElementById("roleUser").textContent = localStorage.getItem("siTatibNama") || "Guru";
+
     const MAPEL = [
       "Al-Qur'an Hadis", "Aqidah Akhlak", "Fiqih", "Sejarah Kebudayaan Islam", 
       "Bahasa Arab", "Pendidikan Pancasila", "Bahasa Indonesia", "Matematika", 
@@ -91,18 +127,33 @@
       "Sosiologi", "Ekonomi", "Geografi", "Sejarah Tingkat Lanjut"
     ];
 
-    const NILAI_KEY = "siTatibNilaiMatriks";
+    const NILAI_KEY = "siTatibNilaiMatriks_v2"; 
+    let jenisAktif = "ASTS";
+    // Format dataNilai: { "ASTS": { "Nama Siswa": { "Mapel": 90 } }, "ASAS": { ... } }
     let dataNilai = {}; 
 
     window.onload = function() {
-      dataNilai = JSON.parse(localStorage.getItem(NILAI_KEY) || "{}");
-      let listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
+      dataNilai = JSON.parse(localStorage.getItem(NILAI_KEY) || '{"ASTS":{},"ASAS":{},"Ulangan 1":{},"Ulangan 2":{},"Ulangan 3":{},"Tugas":{}}');
       
+      let listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
       if (listSiswa.length === 0) {
         listSiswa = ["ADINDA RIZKY AYU PUTRI", "AHMAD FAQIH ALFAIQ", "AIA TRINIYULIYANTI"]; 
       }
       renderTabel(listSiswa);
     };
+
+    function gantiTab(jenis, btnElement) {
+      jenisAktif = jenis;
+      document.getElementById("judulHalaman").textContent = `Input Nilai - ${jenis}`;
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      btnElement.classList.add('active');
+
+      // Render ulang tabel untuk menampilkan data sesuai tab
+      let listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
+      if (listSiswa.length === 0) listSiswa = ["ADINDA RIZKY AYU PUTRI", "AHMAD FAQIH ALFAIQ", "AIA TRINIYULIYANTI"];
+      renderTabel(listSiswa);
+    }
 
     function renderTabel(listSiswa) {
       const theadTr = document.querySelector("#tabelNilai thead tr");
@@ -112,6 +163,9 @@
       const tbody = document.getElementById("tbodyNilai");
       tbody.innerHTML = "";
 
+      // Ambil data sesuai tab yang aktif
+      const dataTabAktif = dataNilai[jenisAktif] || {};
+
       listSiswa.forEach((siswa, index) => {
         let html = `<tr>
           <td>${index + 1}</td>
@@ -119,7 +173,7 @@
         `;
 
         MAPEL.forEach(mapel => {
-          let val = (dataNilai[siswa] && dataNilai[siswa][mapel]) ? dataNilai[siswa][mapel] : "";
+          let val = (dataTabAktif[siswa] && dataTabAktif[siswa][mapel]) ? dataTabAktif[siswa][mapel] : "";
           html += `<td><input type="number" class="nilai-input" data-siswa="${siswa}" data-mapel="${mapel}" value="${val}" min="0" max="100" placeholder="-"></td>`;
         });
         
@@ -128,31 +182,68 @@
       });
     }
 
-    function simpanSemuaNilai() {
+    async function simpanSemuaNilai() {
+      if (!window.fbFunc) {
+        alert("Koneksi ke database belum siap. Tunggu sebentar.");
+        return;
+      }
+      
+      const btn = document.querySelector('.btn-save');
+      btn.textContent = "⏳ Menyimpan ke Database...";
+      btn.disabled = true;
+
+      const { collection, addDoc } = window.fbFunc;
+      const db = window.db;
+
       const inputs = document.querySelectorAll('.nilai-input');
-      let jumlah = 0;
+      
+      if (!dataNilai[jenisAktif]) dataNilai[jenisAktif] = {};
+      let dataSiswaMapel = {}; // Kumpulkan data per siswa
 
       inputs.forEach(input => {
         const siswa = input.getAttribute('data-siswa');
         const mapel = input.getAttribute('data-mapel');
         const val = input.value;
 
-        if (!dataNilai[siswa]) dataNilai[siswa] = {};
+        if (!dataSiswaMapel[siswa]) dataSiswaMapel[siswa] = {};
 
         if (val !== "") {
-          dataNilai[siswa][mapel] = Number(val);
-          jumlah++;
-        } else {
-          delete dataNilai[siswa][mapel];
+          dataSiswaMapel[siswa][mapel] = Number(val);
         }
       });
 
-      localStorage.setItem(NILAI_KEY, JSON.stringify(dataNilai));
-      alert(`✅ Berhasil menyimpan ${jumlah} data nilai ke browser!`);
+      try {
+        let promises = [];
+        // Simpan ke Firebase (Satu dokumen per siswa per jenis penilaian)
+        for (const siswa in dataSiswaMapel) {
+          const docRef = collection(db, "Nilai");
+          // Kita gunakan format: nama_siswa + "_" + jenisAktif agar mudah difilter nanti
+          promises.push(addDoc(docRef, {
+            nama: siswa,
+            jenis: jenisAktif,
+            nilai_mapel: dataSiswaMapel[siswa],
+            timestamp: new Date()
+          }));
+        }
+
+        await Promise.all(promises);
+
+        // Simpan ke LocalStorage sebagai cadangan
+        dataNilai[jenisAktif] = dataSiswaMapel;
+        localStorage.setItem(NILAI_KEY, JSON.stringify(dataNilai));
+
+        alert(`✅ Berhasil menyimpan nilai ${jenisAktif} ke Database!`);
+
+      } catch (error) {
+        console.error(error);
+        alert("❌ Gagal menyimpan ke database: " + error.message);
+      } finally {
+        btn.textContent = "💾 SIMPAN KE WEB";
+        btn.disabled = false;
+      }
     }
 
     // ==================== UPLOAD DARI EXCEL ====================
-        // ==================== UPLOAD DARI EXCEL ====================
     function importDariExcel(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -162,15 +253,12 @@
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
-          
-          // Buka sheet Database
           let sheetName = "Database";
           if (!workbook.Sheets[sheetName]) sheetName = workbook.SheetNames[0];
           
           const worksheet = workbook.Sheets[sheetName];
           const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-          // 1. CARI BARIS HEADER (Baris yang punya teks "Nama" dan "NIS")
           let headerRowIdx = -1;
           let idxNama = -1;
 
@@ -188,41 +276,35 @@
             return;
           }
 
-          // Posisi kolom Mapel dimulai 3 kolom setelah Nama (Nama, NIS, NISN, baru Mapel)
-          const startIdxMapel = idxNama + 3;
-
+          const startIdxMapel = idxNama + 3; 
           let jumlahImport = 0;
           
-          // 2. LOOPING DATA SISWA
+          if (!dataNilai[jenisAktif]) dataNilai[jenisAktif] = {};
+
           for (let i = headerRowIdx + 1; i < json.length; i++) {
             const row = json[i];
             const nama = row[idxNama];
-            
-            // Lewati baris kosong (termasuk baris sub-header Sakit/Ijin/Alpa yang namanya kosong)
             if (!nama || String(nama).trim() === "" || String(nama).includes("=")) continue; 
             
             const namaSiswa = String(nama).trim().toUpperCase();
-            if (!dataNilai[namaSiswa]) dataNilai[namaSiswa] = {};
+            if (!dataNilai[jenisAktif][namaSiswa]) dataNilai[jenisAktif][namaSiswa] = {};
 
-            // Looping 17 Mapel
             for (let m = 0; m < MAPEL.length; m++) {
               const colIdx = startIdxMapel + m;
               const val = row[colIdx];
-              
               if (val !== undefined && val !== null && val !== "") {
                 const numVal = Number(val);
                 if (!isNaN(numVal)) {
-                  dataNilai[namaSiswa][MAPEL[m]] = numVal;
+                  dataNilai[jenisAktif][namaSiswa][MAPEL[m]] = numVal;
                   jumlahImport++;
                 }
               }
             }
           }
 
-          // 3. Simpan ke memori browser & Refresh halaman
           localStorage.setItem(NILAI_KEY, JSON.stringify(dataNilai));
-          alert(`✅ Berhasil mengimpor ${jumlahImport} nilai dari Excel!`);
-          window.location.reload();
+          alert(`✅ Berhasil mengimpor ${jumlahImport} nilai untuk ${jenisAktif} dari Excel!`);
+          gantiTab(jenisAktif, document.querySelector('.tab-btn.active')); // Refresh tabel
 
         } catch (err) {
           console.error(err);
@@ -237,14 +319,14 @@
       const headers = ["No", "Nama Siswa", ...MAPEL];
       const wsData = [headers];
 
-      const dataTersimpan = JSON.parse(localStorage.getItem(NILAI_KEY) || "{}");
+      const dataTabAktif = dataNilai[jenisAktif] || {};
       const listSiswa = JSON.parse(localStorage.getItem('siTatibSiswa') || "[]");
       const finalSiswa = listSiswa.length > 0 ? listSiswa : ["ADINDA RIZKY AYU PUTRI"];
 
       finalSiswa.forEach((siswa, index) => {
         const row = [index + 1, siswa]; 
         MAPEL.forEach(mapel => {
-          let nilai = (dataTersimpan[siswa] && dataTersimpan[siswa][mapel]) ? dataTersimpan[siswa][mapel] : "";
+          let nilai = (dataTabAktif[siswa] && dataTabAktif[siswa][mapel]) ? dataTabAktif[siswa][mapel] : "";
           row.push(nilai);
         });
         wsData.push(row);
@@ -253,7 +335,7 @@
       const ws = XLSX.utils.aoa_to_sheet(wsData);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Database Nilai");
-      XLSX.writeFile(wb, "Database_Nilai_XI-6.xlsx");
+      XLSX.writeFile(wb, `Database_Nilai_${jenisAktif}_XI-6.xlsx`);
     }
   </script>
 </body>
