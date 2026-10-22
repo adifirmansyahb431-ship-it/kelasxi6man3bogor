@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profil Saya - SIPADAK XI-6</title>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    
+    window.fbDB = db;
+    window.fbAuth = auth;
+    window.fbFunc = { doc, getDoc, updateDoc, onAuthStateChanged, signOut };
+  </script>
+
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f3f5f4; margin: 0; padding: 20px; }
+    .header { background: #0a3622; color: #f6e27a; padding: 15px 22px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #d4af37; margin: -20px -20px 20px -20px; }
+    .header h1 { margin: 0; font-size: 20px; }
+    .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .card { background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }
+    h2 { color: #0a3622; text-align: center; margin-top: 0; }
+    label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; margin-top: 15px; }
+    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+    input[readonly] { background: #eee; }
+    button.btn-save { background: #16a085; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 15px;}
+    .foto-profil { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 15px; border: 3px solid #16a085; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Profil Siswa</h1>
+    <button class="btn-logout" onclick="logout()">KELUAR</button>
+  </div>
+
+  <div class="card">
+    <h2>Data Diri Saya</h2>
+    
+    <img id="fotoTampil" src="https://ui-avatars.com/api/?name=Siswa&background=16a085&color=fff" class="foto-profil" alt="Foto Profil">
+    
+    <form id="formProfil" onsubmit="simpanProfil(event)">
+      <label>Nama Lengkap</label>
+      <input type="text" id="inNama" readonly>
+      
+      <label>NIS</label>
+      <input type="text" id="inNis" readonly>
+
+      <label>No. HP (Bisa Diedit)</label>
+      <input type="text" id="inHp" placeholder="08xxxx">
+
+      <label>Alamat (Bisa Diedit)</label>
+      <input type="text" id="inAlamat" placeholder="Alamat lengkap">
+
+      <label>Upload Foto Baru (Opsional)</label>
+      <input type="file" id="inFoto" accept="image/*">
+
+      <button type="submit" class="btn-save">💾 SIMPAN PERUBAHAN</button>
+    </form>
+  </div>
+
+  <script>
+    const { doc, getDoc, updateDoc, onAuthStateChanged, signOut } = window.fbFunc;
+    const db = window.fbDB;
+    const auth = window.fbAuth;
+    let idDokumenSiswa = "";
+
+    // Cek Login Siswa
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Cari data siswa berdasarkan email (NIS@sipadak.com)
+        const email = user.email;
+        const nis = email.split("@")[0]; // Ambil NIS dari email
+        
+        // Asumsi ID dokumen di Firestore adalah NAMA_SISWA (huruf besar, spasi jadi underscore)
+        // Kita perlu mencari dokumen yang field 'nis' atau 'email'-nya cocok
+        // Untuk mempermudah, kita asumsikan kita menyimpan ID dokumen di LocalStorage saat login
+        const dataSiswa = JSON.parse(localStorage.getItem("dataSiswaLogin"));
+        
+        if (dataSiswa) {
+          idDokumenSiswa = dataSiswa.idDoc;
+          document.getElementById("inNama").value = dataSiswa.nama || "";
+          document.getElementById("inNis").value = dataSiswa.nis || "";
+          document.getElementById("inHp").value = dataSiswa.noHp || "";
+          document.getElementById("inAlamat").value = dataSiswa.alamat || "";
+          
+          if (dataSiswa.foto) {
+            document.getElementById("fotoTampil").src = dataSiswa.foto;
+          }
+        } else {
+          alert("Sesi tidak valid. Silakan login ulang.");
+          window.location.href = "index.html";
+        }
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    async function simpanProfil(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      btn.textContent = "⏳ Menyimpan...";
+      btn.disabled = true;
+
+      const noHp = document.getElementById("inHp").value;
+      const alamat = document.getElementById("inAlamat").value;
+      const fileFoto = document.getElementById("inFoto").files[0];
+
+      let fotoBase64 = document.getElementById("fotoTampil").src;
+
+      // Konversi foto ke base64 jika ada upload baru
+      if (fileFoto) {
+        fotoBase64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.readAsDataURL(fileFoto);
+        });
+      }
+
+      try {
+        // Update data di Firestore
+        await updateDoc(doc(db, "Siswa", idDokumenSiswa), {
+          noHp: noHp,
+          alamat: alamat,
+          foto: fotoBase64
+        });
+        
+        alert("✅ Profil berhasil diperbarui!");
+        
+        // Update LocalStorage
+        let sesi = JSON.parse(localStorage.getItem("dataSiswaLogin"));
+        sesi.noHp = noHp;
+        sesi.alamat = alamat;
+        sesi.foto = fotoBase64;
+        localStorage.setItem("dataSiswaLogin", JSON.stringify(sesi));
+        
+        document.getElementById("fotoTampil").src = fotoBase64;
+        
+      } catch (error) {
+        console.error(error);
+        alert("❌ Gagal menyimpan: " + error.message);
+      } finally {
+        btn.textContent = "💾 SIMPAN PERUBAHAN";
+        btn.disabled = false;
+      }
+    }
+
+    function logout() {
+      if(confirm("Yakin ingin keluar?")) {
+        localStorage.removeItem("dataSiswaLogin");
+        signOut(auth).then(() => window.location.href = "index.html");
+      }
+    }
+  </script>
+</body>
+</html>
