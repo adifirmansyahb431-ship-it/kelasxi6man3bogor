@@ -9,7 +9,6 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    // IMPORT AUTH UNTUK MEMBUAT AKUN LOGIN
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -23,7 +22,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app); // Inisialisasi Auth
+    const auth = getAuth(app);
 
     window.fbDB = db;
     window.fbAuth = auth;
@@ -143,7 +142,10 @@
         
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          opsi += `<option value="${data.nama}">${data.nama}</option>`;
+          // Tampilkan hanya yang sudah punya akun (punya email)
+          if(data.email) {
+             opsi += `<option value="${data.nama}" data-uid="${doc.id}">${data.nama}</option>`;
+          }
         });
         select.innerHTML = opsi;
 
@@ -166,7 +168,6 @@
         if(doc.data().nama === nama) {
           document.getElementById("nisSiswa").value = doc.data().nis || "";
           document.getElementById("nisnSiswa").value = doc.data().nisn || "";
-          // Otomatis isi kolom Email (Untuk Login) dengan NIS
           document.getElementById("emailSiswa").value = doc.data().nis || "";
           document.getElementById("noHpSiswa").value = doc.data().noHp || "";
           document.getElementById("alamatSiswa").value = doc.data().alamat || "";
@@ -191,6 +192,9 @@
 
         querySnapshot.forEach((doc) => {
           const data = doc.data();
+          // Hanya tampilkan yang sudah punya akun login
+          if(!data.email) return; 
+
           dataAkunSiswa[data.nama] = data;
 
           const foto = data.foto || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.nama) + '&background=16a085&color=fff';
@@ -247,8 +251,8 @@
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         const uid = userCredential.user.uid;
 
-        // 2. Simpan Profil ke Firestore (Koleksi "Siswa")
-        const docId = nama.replace(/\s+/g, '_').toUpperCase();
+        // 2. Simpan Profil ke Firestore (ID Dokumen = UID)
+        const docId = uid; 
         let fotoBase64 = dataAkunSiswa[nama] ? (dataAkunSiswa[nama].foto || "") : "";
 
         if(fileFoto) {
