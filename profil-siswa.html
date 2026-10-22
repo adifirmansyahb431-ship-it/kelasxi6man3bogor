@@ -7,8 +7,7 @@
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    // Import lengkap termasuk query & where untuk cek absen ganda
-    import { getFirestore, doc, updateDoc, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, doc, updateDoc, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
@@ -21,8 +20,7 @@
 
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    // Daftarkan semua fungsi ke global window
-    window.fbFunc = { doc, updateDoc, collection, addDoc, getDocs, query, where };
+    window.fbFunc = { doc, updateDoc, collection, addDoc, getDocs, query, where, orderBy };
   </script>
 
   <style>
@@ -30,7 +28,7 @@
     .header { background: #0a3622; color: #f6e27a; padding: 15px 22px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #d4af37; margin: -20px -20px 20px -20px; }
     .header h1 { margin: 0; font-size: 20px; }
     .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .card { background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }
+    .card { background: white; padding: 25px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; margin-bottom: 20px;}
     h2 { color: #0a3622; text-align: center; margin-top: 0; }
     label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; margin-top: 15px; }
     input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
@@ -43,6 +41,12 @@
     .foto-profil { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 15px; border: 3px solid #16a085; }
     #statusLokasi { text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; }
     hr { margin-top: 30px; margin-bottom: 15px; border: 1px solid #eee; }
+
+    /* Style Tabel Riwayat Absensi */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+    th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
+    th { background: #f5f5f5; }
+    .hadir { color: #27ae60; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -57,7 +61,6 @@
     
     <img id="fotoTampil" src="https://ui-avatars.com/api/?name=Siswa&background=16a085&color=fff" class="foto-profil" alt="Foto Profil">
     
-    <!-- FORM EDIT PROFIL -->
     <form id="formProfil" onsubmit="simpanProfil(event)">
       <label>Nama Lengkap</label>
       <input type="text" id="inNama" readonly>
@@ -89,18 +92,36 @@
     <h3 style="text-align: center; color: #0a3622;">Absensi Kehadiran</h3>
     <button type="button" onclick="absensiLokasi()" class="btn-absen">📍 ABSEN SEKARANG (Cek Lokasi)</button>
     <p id="statusLokasi"></p>
+  </div>
 
+  <!-- CARD BARU: RIWAYAT ABSENSI -->
+  <div class="card">
+    <h3 style="text-align: center; color: #0a3622; margin-top: 0;">Riwayat Absensi Saya</h3>
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Tanggal</th>
+            <th>Status</th>
+            <th>Keterangan</th>
+          </tr>
+        </thead>
+        <tbody id="tabelRiwayat">
+          <tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
-    // Ambil data dari LocalStorage (hasil login di index.html)
+    // Ambil data dari LocalStorage
     const dataLogin = JSON.parse(localStorage.getItem("dataSiswaLogin"));
 
     if (!dataLogin) {
       alert("Sesi tidak valid. Silakan login ulang.");
       window.location.href = "index.html";
     } else {
-      // Tampilkan data ke form
       document.getElementById("inNama").value = dataLogin.nama || "";
       document.getElementById("inNis").value = dataLogin.nis || "";
       document.getElementById("inHp").value = dataLogin.noHp || "";
@@ -109,10 +130,64 @@
       if (dataLogin.foto) {
         document.getElementById("fotoTampil").src = dataLogin.foto;
       }
+
+      // Panggil fungsi memuat riwayat saat halaman dibuka
+      muatRiwayatAbsensi();
     }
 
     // ==========================================
-    // FUNGSI SIMPAN PROFIL (NOMOR HP, ALAMAT, FOTO)
+    // FUNGSI MEMUAT RIWAYAT ABSENSI
+    // ==========================================
+    async function muatRiwayatAbsensi() {
+      const tbody = document.getElementById("tabelRiwayat");
+      
+      try {
+        const { collection, getDocs, query, where } = window.fbFunc;
+        const db = window.db;
+
+        // Ambil data absensi khusus siswa ini
+        const q = query(collection(db, "Absensi"), where("nama", "==", dataLogin.nama));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada riwayat absensi.</td></tr>';
+          return;
+        }
+
+        let dataRiwayat = [];
+        querySnapshot.forEach((doc) => {
+          dataRiwayat.push(doc.data());
+        });
+
+        // Urutkan berdasarkan tanggal terbaru (descending)
+        dataRiwayat.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+        tbody.innerHTML = "";
+        dataRiwayat.forEach((row, index) => {
+          // Format tanggal agar mudah dibaca (Contoh: 22 Okt 2026)
+          const tglFormat = new Date(row.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+          
+          tbody.innerHTML += `
+            <tr>
+              <td style="text-align:center;">${index + 1}</td>
+              <td>${tglFormat}</td>
+              <td class="hadir">${row.status}</td>
+              <td>${row.keterangan || "-"}</td>
+            </tr>
+          `;
+        });
+
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat riwayat.</td></tr>';
+      }
+    }
+
+    // (Fungsi simpanProfil, gantiPassword, absensiLokasi, dan logout tetap sama seperti sebelumnya)
+    // ... Salin fungsi-fungsi tersebut dari kode sebelumnya ke sini ...
+    
+    // ==========================================
+    // FUNGSI SIMPAN PROFIL
     // ==========================================
     async function simpanProfil(e) {
       e.preventDefault();
@@ -193,12 +268,10 @@
     }
 
     // ==========================================
-    // FUNGSI ABSENSI LOKASI & PENCEGAH GANDA
+    // FUNGSI ABSENSI LOKASI
     // ==========================================
-    
-    // Koordinat MAN 3 Bogor
     const KOORDINAT_SEKOLAH = { lat: -6.4582213, lng: 107.0547609 }; 
-    const RADIUS_MAKSIMAL_METER = 200; // Toleransi jarak 200 meter
+    const RADIUS_MAKSIMAL_METER = 200; 
 
     function absensiLokasi() {
       const status = document.getElementById("statusLokasi");
@@ -228,13 +301,7 @@
               
               const tglHariIni = new Date().toISOString().split('T')[0]; 
               
-              // Cek Absen Ganda
-              const q = query(
-                collection(db, "Absensi"), 
-                where("nama", "==", dataLogin.nama), 
-                where("tanggal", "==", tglHariIni)
-              );
-              
+              const q = query(collection(db, "Absensi"), where("nama", "==", dataLogin.nama), where("tanggal", "==", tglHariIni));
               const querySnapshot = await getDocs(q);
 
               if (!querySnapshot.empty) {
@@ -243,7 +310,6 @@
                 return; 
               }
 
-              // Simpan Absensi Baru
               const jamSekarang = new Date().toLocaleTimeString('id-ID');
               await addDoc(collection(db, "Absensi"), {
                 tanggal: tglHariIni,
@@ -255,6 +321,9 @@
 
               status.textContent = `✅ Absensi Berhasil! Jarak Anda ${Math.round(jarak)} meter dari sekolah.`;
               status.style.color = "green";
+              
+              // Muat ulang tabel riwayat setelah absen berhasil
+              muatRiwayatAbsensi();
 
             } catch (error) {
               console.error(error);
@@ -275,7 +344,6 @@
       );
     }
 
-    // Rumus Haversine
     function hitungJarak(lat1, lon1, lat2, lon2) {
       const R = 6371e3;
       const p1 = lat1 * Math.PI/180;
@@ -291,9 +359,6 @@
       return R * c;
     }
 
-    // ==========================================
-    // FUNGSI LOGOUT
-    // ==========================================
     function logout() {
       if(confirm("Yakin ingin keluar?")) {
         localStorage.removeItem("dataSiswaLogin");
