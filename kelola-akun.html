@@ -140,23 +140,18 @@
         const select = document.getElementById("pilihSiswa");
         let opsi = '<option value="">Pilih Siswa</option>';
         
+        // Tampilkan SEMUA nama siswa
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          // Tampilkan hanya yang sudah punya akun (punya email)
-                    querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            // Tampilkan SEMUA nama siswa, beri tanda jika sudah punya akun
-            const statusAkun = data.email ? "✅" : "❌";
-            opsi += `<option value="${data.nama}">${statusAkun} ${data.nama}</option>`;
-          });
-          }
+          opsi += `<option value="${data.nama}">${data.nama}</option>`;
         });
+        
         select.innerHTML = opsi;
-
         muatDataAkun();
 
       } catch (error) {
         console.error("Error load siswa:", error);
+        document.getElementById("pilihSiswa").innerHTML = '<option value="">Gagal memuat data</option>';
       }
     });
 
@@ -196,9 +191,6 @@
 
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          // Hanya tampilkan yang sudah punya akun login
-          if(!data.email) return; 
-
           dataAkunSiswa[data.nama] = data;
 
           const foto = data.foto || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.nama) + '&background=16a085&color=fff';
@@ -232,7 +224,7 @@
     async function simpanAkun() {
       const nama = document.getElementById("pilihSiswa").value;
       const nis = document.getElementById("nisSiswa").value.trim();
-      const email = nis + "@sipadak.com"; // Mengubah NIS menjadi email dummy
+      const email = nis + "@sipadak.com"; 
       const nisn = document.getElementById("nisnSiswa").value.trim();
       const kelas = document.getElementById("kelasSiswa").value;
       const noHp = document.getElementById("noHpSiswa").value.trim();
@@ -251,12 +243,9 @@
       const auth = window.fbAuth;
 
       try {
-        // 1. Buat Akun Login di Firebase Auth
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         const uid = userCredential.user.uid;
 
-        // 2. Simpan Profil ke Firestore (ID Dokumen = UID)
-        const docId = uid; 
         let fotoBase64 = dataAkunSiswa[nama] ? (dataAkunSiswa[nama].foto || "") : "";
 
         if(fileFoto) {
@@ -275,11 +264,11 @@
           foto: fotoBase64
         };
 
-        await setDoc(doc(db, "Siswa", docId), dataAkun);
+        // Gunakan UID sebagai ID dokumen
+        await setDoc(doc(db, "Siswa", uid), dataAkun);
 
         alert("✅ Akun Login dan Profil Siswa berhasil dibuat!");
         
-        // Reset form
         document.getElementById("pilihSiswa").value = "";
         document.getElementById("nisSiswa").value = "";
         document.getElementById("nisnSiswa").value = "";
