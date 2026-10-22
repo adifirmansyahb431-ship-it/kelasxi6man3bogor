@@ -37,6 +37,9 @@
       table { width: 100%; border-collapse: collapse; font-size: 14px; }
       th, td { border: 1px solid #000 !important; padding: 8px; text-align: left; }
       th { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      
+      /* Sembunyikan tabel utama saat mencetak per siswa */
+      #tabelUtama { display: none !important; }
 
       .ttd-section { display: block !important; margin-top: 50px; page-break-inside: avoid; }
       .ttd-flex { display: flex; justify-content: space-between; text-align: center; }
@@ -52,34 +55,21 @@
   </div>
 
   <div class="container">
-    <!-- Tombol Aksi (Kembali & Cetak) -->
+    <!-- Tombol Aksi (Kembali) -->
     <div class="no-print" style="display: flex; gap: 10px; margin-bottom: 15px;">
       <a href="dashboard-induk.html" class="btn-back" style="margin-bottom: 0;">⬅ Kembali ke Dashboard</a>
-      <button onclick="window.print()" class="btn-print">🖨️ Cetak / PDF</button>
     </div>
 
-    <!-- Kop Surat untuk Cetak -->
-    <div class="print-header" style="display: none;">
-      <img src="fotogroupxi-6.png" alt="Logo" style="height: 80px; margin-bottom: 10px;">
-      <h2 style="margin: 0;">REKAP POIN PELANGGARAN SISWA</h2>
-      <h3 style="margin: 5px 0;">SIPADAK XI-6 - MAN 3 BOGOR</h3>
-      <p style="margin: 0; font-size: 14px;">Tahun Ajaran 2026/2027</p>
-    </div>
-
-    <div class="card">
+    <div class="card" id="tabelUtama">
       <h3>Akumulasi Poin Pelanggaran</h3>
-      <input type="text" id="cariSiswa" placeholder="Cari nama siswa..." onkeyup="tampilRekap()" class="no-print">
+      <input type="text" id="cariSiswa" placeholder="Cari nama siswa..." onkeyup="tampilRekap()">
       
       <div style="overflow-x: auto;">
         <table>
           <thead>
             <tr>
-              <th>No</th>
-              <th>Nama Siswa</th>
-              <th>Kelas</th>
-              <th>Jml Pelanggaran</th>
-              <th>Total Poin</th>
-              <th>Kategori</th>
+              <th>No</th><th>Nama Siswa</th><th>Kelas</th><th>Jml Pelanggaran</th><th>Total Poin</th><th>Kategori</th>
+              <th class="no-print">Aksi</th>
             </tr>
           </thead>
           <tbody id="rekapSiswa"></tbody>
@@ -87,21 +77,48 @@
       </div>
     </div>
 
-    <!-- Tanda Tangan untuk Cetak -->
-    <div class="ttd-section" style="display: none;">
-      <div class="ttd-flex">
-        <div class="ttd-box">
-          <p>Mengetahui,<br>Kepala Madrasah,</p>
-          <div class="ttd-nama">Dr. H. Rizalah Luqman Al Farabi, S.Pd.I., M.Pd.</div>
-          <p style="margin: 0;">NIP. 198404012009011006</p>
-        </div>
-        <div class="ttd-box">
-          <p>Bogor, ........................ 2026<br>Guru BK / Wali Kelas,</p>
-          <div class="ttd-nama">ADI FIRMANSYAH, S.E.</div>
-          <p style="margin: 0;">NIP. 198301112025211003</p>
+    <!-- AREA CETAK PER SISWA (Akan diisi oleh JavaScript) -->
+    <div id="areaCetakSiswa" style="display: none;">
+      <div class="print-header">
+        <img src="fotogroupxi-6.png" alt="Logo" style="height: 80px; margin-bottom: 10px;">
+        <h2 style="margin: 0;">SURAT REKAP POIN PELANGGARAN SISWA</h2>
+        <h3 style="margin: 5px 0;">SIPADAK XI-6 - MAN 3 BOGOR</h3>
+      </div>
+
+      <div class="card" style="box-shadow: none; border: none; padding: 0;">
+        <table style="margin-bottom: 20px;">
+          <tr><td width="30%"><strong>Nama Siswa</strong></td><td>: <span id="cetakNama"></span></td></tr>
+          <tr><td><strong>Kelas</strong></td><td>: <span id="cetakKelas"></span></td></tr>
+          <tr><td><strong>Total Pelanggaran</strong></td><td>: <span id="cetakJumlah"></span> kali</td></tr>
+          <tr><td><strong>Akumulasi Poin</strong></td><td>: <strong><span id="cetakTotal"></span></strong></td></tr>
+          <tr><td><strong>Kategori</strong></td><td>: <span id="cetakKategori"></span></td></tr>
+        </table>
+
+        <h4>Rincian Pelanggaran:</h4>
+        <table style="width: 100%;">
+          <thead>
+            <tr><th>No</th><th>Tanggal</th><th>Jenis Pelanggaran</th><th>Poin</th></tr>
+          </thead>
+          <tbody id="cetakRincian"></tbody>
+        </table>
+      </div>
+
+      <div class="ttd-section">
+        <div class="ttd-flex">
+          <div class="ttd-box">
+            <p>Mengetahui,<br>Kepala Madrasah,</p>
+            <div class="ttd-nama">Dr. H. Rizalah Luqman Al Farabi, S.Pd.I., M.Pd.</div>
+            <p style="margin: 0;">NIP. 198404012009011006</p>
+          </div>
+          <div class="ttd-box">
+            <p>Bogor, ........................ 2026<br>Guru BK / Wali Kelas,</p>
+            <div class="ttd-nama">ADI FIRMANSYAH, S.E.</div>
+            <p style="margin: 0;">NIP. 198301112025211003</p>
+          </div>
         </div>
       </div>
     </div>
+
   </div>
 
   <script>
@@ -110,8 +127,7 @@
     let db = [];
 
     window.onload = function() {
-      // Catatan: Data ini diambil dari LocalStorage. 
-      // Jika ingin data dari Firebase, kode pengambilan data perlu disesuaikan.
+      // Pastikan data diambil dari sumber yang benar (Firebase / LocalStorage)
       db = JSON.parse(localStorage.getItem("siTatibData") || "[]");
       tampilRekap();
     };
@@ -135,7 +151,7 @@
       list.sort((a, b) => b.total - a.total);
 
       if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">Belum ada data pelanggaran.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Belum ada data pelanggaran.</td></tr>';
         return;
       }
 
@@ -145,6 +161,9 @@
         else if (s.total >= 50) { kategori = "Berat"; badgeClass = "Berat"; }
         else if (s.total >= 25) { kategori = "Sedang"; badgeClass = "Sedang"; }
 
+        // Encode nama untuk parameter fungsi cetak
+        const namaSafe = encodeURIComponent(s.nama);
+
         tbody.innerHTML += `
           <tr>
             <td style="text-align:center;font-weight:bold">${i + 1}</td>
@@ -153,9 +172,67 @@
             <td style="text-align:center"><strong>${s.jumlah}x</strong></td>
             <td style="text-align:center"><strong>${s.total}</strong></td>
             <td style="text-align:center"><span class="badge ${badgeClass}">${kategori}</span></td>
+            <td class="no-print" style="text-align:center;">
+              <button class="btn-print" style="padding: 5px 10px; font-size: 12px;" onclick="cetakSiswa('${namaSafe}')">🖨️ Cetak</button>
+            </td>
           </tr>
         `;
       });
+    }
+
+    // Fungsi untuk memicu cetak per siswa
+    function cetakSiswa(namaEncoded) {
+      const namaSiswa = decodeURIComponent(namaEncoded);
+      
+      // 1. Filter data khusus siswa ini
+      const dataSiswa = db.filter(row => row.nama === namaSiswa);
+      if(dataSiswa.length === 0) return;
+
+      // 2. Hitung total
+      let totalPoin = 0;
+      dataSiswa.forEach(row => totalPoin += parseInt(row.total) || 0);
+
+      let kategori = "Ringan";
+      if (totalPoin >= 75) kategori = "Sangat Berat";
+      else if (totalPoin >= 50) kategori = "Berat";
+      else if (totalPoin >= 25) kategori = "Sedang";
+
+      // 3. Isi Data ke Area Cetak
+      document.getElementById('cetakNama').textContent = namaSiswa;
+      document.getElementById('cetakKelas').textContent = dataSiswa[0].kelas || "-";
+      document.getElementById('cetakJumlah').textContent = dataSiswa.length;
+      document.getElementById('cetakTotal').textContent = totalPoin;
+      document.getElementById('cetakKategori').textContent = kategori;
+
+      // 4. Isi Rincian Pelanggaran
+      const tbodyRincian = document.getElementById('cetakRincian');
+      tbodyRincian.innerHTML = "";
+      dataSiswa.forEach((row, index) => {
+        let tgl = row.tgl || "";
+        if (tgl.includes("T")) tgl = tgl.split("T")[0]; // Format tanggal
+
+        tbodyRincian.innerHTML += `
+          <tr>
+            <td style="text-align:center">${index + 1}</td>
+            <td style="text-align:center">${tgl}</td>
+            <td>${row.jenis || "-"}</td>
+            <td style="text-align:center"><strong>${row.total || 0}</strong></td>
+          </tr>
+        `;
+      });
+
+      // 5. Sembunyikan tabel utama, tampilkan area cetak
+      document.getElementById('tabelUtama').style.display = 'none';
+      document.getElementById('areaCetakSiswa').style.display = 'block';
+
+      // 6. Panggil fungsi print browser
+      window.print();
+
+      // 7. Setelah print selesai/dibatalkan, kembalikan tampilan semula
+      setTimeout(() => {
+        document.getElementById('tabelUtama').style.display = 'block';
+        document.getElementById('areaCetakSiswa').style.display = 'none';
+      }, 1000);
     }
   </script>
 </body>
