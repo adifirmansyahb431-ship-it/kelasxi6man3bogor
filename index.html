@@ -7,11 +7,12 @@
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    // TAMBAHKAN collection & getDocs untuk sistem login manual
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyC8YJeuuj8VAgZB4AM0Pxp97u_oVk-QGPo",
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
       authDomain: "sipadak-xi6.firebaseapp.com",
       projectId: "sipadak-xi6",
       storageBucket: "sipadak-xi6.firebasestorage.app",
@@ -22,7 +23,8 @@
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
     window.auth = getAuth(app);
-    window.fbFunc = { doc, getDoc, signInWithEmailAndPassword };
+    // Daftarkan fungsi firestore ke global
+    window.fbFunc = { doc, getDoc, collection, getDocs, signInWithEmailAndPassword };
   </script>
 
   <style>
@@ -112,36 +114,46 @@
           pesan.textContent = "❌ Username atau password Guru salah!";
         }
       } 
+      
+      // ==========================================
+      // LOGIN SISWA (SISTEM CEK MANUAL KE FIRESTORE)
+      // ==========================================
       else if (modeLogin === "siswa") {
         const inputNis = document.getElementById("loginEmail").value.trim();
         const pass = document.getElementById("loginPassSiswa").value.trim();
         
-        // PENTING: Ubah NIS menjadi email dummy
-        const email = inputNis + "@sipadak.com"; 
-        
-        pesan.textContent = "⏳ Memeriksa akun...";
+        pesan.textContent = "⏳ Memeriksa data siswa...";
         
         try {
-          const { signInWithEmailAndPassword, doc, getDoc } = window.fbFunc;
-          const auth = window.auth;
+          const { collection, getDocs } = window.fbFunc;
           const db = window.db;
 
-          // 1. Login ke Firebase Auth
-          const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-          const user = userCredential.user;
+          // 1. Ambil semua data siswa dari Firestore
+          const querySnapshot = await getDocs(collection(db, "Siswa"));
+          let loginBerhasil = false;
+          let dataSiswa = null;
 
-          // 2. Cek Profil di Firestore (berdasarkan UID)
-          const docRef = doc(db, "Siswa", user.uid); 
-          const docSnap = await getDoc(docRef);
-
-          if (docSnap.exists()) {
-            const dataSiswa = docSnap.data();
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
             
+            // 2. Cocokkan NIS
+            if(data.nis === inputNis) {
+               // 3. Cocokkan Password (Kita izinkan pakai password bawaan "123456" atau ketik NIS-nya sendiri)
+               if(pass === "123456" || pass === data.nis) { 
+                 loginBerhasil = true;
+                 dataSiswa = data;
+                 dataSiswa.idDoc = doc.id; // Simpan ID Dokumen Firestore
+               }
+            }
+          });
+
+          if (loginBerhasil && dataSiswa) {
+            // 4. Simpan sesi login ke LocalStorage
             localStorage.setItem("siTatibLogin", "true");
             localStorage.setItem("siTatibRole", "siswa");
             localStorage.setItem("siTatibNama", dataSiswa.nama);
             localStorage.setItem("dataSiswaLogin", JSON.stringify({
-                idDoc: user.uid,
+                idDoc: dataSiswa.idDoc, 
                 nama: dataSiswa.nama,
                 nis: dataSiswa.nis,
                 noHp: dataSiswa.noHp,
@@ -149,14 +161,14 @@
                 foto: dataSiswa.foto
             }));
             
-            // Arahkan ke halaman profil siswa
+            // 5. Arahkan ke halaman profil
             window.location.href = "profil-siswa.html"; 
           } else {
-             pesan.textContent = "❌ Akun login ada, tapi data profil tidak ditemukan di database.";
+             pesan.textContent = "❌ NIS tidak ditemukan atau Password salah!";
           }
         } catch (error) {
           console.error(error);
-          pesan.textContent = "❌ NIS atau Password salah!";
+          pesan.textContent = "❌ Gagal terhubung ke database.";
         }
       }
     }
