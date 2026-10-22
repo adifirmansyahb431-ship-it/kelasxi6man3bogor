@@ -143,8 +143,12 @@
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           // Tampilkan hanya yang sudah punya akun (punya email)
-          if(data.email) {
-             opsi += `<option value="${data.nama}" data-uid="${doc.id}">${data.nama}</option>`;
+                    querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Tampilkan SEMUA nama siswa, beri tanda jika sudah punya akun
+            const statusAkun = data.email ? "✅" : "❌";
+            opsi += `<option value="${data.nama}">${statusAkun} ${data.nama}</option>`;
+          });
           }
         });
         select.innerHTML = opsi;
