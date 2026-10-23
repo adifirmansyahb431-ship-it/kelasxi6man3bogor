@@ -1,10 +1,12 @@
   <script>
-    // 1. CEK LOGIN & ROLE
+    // 1. CEK LOGIN & ROLE (DIPERBAIKI)
     const dataSiswa = JSON.parse(localStorage.getItem("dataSiswaLogin"));
     const roleGuru = localStorage.getItem("siTatibRole");
+    const namaGuru = localStorage.getItem("siTatibNama");
+    
+    // Cek apakah Admin/Sekretaris ATAU Siswa yang login
     const isAdmin = (roleGuru === "admin" || roleGuru === "sekretaris");
 
-    // Tentukan arah tombol kembali (Kembali ke Dashboard jika Admin, ke Profil jika Siswa)
     const btnKembali = document.getElementById('btnKembali');
 
     if (isAdmin) {
@@ -19,7 +21,8 @@
       document.getElementById('tabMenuSiswa').classList.add('active');
       document.getElementById('tab-siswa').classList.add('active');
     } else {
-      alert("Sesi tidak valid. Silakan login ulang.");
+      // JIKA BENAR-BENAR BELUM LOGIN, BARU TENDANG KE LOGIN
+      alert("Anda belum login. Silakan login terlebih dahulu.");
       window.location.href = "index.html";
     }
 
