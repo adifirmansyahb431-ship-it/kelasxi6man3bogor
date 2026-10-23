@@ -270,6 +270,13 @@
           <label>Alamat (Bisa Diedit)</label>
           <input type="text" id="inAlamat" placeholder="Alamat lengkap">
 
+          <!-- TAMBAHAN KOLOM ORANG TUA -->
+          <label>Nama Orang Tua / Wali</label>
+          <input type="text" id="inNamaOrtu" placeholder="Masukkan nama orang tua">
+
+          <label>No. HP Orang Tua</label>
+          <input type="text" id="inHpOrtu" placeholder="08xxxx">
+
           <button type="submit" class="btn-save">💾 SIMPAN PERUBAHAN</button>
         </form>
       </div>
@@ -319,6 +326,10 @@
       document.getElementById("inHp").value = dataLogin.noHp || "";
       document.getElementById("inAlamat").value = dataLogin.alamat || "";
       
+      // Tampilkan data Orang Tua jika sudah ada di localStorage
+      document.getElementById("inNamaOrtu").value = dataLogin.namaOrtu || "";
+      document.getElementById("inHpOrtu").value = dataLogin.noHpOrtu || "";
+      
       if (dataLogin.foto) {
         document.getElementById("fotoTampil").src = dataLogin.foto;
       }
@@ -334,6 +345,8 @@
 
       const noHp = document.getElementById("inHp").value;
       const alamat = document.getElementById("inAlamat").value;
+      const namaOrtu = document.getElementById("inNamaOrtu").value;
+      const noHpOrtu = document.getElementById("inHpOrtu").value;
       const fileFoto = document.getElementById("inFoto").files[0];
 
       let fotoBase64 = document.getElementById("fotoTampil").src;
@@ -350,16 +363,22 @@
         const { doc, updateDoc } = window.fbFunc;
         const db = window.db;
 
+        // Simpan ke Firebase (termasuk data orang tua)
         await updateDoc(doc(db, "Siswa", dataLogin.idDoc), {
           noHp: noHp,
           alamat: alamat,
+          namaOrtu: namaOrtu,
+          noHpOrtu: noHpOrtu,
           foto: fotoBase64
         });
         
         alert("✅ Profil berhasil diperbarui!");
         
+        // Simpan ke localStorage
         dataLogin.noHp = noHp;
         dataLogin.alamat = alamat;
+        dataLogin.namaOrtu = namaOrtu;
+        dataLogin.noHpOrtu = noHpOrtu;
         dataLogin.foto = fotoBase64;
         localStorage.setItem("dataSiswaLogin", JSON.stringify(dataLogin));
         
