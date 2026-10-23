@@ -185,12 +185,18 @@
       <div id="tab-pemasukan" class="tab-content active">
         <h3>Catat Kas Masuk</h3>
         <form id="formPemasukan" onsubmit="simpanKas(event, 'Pemasukan')">
-          <label>Nama Siswa</label>
-          <input type="text" id="inNamaKas" required placeholder="Ketik nama sesuai daftar siswa...">
+          <label>Pilih Siswa (Nama Sudah Tampil)</label>
+          <!-- DROPDOWN OTOMATIS -->
+          <select id="inNamaKas" required>
+            <option value="">-- Memuat data siswa... --</option>
+          </select>
+          
           <label>Nominal (Rp)</label>
-          <input type="number" id="inNominalKas" required placeholder="Contoh: 20000">
+          <input type="number" id="inNominalKas" required placeholder="Contoh: 5000" value="5000">
+          
           <label>Keterangan</label>
-          <input type="text" id="inKetKas" required placeholder="Contoh: Uang kas bulan Oktober">
+          <input type="text" id="inKetKas" required placeholder="Contoh: Kas bulan Oktober">
+          
           <button type="submit" class="btn-submit">Simpan Pemasukan</button>
         </form>
         <h4 style="margin-top:30px;">Riwayat Kas Masuk</h4>
@@ -328,6 +334,8 @@
         await addDoc(collection(db, "KasKelas"), data);
         alert("✅ Data berhasil disimpan!");
         e.target.reset();
+        // Setelah reset, panggil ulang dropdown agar tidak kosong
+        isiDropdownSiswa(); 
         muatDataKas();
       } catch (error) {
         alert("❌ Gagal menyimpan: " + error.message);
@@ -339,6 +347,35 @@
 
     let globalDataKas = [];
     let chartInstance = null;
+    let listSiswaGlobal = []; // Menyimpan data siswa untuk dropdown & tabel
+
+    // FUNGSI MENGISI DROPDOWN NAMA SISWA
+    async function isiDropdownSiswa() {
+        try {
+            const { collection, getDocs } = window.fbFunc;
+            const db = window.db;
+            const querySnapshot = await getDocs(collection(db, "Siswa"));
+            
+            const dropdown = document.getElementById('inNamaKas');
+            dropdown.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
+            
+            listSiswaGlobal = []; // Reset data
+            querySnapshot.forEach((doc) => {
+                const siswa = doc.data();
+                const nama = siswa.nama_lengkap || siswa.nama || "Tanpa Nama";
+                listSiswaGlobal.push(nama); // Simpan ke array global
+
+                // Tambahkan ke dropdown
+                const option = document.createElement('option');
+                option.value = nama;
+                option.textContent = nama;
+                dropdown.appendChild(option);
+            });
+            
+        } catch (error) {
+            console.error("Gagal load siswa untuk dropdown:", error);
+        }
+    }
 
     async function muatDataKas() {
       try {
@@ -466,30 +503,25 @@
         });
     }
 
-    // =========================================================
     // 4. LOAD DAFTAR SISWA & COCOKKAN DENGAN KAS MASUK
-    // =========================================================
     async function muatStatusSiswa(siswaLunas) {
       try {
-        const { collection, getDocs } = window.fbFunc;
-        const db = window.db;
-
-        // Ambil data MASTER SISWA dari Firestore
-        const querySnapshot = await getDocs(collection(db, "Siswa"));
+        // Karena data siswa sudah diambil di fungsi isiDropdownSiswa, 
+        // kita bisa langsung menggunakan data global
         let tabelHTML = "";
         let totalKasSiswa = 0;
 
         const dataPemasukan = globalDataKas.filter(item => item.tipe === 'Pemasukan');
 
-        if (querySnapshot.empty) {
-            document.getElementById('tabelStatusSiswa').innerHTML = '<tr><td colspan="4" style="text-align:center;">Data siswa tidak ditemukan di database.</td></tr>';
+        if (listSiswaGlobal.length === 0) {
+            document.getElementById('tabelStatusSiswa').innerHTML = '<tr><td colspan="4" style="text-align:center;">Data siswa kosong atau gagal dimuat.</td></tr>';
             return;
         }
 
-        querySnapshot.forEach((doc) => {
-          const siswa = doc.data();
-          // Ambil nama dari database (mendukung nama_lengkap atau nama)
-          const nama = siswa.nama_lengkap || siswa.nama || "Tanpa Nama";
+        // Urutkan nama sesuai abjad
+        listSiswaGlobal.sort();
+
+        listSiswaGlobal.forEach((nama) => {
           
           // Cocokkan nama siswa dengan data kas masuk
           const cekBayar = dataPemasukan.filter(item => item.nama.toLowerCase() === nama.toLowerCase());
@@ -504,7 +536,6 @@
               tanggalBayar = tgl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
           }
 
-          // Syarat lunas (misal >= 5000)
           const sudahLunas = nominalDibayar >= 5000;
           
           if(sudahLunas) {
@@ -529,7 +560,6 @@
           `;
         });
 
-        // Tampilkan ke tabel dan kotak total
         document.getElementById('tabelStatusSiswa').innerHTML = tabelHTML;
         document.getElementById('totalKasSiswa').innerText = formatRp(totalKasSiswa);
 
@@ -558,7 +588,10 @@
     }
 
     window.addEventListener('firebaseReady', () => {
-      muatDataKas();
+      // Ambil data siswa untuk dropdown dulu, baru ambil data kas
+      isiDropdownSiswa().then(() => {
+          muatDataKas();
+      });
     });
   </script>
 </body>
