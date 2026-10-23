@@ -53,7 +53,7 @@
   <div class="login-box">
     <img src="fotogroupxi-6.png" alt="logo" />
     
-    <!-- HEADER YANG SUDAH DIPERBARUI -->
+    <!-- HEADER -->
     <h2>SIPADAK XI-6</h2>
     <p class="sub-judul">Sistem Informasi Pangkalan Data Kelas XI-6</p>
     <p class="sub-sekolah">MAN 3 BOGOR</p>
@@ -65,7 +65,7 @@
 
     <div id="formGuru">
       <label>Username</label>
-      <input id="loginUser" type="text" placeholder="admin / sekretaris" />
+      <input id="loginUser" type="text" placeholder="admin / sekretaris / bendahara" />
       <label>Password</label>
       <input id="loginPass" type="password" placeholder="Masukkan password" />
     </div>
@@ -98,9 +98,13 @@
       document.getElementById("loginMessage").textContent = "";
     }
 
+    // ==========================================
+    // DAFTAR AKUN GURU / STAF (TERMASUK BENDAHARA)
+    // ==========================================
     const AKUN_GURU = {
       "admin": { pass: "tatib2026", role: "admin", nama: "Dashboard Induk" },
-      "sekretaris": { pass: "sekretaris123", role: "sekretaris", nama: "Sekretaris Siswa" }
+      "sekretaris": { pass: "sekretaris123", role: "sekretaris", nama: "Sekretaris Siswa" },
+      "bendahara": { pass: "bendahara123", role: "bendahara", nama: "Bendahara Kelas" }
     };
 
     async function prosesLogin() {
@@ -116,7 +120,7 @@
           localStorage.setItem("siTatibNama", AKUN_GURU[user].nama);
           window.location.href = "dashboard-induk.html"; 
         } else {
-          pesan.textContent = "❌ Username atau password Guru salah!";
+          pesan.textContent = "❌ Username atau password salah!";
         }
       } 
       
@@ -133,7 +137,6 @@
           const { collection, getDocs } = window.fbFunc;
           const db = window.db;
 
-          // 1. Ambil semua data siswa dari Firestore
           const querySnapshot = await getDocs(collection(db, "Siswa"));
           let loginBerhasil = false;
           let dataSiswa = null;
@@ -141,19 +144,16 @@
           querySnapshot.forEach((doc) => {
             const data = doc.data();
             
-            // 2. Cocokkan NIS
             if(data.nis === inputNis) {
-               // 3. Cocokkan Password (Kita izinkan pakai password bawaan "123456" atau ketik NIS-nya sendiri)
                if(pass === "123456" || pass === data.nis) { 
                  loginBerhasil = true;
                  dataSiswa = data;
-                 dataSiswa.idDoc = doc.id; // Simpan ID Dokumen Firestore
+                 dataSiswa.idDoc = doc.id; 
                }
             }
           });
 
           if (loginBerhasil && dataSiswa) {
-            // 4. Simpan sesi login ke LocalStorage
             localStorage.setItem("siTatibLogin", "true");
             localStorage.setItem("siTatibRole", "siswa");
             localStorage.setItem("siTatibNama", dataSiswa.nama);
@@ -166,7 +166,6 @@
                 foto: dataSiswa.foto
             }));
             
-            // 5. Arahkan ke halaman profil
             window.location.href = "profil-siswa.html"; 
           } else {
              pesan.textContent = "❌ NIS tidak ditemukan atau Password salah!";
