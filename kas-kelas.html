@@ -185,11 +185,27 @@
       <div id="tab-pemasukan" class="tab-content active">
         <h3>Catat Kas Masuk</h3>
         <form id="formPemasukan" onsubmit="simpanKas(event, 'Pemasukan')">
-          <label>Pilih Siswa (Nama Sudah Tampil)</label>
-          <!-- DROPDOWN OTOMATIS -->
-          <select id="inNamaKas" required>
-            <option value="">-- Memuat data siswa... --</option>
+          
+          <!-- PILIHAN SUMBER DANA -->
+          <label>Sumber Pemasukan</label>
+          <select id="inSumberDana" onchange="aturFormPemasukan()" required style="margin-bottom: 10px;">
+            <option value="Iuran Siswa">Iuran Siswa</option>
+            <option value="Lainnya">Lainnya (Donasi, Sponsor, Sisa Dana, dll)</option>
           </select>
+
+          <!-- DROPDOWN NAMA SISWA -->
+          <div id="divNamaSiswa">
+            <label>Pilih Siswa (Nama Sudah Tampil)</label>
+            <select id="inNamaKasSiswa" required>
+              <option value="">-- Memuat data siswa... --</option>
+            </select>
+          </div>
+
+          <!-- INPUT NAMA MANUAL (UNTUK SUMBER LAINNYA) -->
+          <div id="divNamaLain" style="display: none;">
+            <label>Nama Sumber Pemasukan</label>
+            <input type="text" id="inNamaKasLain" placeholder="Contoh: Donasi Orang Tua, Sisa Dana Acara">
+          </div>
           
           <label>Nominal (Rp)</label>
           <input type="number" id="inNominalKas" required placeholder="Contoh: 5000" value="5000">
@@ -201,7 +217,7 @@
         </form>
         <h4 style="margin-top:30px;">Riwayat Kas Masuk</h4>
         <table>
-          <thead><tr><th>Tanggal</th><th>Nama</th><th>Nominal</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+          <thead><tr><th>Tanggal</th><th>Sumber</th><th>Nominal</th><th>Keterangan</th><th>Aksi</th></tr></thead>
           <tbody id="tabelPemasukan"></tbody>
         </table>
       </div>
@@ -308,6 +324,29 @@
       return "Rp " + parseInt(angka).toLocaleString('id-ID');
     }
 
+    // FUNGSI UNTUK MENAMPILKAN/MENYEMBUNYIKAN FORM
+    function aturFormPemasukan() {
+        const sumber = document.getElementById('inSumberDana').value;
+        const divSiswa = document.getElementById('divNamaSiswa');
+        const divLain = document.getElementById('divNamaLain');
+        const inSiswa = document.getElementById('inNamaKasSiswa');
+        const inLain = document.getElementById('inNamaKasLain');
+
+        if (sumber === 'Iuran Siswa') {
+            divSiswa.style.display = 'block';
+            divLain.style.display = 'none';
+            inSiswa.required = true;
+            inLain.required = false;
+            inLain.value = ''; // Kosongkan jika pindah tab
+        } else {
+            divSiswa.style.display = 'none';
+            divLain.style.display = 'block';
+            inSiswa.required = false;
+            inLain.required = true;
+            inSiswa.value = ''; // Kosongkan jika pindah tab
+        }
+    }
+
     async function simpanKas(e, tipe) {
       if (!isAdmin) return alert("Hanya Admin yang bisa mencatat kas!");
       e.preventDefault();
@@ -319,7 +358,14 @@
       let data = { tanggal: tgl, tipe: tipe };
 
       if(tipe === 'Pemasukan') {
-        data.nama = document.getElementById('inNamaKas').value;
+        const sumber = document.getElementById('inSumberDana').value;
+        
+        if (sumber === 'Iuran Siswa') {
+            data.nama = document.getElementById('inNamaKasSiswa').value;
+        } else {
+            data.nama = document.getElementById('inNamaKasLain').value;
+        }
+
         data.nominal = parseInt(document.getElementById('inNominalKas').value);
         data.keterangan = document.getElementById('inKetKas').value;
       } else {
@@ -334,7 +380,9 @@
         await addDoc(collection(db, "KasKelas"), data);
         alert("✅ Data berhasil disimpan!");
         e.target.reset();
-        // Setelah reset, panggil ulang dropdown agar tidak kosong
+        
+        // Reset form dan panggil ulang dropdown
+        aturFormPemasukan(); 
         isiDropdownSiswa(); 
         muatDataKas();
       } catch (error) {
@@ -347,25 +395,23 @@
 
     let globalDataKas = [];
     let chartInstance = null;
-    let listSiswaGlobal = []; // Menyimpan data siswa untuk dropdown & tabel
+    let listSiswaGlobal = [];
 
-    // FUNGSI MENGISI DROPDOWN NAMA SISWA
     async function isiDropdownSiswa() {
         try {
             const { collection, getDocs } = window.fbFunc;
             const db = window.db;
             const querySnapshot = await getDocs(collection(db, "Siswa"));
             
-            const dropdown = document.getElementById('inNamaKas');
+            const dropdown = document.getElementById('inNamaKasSiswa');
             dropdown.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
             
-            listSiswaGlobal = []; // Reset data
+            listSiswaGlobal = []; 
             querySnapshot.forEach((doc) => {
                 const siswa = doc.data();
                 const nama = siswa.nama_lengkap || siswa.nama || "Tanpa Nama";
-                listSiswaGlobal.push(nama); // Simpan ke array global
+                listSiswaGlobal.push(nama); 
 
-                // Tambahkan ke dropdown
                 const option = document.createElement('option');
                 option.value = nama;
                 option.textContent = nama;
@@ -410,7 +456,7 @@
             <tr>
               <td>${tglFormat}</td>
               <td>${row.tipe}</td>
-              <td>${row.keterangan}</td>
+              <td>${row.nama} - ${row.keterangan}</td>
               <td style="color: ${row.tipe === 'Pemasukan' ? '#00b894' : '#ff4757'}; font-weight:bold;">
                 ${row.tipe === 'Pemasukan' ? '+' : '-'} ${formatRp(row.nominal)}
               </td>
@@ -503,11 +549,8 @@
         });
     }
 
-    // 4. LOAD DAFTAR SISWA & COCOKKAN DENGAN KAS MASUK
     async function muatStatusSiswa(siswaLunas) {
       try {
-        // Karena data siswa sudah diambil di fungsi isiDropdownSiswa, 
-        // kita bisa langsung menggunakan data global
         let tabelHTML = "";
         let totalKasSiswa = 0;
 
@@ -518,12 +561,9 @@
             return;
         }
 
-        // Urutkan nama sesuai abjad
         listSiswaGlobal.sort();
 
         listSiswaGlobal.forEach((nama) => {
-          
-          // Cocokkan nama siswa dengan data kas masuk
           const cekBayar = dataPemasukan.filter(item => item.nama.toLowerCase() === nama.toLowerCase());
           
           let nominalDibayar = 0;
@@ -588,7 +628,6 @@
     }
 
     window.addEventListener('firebaseReady', () => {
-      // Ambil data siswa untuk dropdown dulu, baru ambil data kas
       isiDropdownSiswa().then(() => {
           muatDataKas();
       });
