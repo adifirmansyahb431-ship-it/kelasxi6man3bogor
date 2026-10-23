@@ -37,6 +37,14 @@
       margin: 0; 
       padding: 20px; 
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 800px;
     }
 
     .header { 
@@ -70,6 +78,8 @@
       text-align: center;
       margin-bottom: 20px;
       box-shadow: 0 8px 20px rgba(0, 184, 148, 0.3);
+      width: 100%;
+      box-sizing: border-box;
     }
     .saldo-card h2 { margin: 0; font-size: 16px; font-weight: 600; opacity: 0.9; }
     .saldo-card h1 { margin: 10px 0 0 0; font-size: 36px; font-weight: 700; }
@@ -81,8 +91,8 @@
       border-radius: 20px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.05);
       margin-bottom: 20px;
-      max-width: 800px;
-      margin: 0 auto 20px auto;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     /* TABS MENU */
@@ -98,8 +108,8 @@
       padding: 20px; 
       border-radius: 20px; 
       box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-      max-width: 800px; 
-      margin: 0 auto; 
+      width: 100%; 
+      box-sizing: border-box;
     }
 
     .tab-content { display: none; }
@@ -137,7 +147,7 @@
     @media print {
       body { background: white; padding: 0; }
       .header, .saldo-card, .tabs, form, .btn-submit, .btn-back, .chart-container, .btn-action, .btn-hapus { display: none !important; }
-      .card { box-shadow: none; max-width: 100%; padding: 0; }
+      .card { box-shadow: none; padding: 0; }
       .tab-content { display: block !important; margin-bottom: 30px; }
       th { background: #eee !important; -webkit-print-color-adjust: exact; }
     }
@@ -145,115 +155,118 @@
 </head>
 <body>
 
-  <div class="header">
-    <h1>💰 Kas Kelas XI-6</h1>
-    <a href="#" id="btnKembali" class="btn-back">← Kembali</a>
-  </div>
-
-  <!-- KARTU SALDO -->
-  <div class="saldo-card">
-    <h2>Total Saldo Kas Saat Ini</h2>
-    <h1 id="saldoTampil">Rp 0</h1>
-  </div>
-
-  <!-- WADAH GRAFIK -->
-  <div class="chart-container admin-only" id="grafikContainer">
-    <canvas id="kasChart" height="100"></canvas>
-  </div>
-
-  <div class="card">
-    <!-- MENU TABS -->
-    <div class="tabs">
-      <button class="tab-btn active admin-only" id="tabMenuPemasukan" onclick="bukaTab('pemasukan')">📥 Kas Masuk</button>
-      <button class="tab-btn admin-only" onclick="bukaTab('pengeluaran')">📤 Kas Keluar</button>
-      <button class="tab-btn" id="tabMenuSiswa" onclick="bukaTab('siswa')">👥 Status Bayar</button>
-      <button class="tab-btn" id="tabMenuLpj" onclick="bukaTab('lpj')">📊 Laporan LPJ</button>
+  <div class="wrapper">
+    <div class="header">
+      <h1>💰 Kas Kelas XI-6</h1>
+      <a href="#" id="btnKembali" class="btn-back">← Kembali</a>
     </div>
 
-    <!-- TAB 1: PEMASUKAN (ADMIN) -->
-    <div id="tab-pemasukan" class="tab-content active">
-      <h3>Catat Kas Masuk</h3>
-      <form id="formPemasukan" onsubmit="simpanKas(event, 'Pemasukan')">
-        <label>Nama Siswa</label>
-        <input type="text" id="inNamaKas" required placeholder="Contoh: Fatimah Zahra">
-        <label>Nominal (Rp)</label>
-        <input type="number" id="inNominalKas" required placeholder="Contoh: 20000">
-        <label>Keterangan</label>
-        <input type="text" id="inKetKas" required placeholder="Contoh: Uang kas bulan Oktober">
-        <button type="submit" class="btn-submit">Simpan Pemasukan</button>
-      </form>
-      <h4 style="margin-top:30px;">Riwayat Kas Masuk</h4>
-      <table>
-        <thead><tr><th>Tanggal</th><th>Nama</th><th>Nominal</th><th>Keterangan</th><th>Aksi</th></tr></thead>
-        <tbody id="tabelPemasukan"></tbody>
-      </table>
+    <!-- KARTU SALDO -->
+    <div class="saldo-card">
+      <h2>Total Saldo Kas Saat Ini</h2>
+      <h1 id="saldoTampil">Rp 0</h1>
     </div>
 
-    <!-- TAB 2: PENGELUARAN (ADMIN) -->
-    <div id="tab-pengeluaran" class="tab-content">
-      <h3>Catat Kas Keluar</h3>
-      <form id="formPengeluaran" onsubmit="simpanKas(event, 'Pengeluaran')">
-        <label>Keterangan Pengeluaran</label>
-        <input type="text" id="inKetKeluar" required placeholder="Contoh: Beli spidol & penghapus">
-        <label>Nominal (Rp)</label>
-        <input type="number" id="inNominalKeluar" required placeholder="Contoh: 15000">
-        <button type="submit" class="btn-submit merah">Simpan Pengeluaran</button>
-      </form>
-      <h4 style="margin-top:30px;">Riwayat Kas Keluar</h4>
-      <table>
-        <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead>
-        <tbody id="tabelPengeluaran"></tbody>
-      </table>
+    <!-- WADAH GRAFIK -->
+    <div class="chart-container admin-only" id="grafikContainer">
+      <canvas id="kasChart" height="100"></canvas>
     </div>
 
-    <!-- TAB 3: STATUS BAYAR SISWA -->
-    <div id="tab-siswa" class="tab-content">
-      <h3>Status Pembayaran Kas Siswa</h3>
-      
-      <!-- KOTAK TOTAL KAS MASUK SISWA -->
-      <div style="background: #e8f8f5; border-left: 4px solid #00b894; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-        <h4 style="margin: 0; color: #0a3622;">Total Kas Masuk dari Siswa</h4>
-        <h2 style="margin: 5px 0 0 0; color: #00b894;" id="totalKasSiswa">Rp 0</h2>
+    <div class="card">
+      <!-- MENU TABS -->
+      <div class="tabs">
+        <button class="tab-btn active admin-only" id="tabMenuPemasukan" onclick="bukaTab('pemasukan')">📥 Kas Masuk</button>
+        <button class="tab-btn admin-only" onclick="bukaTab('pengeluaran')">📤 Kas Keluar</button>
+        <button class="tab-btn" id="tabMenuSiswa" onclick="bukaTab('siswa')">👥 Status Bayar</button>
+        <button class="tab-btn" id="tabMenuLpj" onclick="bukaTab('lpj')">📊 Laporan LPJ</button>
       </div>
 
-      <p style="font-size: 13px; color: #666;">Daftar siswa dan status pembayaran. <b>✅ Lunas</b> berarti sudah membayar (minimal Rp 5.000).</p>
-      
-      <table>
-        <thead>
-          <tr>
-            <th>Nama Siswa</th>
-            <th>Nominal Dibayar</th>
-            <th>Tanggal Bayar</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="tabelStatusSiswa"></tbody>
-      </table>
-    </div>
+      <!-- TAB 1: PEMASUKAN (ADMIN) -->
+      <div id="tab-pemasukan" class="tab-content active">
+        <h3>Catat Kas Masuk</h3>
+        <form id="formPemasukan" onsubmit="simpanKas(event, 'Pemasukan')">
+          <label>Nama Siswa</label>
+          <input type="text" id="inNamaKas" required placeholder="Ketik nama sesuai daftar siswa...">
+          <label>Nominal (Rp)</label>
+          <input type="number" id="inNominalKas" required placeholder="Contoh: 20000">
+          <label>Keterangan</label>
+          <input type="text" id="inKetKas" required placeholder="Contoh: Uang kas bulan Oktober">
+          <button type="submit" class="btn-submit">Simpan Pemasukan</button>
+        </form>
+        <h4 style="margin-top:30px;">Riwayat Kas Masuk</h4>
+        <table>
+          <thead><tr><th>Tanggal</th><th>Nama</th><th>Nominal</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+          <tbody id="tabelPemasukan"></tbody>
+        </table>
+      </div>
 
-    <!-- TAB 4: LPJ -->
-    <div id="tab-lpj" class="tab-content">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3>Laporan LPJ Kas</h3>
-        <div style="display:flex; gap:10px;">
-          <button onclick="eksporCSV()" class="btn-action">📥 Ekspor Excel</button>
-          <button onclick="window.print()" style="background:#0984e3; color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:13px;">🖨️ Cetak PDF</button>
+      <!-- TAB 2: PENGELUARAN (ADMIN) -->
+      <div id="tab-pengeluaran" class="tab-content">
+        <h3>Catat Kas Keluar</h3>
+        <form id="formPengeluaran" onsubmit="simpanKas(event, 'Pengeluaran')">
+          <label>Keterangan Pengeluaran</label>
+          <input type="text" id="inKetKeluar" required placeholder="Contoh: Beli spidol & penghapus">
+          <label>Nominal (Rp)</label>
+          <input type="number" id="inNominalKeluar" required placeholder="Contoh: 15000">
+          <button type="submit" class="btn-submit merah">Simpan Pengeluaran</button>
+        </form>
+        <h4 style="margin-top:30px;">Riwayat Kas Keluar</h4>
+        <table>
+          <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead>
+          <tbody id="tabelPengeluaran"></tbody>
+        </table>
+      </div>
+
+      <!-- TAB 3: STATUS BAYAR SISWA -->
+      <div id="tab-siswa" class="tab-content">
+        <h3>Status Pembayaran Kas Siswa</h3>
+        
+        <div style="background: #e8f8f5; border-left: 4px solid #00b894; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+          <h4 style="margin: 0; color: #0a3622;">Total Kas Masuk dari Siswa</h4>
+          <h2 style="margin: 5px 0 0 0; color: #00b894;" id="totalKasSiswa">Rp 0</h2>
         </div>
-      </div>
-      <div style="margin-top:20px;">
-        <h4>Total Pemasukan: <span id="lpjMasuk" style="color:#00b894;">Rp 0</span></h4>
-        <h4>Total Pengeluaran: <span id="lpjKeluar" style="color:#ff4757;">Rp 0</span></h4>
-        <hr>
-        <h3>Saldo Akhir: <span id="lpjSaldo">Rp 0</span></h3>
-      </div>
-      
-      <h4 style="margin-top:30px;">Detail Arus Kas</h4>
-      <table>
-        <thead><tr><th>Tanggal</th><th>Tipe</th><th>Keterangan</th><th>Nominal</th></tr></thead>
-        <tbody id="tabelLPJ"></tbody>
-      </table>
-    </div>
 
+        <p style="font-size: 13px; color: #666;">Daftar siswa dan status pembayaran. <b>✅ Lunas</b> berarti sudah membayar (minimal Rp 5.000).</p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Nama Siswa</th>
+              <th>Nominal Dibayar</th>
+              <th>Tanggal Bayar</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tabelStatusSiswa">
+            <tr><td colspan="4" style="text-align:center;">Memuat data siswa...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TAB 4: LPJ -->
+      <div id="tab-lpj" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3>Laporan LPJ Kas</h3>
+          <div style="display:flex; gap:10px;">
+            <button onclick="eksporCSV()" class="btn-action">📥 Ekspor Excel</button>
+            <button onclick="window.print()" style="background:#0984e3; color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:13px;">🖨️ Cetak PDF</button>
+          </div>
+        </div>
+        <div style="margin-top:20px;">
+          <h4>Total Pemasukan: <span id="lpjMasuk" style="color:#00b894;">Rp 0</span></h4>
+          <h4>Total Pengeluaran: <span id="lpjKeluar" style="color:#ff4757;">Rp 0</span></h4>
+          <hr>
+          <h3>Saldo Akhir: <span id="lpjSaldo">Rp 0</span></h3>
+        </div>
+        
+        <h4 style="margin-top:30px;">Detail Arus Kas</h4>
+        <table>
+          <thead><tr><th>Tanggal</th><th>Tipe</th><th>Keterangan</th><th>Nominal</th></tr></thead>
+          <tbody id="tabelLPJ"></tbody>
+        </table>
+      </div>
+
+    </div>
   </div>
 
   <script>
@@ -453,40 +466,45 @@
         });
     }
 
-    // 4. LOAD DAFTAR SISWA & CEK LUNAS/BELUM + TOTAL & TANGGAL
+    // =========================================================
+    // 4. LOAD DAFTAR SISWA & COCOKKAN DENGAN KAS MASUK
+    // =========================================================
     async function muatStatusSiswa(siswaLunas) {
       try {
         const { collection, getDocs } = window.fbFunc;
         const db = window.db;
 
+        // Ambil data MASTER SISWA dari Firestore
         const querySnapshot = await getDocs(collection(db, "Siswa"));
         let tabelHTML = "";
         let totalKasSiswa = 0;
 
-        // Ambil semua data pemasukan dari globalDataKas
         const dataPemasukan = globalDataKas.filter(item => item.tipe === 'Pemasukan');
+
+        if (querySnapshot.empty) {
+            document.getElementById('tabelStatusSiswa').innerHTML = '<tr><td colspan="4" style="text-align:center;">Data siswa tidak ditemukan di database.</td></tr>';
+            return;
+        }
 
         querySnapshot.forEach((doc) => {
           const siswa = doc.data();
-          const nama = siswa.nama || "Tanpa Nama";
+          // Ambil nama dari database (mendukung nama_lengkap atau nama)
+          const nama = siswa.nama_lengkap || siswa.nama || "Tanpa Nama";
           
-          // Cari apakah siswa ini sudah bayar
+          // Cocokkan nama siswa dengan data kas masuk
           const cekBayar = dataPemasukan.filter(item => item.nama.toLowerCase() === nama.toLowerCase());
           
           let nominalDibayar = 0;
           let tanggalBayar = "-";
 
           if(cekBayar.length > 0) {
-              // Jika ada lebih dari 1 transaksi, jumlahkan semuanya
               nominalDibayar = cekBayar.reduce((total, item) => total + item.nominal, 0);
-              
-              // Ambil tanggal dari transaksi terakhir
               const transaksiTerakhir = cekBayar[0]; 
               const tgl = new Date(transaksiTerakhir.tanggal);
               tanggalBayar = tgl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
           }
 
-          // Hanya centang jika nominal bayar >= 5000
+          // Syarat lunas (misal >= 5000)
           const sudahLunas = nominalDibayar >= 5000;
           
           if(sudahLunas) {
@@ -517,6 +535,7 @@
 
       } catch (error) {
         console.error("Error load siswa:", error);
+        document.getElementById('tabelStatusSiswa').innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat data siswa.</td></tr>';
       }
     }
 
