@@ -1,244 +1,617 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Siswa - SIPADAK</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            /* Background blur dari gambar kelas */
-            background: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url('gambar-kelas-anda.jpg') no-repeat center center fixed;
-            background-size: cover;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-bottom: 50px;
-        }
-        .header-card {
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .profile-card {
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            padding: 30px;
-        }
-        .profile-photo {
-            width: 200px;
-            height: 260px;
-            background-color: #9d8df1;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 80px;
-            color: white;
-            margin: 0 auto 15px auto;
-        }
-        .form-control {
-            background-color: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 12px 15px;
-        }
-        .form-control:focus {
-            box-shadow: none;
-            border-color: #9d8df1;
-        }
-        .btn-simpan {
-            background-color: #6a5acd;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-weight: bold;
-        }
-        .btn-simpan:hover {
-            background-color: #5a4cb1;
-            color: white;
-        }
-        .btn-keluar {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 8px 20px;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistem Kas Kelas - SIPADAK XI-6</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    window.fbFunc = { collection, addDoc, getDocs, query, where, doc, deleteDoc };
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --neon-blue: #0ea5e9;
+      --neon-cyan: #06b6d4;
+      --text-light: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background-color: var(--bg-dark);
+      background-image: 
+        linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+      margin: 0; 
+      padding: 20px; 
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-light);
+    }
+
+    .wrapper { width: 100%; max-width: 900px; }
+
+    .header { 
+      background: rgba(30, 41, 59, 0.8); 
+      backdrop-filter: blur(10px);
+      color: var(--neon-cyan); 
+      padding: 15px 25px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+      border-bottom: 2px solid var(--neon-cyan);
+      box-shadow: 0 4px 20px rgba(6, 182, 212, 0.15);
+    }
+    .header h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+    
+    .btn-back { 
+      background: transparent; color: var(--neon-cyan); text-decoration: none; 
+      padding: 6px 15px; border-radius: 6px; font-weight: 600; font-size: 13px;
+      border: 1px solid var(--neon-cyan); transition: 0.3s;
+    }
+    .btn-back:hover { background: rgba(6, 182, 212, 0.1); box-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+
+    .saldo-card {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid var(--border-color);
+      border-top: 4px solid var(--neon-blue);
+      padding: 30px; border-radius: 12px; text-align: center;
+      margin-bottom: 20px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(14, 165, 233, 0.05);
+      width: 100%; box-sizing: border-box;
+    }
+    .saldo-card h2 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
+    .saldo-card h1 { margin: 10px 0 0 0; font-size: 42px; font-weight: 700; color: var(--text-light); text-shadow: 0 0 20px rgba(255, 255, 255, 0.2); }
+
+    .chart-container {
+      background: var(--card-bg); padding: 20px; border-radius: 12px;
+      border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      margin-bottom: 20px; width: 100%; box-sizing: border-box;
+    }
+
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; }
+    .tab-btn {
+      background: var(--card-bg); border: 1px solid var(--border-color); 
+      padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; 
+      color: var(--text-muted); font-size: 13px; transition: 0.3s; font-family: 'Inter', sans-serif;
+    }
+    .tab-btn.active { 
+      background: rgba(6, 182, 212, 0.1); color: var(--neon-cyan); 
+      border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+    }
+
+    .card { 
+      background: var(--card-bg); padding: 25px; border-radius: 12px; 
+      border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+      width: 100%; box-sizing: border-box;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 8px; color: var(--text-muted); margin-top: 20px; }
+    input, select { 
+      width: 100%; padding: 12px 15px; background: var(--bg-dark); 
+      border: 1px solid var(--border-color); border-radius: 8px; 
+      box-sizing: border-box; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text-light);
+      transition: 0.3s;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(14, 165, 233, 0.3); }
+    
+    .btn-submit { 
+      background: linear-gradient(90deg, #0ea5e9, #06b6d4); color: white; border: none; 
+      padding: 14px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; 
+      margin-top: 25px; font-size: 14px; transition: 0.3s; letter-spacing: 1px;
+    }
+    .btn-submit:hover { box-shadow: 0 0 20px rgba(6, 182, 212, 0.6); transform: translateY(-2px); }
+    .btn-submit.merah { background: linear-gradient(90deg, #e11d48, #be123c); }
+    .btn-submit.merah:hover { box-shadow: 0 0 20px rgba(225, 29, 72, 0.6); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 20px; }
+    th, td { border: 1px solid var(--border-color); padding: 12px 15px; text-align: left; }
+    th { background: rgba(15, 23, 42, 0.8); color: var(--neon-cyan); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+    tr { transition: 0.2s; }
+    tr:hover { background: rgba(255, 255, 255, 0.02); }
+    
+    .badge-lunas { background: rgba(16, 185, 129, 0.15); color: #34d399; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; border: 1px solid #059669; }
+    .badge-belum { background: rgba(225, 29, 72, 0.15); color: #fb7185; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; border: 1px solid #e11d48; }
+
+    .btn-action { background: #0f766e; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.3s; }
+    .btn-action:hover { background: #14b8a6; box-shadow: 0 0 15px rgba(20, 184, 166, 0.4); }
+    .btn-hapus { background: #be123c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; transition: 0.3s; }
+    .btn-hapus:hover { background: #e11d48; box-shadow: 0 0 10px rgba(225, 29, 72, 0.4); }
+
+    .admin-only { display: none; }
+
+    @media print {
+      body { background: white; color: black; }
+      .header, .saldo-card, .tabs, form, .btn-submit, .btn-back, .chart-container, .btn-action, .btn-hapus { display: none !important; }
+      .card { box-shadow: none; padding: 0; border: none; background: white; }
+      .tab-content { display: block !important; margin-bottom: 30px; }
+      th { background: #eee !important; color: black; border: 1px solid #000; }
+      td { border: 1px solid #000; color: black; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container mt-4">
-        <!-- Header Top -->
-        <div class="header-card p-3 d-flex align-items-center mb-4">
-            <div class="bg-dark text-white p-2 rounded me-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">XI-6</div>
-            <div>
-                <h5 class="m-0 fw-bold">SIPADAK XI-6</h5>
-                <small class="text-muted">MAN 3 BOGOR - SIPADAK</small>
-            </div>
-        </div>
-
-        <!-- Header Profil -->
-        <div class="header-card p-3 d-flex justify-content-between align-items-center mb-4">
-            <h5 class="m-0 fw-bold text-dark">Profil Siswa</h5>
-            <button onclick="prosesKeluar()" class="btn-keluar">KELUAR</button>
-        </div>
-
-        <!-- Card Profil -->
-        <div class="profile-card">
-            <h3 class="text-center fw-bold mb-4" style="color: #4a3b8b;">Data Diri Saya</h3>
-            
-            <div class="row">
-                <!-- Kolom Kiri (Foto) -->
-                <div class="col-md-4 text-center mb-4">
-                    <div class="profile-photo" id="initalHuruf">SI</div>
-                    <label class="fw-bold text-secondary mt-2">Upload Foto Baru</label>
-                    <input type="file" class="form-control form-control-sm mt-1" accept="image/*">
-                </div>
-
-                <!-- Kolom Kanan (Form) -->
-                <div class="col-md-8">
-                    <form id="formProfil">
-                        <!-- Data Otomatis (Readonly) -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-secondary">Nama Lengkap</label>
-                            <input type="text" id="namaLengkap" class="form-control" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-secondary">NIS</label>
-                            <input type="text" id="nisSiswa" class="form-control" readonly>
-                        </div>
-
-                        <!-- Data yang bisa diedit -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-secondary">No. HP (Bisa Diedit)</label>
-                            <input type="tel" id="noHpSiswa" class="form-control" placeholder="08xxxxxxxxxx">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-secondary">Alamat (Bisa Diedit)</label>
-                            <textarea id="alamatSiswa" class="form-control" rows="2" placeholder="Alamat lengkap"></textarea>
-                        </div>
-
-                        <hr class="my-4">
-                        <h6 class="fw-bold text-secondary mb-3">Data Orang Tua / Wali</h6>
-                        
-                        <!-- KOLOM BARU: ORANG TUA -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-secondary">Nama Orang Tua</label>
-                            <input type="text" id="namaOrtu" class="form-control" placeholder="Masukkan nama orang tua">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-secondary">No. HP Orang Tua</label>
-                            <input type="tel" id="noHpOrtu" class="form-control" placeholder="08xxxxxxxxxx">
-                        </div>
-
-                        <button type="button" onclick="simpanProfil()" class="btn btn-simpan w-100 mt-3">
-                            SIMPAN PERUBAHAN
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
+  <div class="wrapper">
+    <div class="header">
+      <h1>💠 SISTEM KAS KELAS</h1>
+      <a href="#" id="btnKembali" class="btn-back">← Kembali</a>
     </div>
 
-    <!-- SCRIPT FIREBASE -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    <div class="saldo-card">
+      <h2>Total Saldo Kas Saat Ini</h2>
+      <h1 id="saldoTampil">Rp 0</h1>
+    </div>
 
-        // ==========================================
-        // GANTI BAGIAN INI DENGAN CONFIG FIREBASE ANDA
-        // ==========================================
-        const firebaseConfig = { 
-            apiKey: "AIzaSy...",
-            authDomain: "...",
-            projectId: "...",
-            storageBucket: "...",
-            messagingSenderId: "...",
-            appId: "..."
-        };
-        // ==========================================
+    <div class="chart-container admin-only" id="grafikContainer">
+      <canvas id="kasChart" height="80"></canvas>
+    </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    <div class="tabs">
+      <button class="tab-btn active admin-only" id="tabMenuPemasukan" onclick="bukaTab('pemasukan')">Kas Masuk</button>
+      <button class="tab-btn admin-only" id="tabMenuPengeluaran" onclick="bukaTab('pengeluaran')">Kas Keluar</button>
+      <button class="tab-btn" id="tabMenuSiswa" onclick="bukaTab('siswa')">Status Bayar Siswa</button>
+      <button class="tab-btn" id="tabMenuLpj" onclick="bukaTab('lpj')">Laporan LPJ</button>
+    </div>
 
-        let currentUserDocId = "";
+    <div class="card">
+      <div id="tab-pemasukan" class="tab-content active">
+        <h3 style="margin-top:0; color:#f8fafc; font-size:18px;">Input Jurnal Kas Masuk</h3>
+        <form id="formPemasukan" onsubmit="simpanKas(event, 'Pemasukan')">
+          <label>Sumber Pemasukan</label>
+          <select id="inSumberDana" onchange="aturFormPemasukan()" required style="margin-bottom: 10px;">
+            <option value="Iuran Siswa">Iuran Siswa</option>
+            <option value="Lainnya">Pemasukan Lainnya</option>
+          </select>
 
-        // Fungsi ambil data saat halaman dibuka
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const q = query(collection(db, "Siswa"), where("email", "==", user.email));
-                const querySnapshot = await getDocs(q);
-                
-                if (!querySnapshot.empty) {
-                    querySnapshot.forEach((docSnap) => {
-                        const data = docSnap.data();
-                        currentUserDocId = docSnap.id;
+          <div id="divNamaSiswa">
+            <label>Pilih Siswa</label>
+            <select id="inNamaKasSiswa" required>
+              <option value="">-- Memuat data siswa... --</option>
+            </select>
+          </div>
 
-                        // Tampilkan ke form
-                        document.getElementById('namaLengkap').value = data.nama_lengkap || "-";
-                        document.getElementById('nisSiswa').value = data.nis || "-";
-                        document.getElementById('noHpSiswa').value = data.no_hp || "";
-                        document.getElementById('alamatSiswa').value = data.alamat || "";
-                        document.getElementById('namaOrtu').value = data.nama_orang_tua || "";
-                        document.getElementById('noHpOrtu').value = data.no_hp_orang_tua || "";
+          <div id="divNamaLain" style="display: none;">
+            <label>Nama Sumber Pemasukan</label>
+            <input type="text" id="inNamaKasLain" placeholder="Contoh: Donasi / Sponsor">
+          </div>
+          
+          <label>Nominal (Rp)</label>
+          <input type="number" id="inNominalKas" required placeholder="Contoh: 5000" value="5000">
+          
+          <label>Keterangan / Memo</label>
+          <input type="text" id="inKetKas" required placeholder="Contoh: Pembayaran kas bulan Oktober">
+          
+          <button type="submit" class="btn-submit">POSTING KAS MASUK</button>
+        </form>
+        <h4 style="margin-top:30px; color:#94a3b8; font-size:14px; text-transform:uppercase;">Jurnal Umum Kas Masuk</h4>
+        <table>
+          <thead><tr><th>Tanggal</th><th>Akun / Sumber</th><th>Debit (Rp)</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+          <tbody id="tabelPemasukan"></tbody>
+        </table>
+      </div>
 
-                        // Ubah inisial foto (jika ada)
-                        if(data.nama_lengkap){
-                            const inisial = data.nama_lengkap.substring(0, 2).toUpperCase();
-                            document.getElementById('initalHuruf').innerText = inisial;
-                        }
-                    });
-                } else {
-                    alert("Data siswa tidak ditemukan di database.");
-                }
-            } else {
-                // Jika belum login, tendang ke halaman login
-                window.location.href = "login.html";
-            }
+      <div id="tab-pengeluaran" class="tab-content">
+        <h3 style="margin-top:0; color:#f8fafc; font-size:18px;">Input Jurnal Kas Keluar</h3>
+        <form id="formPengeluaran" onsubmit="simpanKas(event, 'Pengeluaran')">
+          <label>Keterangan Pengeluaran</label>
+          <input type="text" id="inKetKeluar" required placeholder="Contoh: Pembelian ATK dan Spidol">
+          <label>Nominal (Rp)</label>
+          <input type="number" id="inNominalKeluar" required placeholder="Contoh: 15000">
+          <button type="submit" class="btn-submit merah">POSTING KAS KELUAR</button>
+        </form>
+        <h4 style="margin-top:30px; color:#94a3b8; font-size:14px; text-transform:uppercase;">Jurnal Umum Kas Keluar</h4>
+        <table>
+          <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kredit (Rp)</th><th>Aksi</th></tr></thead>
+          <tbody id="tabelPengeluaran"></tbody>
+        </table>
+      </div>
+
+      <div id="tab-siswa" class="tab-content">
+        <h3 style="margin-top:0; color:#f8fafc; font-size:18px;">Rekapitulasi Iuran Siswa</h3>
+        
+        <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid var(--neon-cyan); border-left: 4px solid var(--neon-cyan); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="margin: 0; color: var(--neon-cyan); font-size: 13px; text-transform: uppercase;">Total Penerimaan Iuran</h4>
+          <h2 style="margin: 5px 0 0 0; color: #f8fafc;" id="totalKasSiswa">Rp 0</h2>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Nama Siswa</th>
+              <th>Nominal Disetor</th>
+              <th>Waktu Transaksi</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tabelStatusSiswa">
+            <tr><td colspan="4" style="text-align:center;">Memuat data siswa...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="tab-lpj" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 style="margin-top:0; color:#f8fafc; font-size:18px;">Laporan Pertanggungjawaban</h3>
+          <div style="display:flex; gap:10px;" class="admin-only">
+            <button onclick="eksporCSV()" class="btn-action">📥 Export CSV</button>
+          </div>
+          <button onclick="window.print()" style="background:#475569; color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">🖨️ Cetak PDF</button>
+        </div>
+        <div style="margin-top:20px; background:rgba(15, 23, 42, 0.5); border:1px solid var(--border-color); padding:20px; border-radius:8px;">
+          <h4 style="margin:0; color:#94a3b8;">Total Penerimaan: <span id="lpjMasuk" style="color:#34d399;">Rp 0</span></h4>
+          <h4 style="margin:5px 0 0 0; color:#94a3b8;">Total Pengeluaran: <span id="lpjKeluar" style="color:#fb7185;">Rp 0</span></h4>
+          <hr style="border:0; border-top:1px solid var(--border-color); margin:15px 0;">
+          <h3 style="margin:0; color:#f8fafc;">SALDO AKHIR: <span id="lpjSaldo" style="color: var(--neon-cyan);">Rp 0</span></h3>
+        </div>
+        
+        <h4 style="margin-top:30px; color:#94a3b8; font-size:14px; text-transform:uppercase;">Buku Besar Arus Kas</h4>
+        <table>
+          <thead><tr><th>Tanggal</th><th>Tipe</th><th>Keterangan</th><th>Nominal</th></tr></thead>
+          <tbody id="tabelLPJ"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const dataSiswa = JSON.parse(localStorage.getItem("dataSiswaLogin"));
+    const roleGuru = localStorage.getItem("siTatibRole");
+    const isAdmin = (roleGuru === "admin" || roleGuru === "sekretaris" || roleGuru === "bendahara");
+
+    const btnKembali = document.getElementById('btnKembali');
+
+    if (isAdmin) {
+      btnKembali.href = "dashboard-induk.html";
+      document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+    } else if (dataSiswa) {
+      btnKembali.href = "profil-siswa.html";
+      
+      // Siswa hanya bisa lihat LPJ & Status Bayar
+      document.getElementById('tabMenuPemasukan').style.display = 'none';
+      document.getElementById('tabMenuPengeluaran').style.display = 'none';
+      
+      document.getElementById('tab-pemasukan').classList.remove('active');
+      document.getElementById('tab-pengeluaran').classList.remove('active');
+      
+      // Default tab yang terbuka untuk siswa adalah LPJ
+      document.getElementById('tabMenuLpj').classList.add('active');
+      document.getElementById('tab-lpj').classList.add('active');
+      
+    } else {
+      alert("Anda belum login. Silakan login terlebih dahulu.");
+      window.location.href = "index.html";
+    }
+
+    function bukaTab(nama) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + nama).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function formatRp(angka) {
+      return "Rp " + parseInt(angka).toLocaleString('id-ID');
+    }
+
+    function aturFormPemasukan() {
+        const sumber = document.getElementById('inSumberDana').value;
+        const divSiswa = document.getElementById('divNamaSiswa');
+        const divLain = document.getElementById('divNamaLain');
+        const inSiswa = document.getElementById('inNamaKasSiswa');
+        const inLain = document.getElementById('inNamaKasLain');
+
+        if (sumber === 'Iuran Siswa') {
+            divSiswa.style.display = 'block';
+            divLain.style.display = 'none';
+            inSiswa.required = true;
+            inLain.required = false;
+            inLain.value = '';
+        } else {
+            divSiswa.style.display = 'none';
+            divLain.style.display = 'block';
+            inSiswa.required = false;
+            inLain.required = true;
+            inSiswa.value = '';
+        }
+    }
+
+    async function simpanKas(e, tipe) {
+      if (!isAdmin) return alert("Hanya Admin yang bisa mencatat kas!");
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      btn.textContent = "Memproses...";
+      btn.disabled = true;
+
+      const tgl = new Date().toISOString().split('T')[0];
+      let data = { tanggal: tgl, tipe: tipe };
+
+      if(tipe === 'Pemasukan') {
+        const sumber = document.getElementById('inSumberDana').value;
+        data.nama = (sumber === 'Iuran Siswa') ? document.getElementById('inNamaKasSiswa').value : document.getElementById('inNamaKasLain').value;
+        data.nominal = parseInt(document.getElementById('inNominalKas').value);
+        data.keterangan = document.getElementById('inKetKas').value;
+      } else {
+        data.nama = "Operasional Kelas";
+        data.nominal = parseInt(document.getElementById('inNominalKeluar').value);
+        data.keterangan = document.getElementById('inKetKeluar').value;
+      }
+
+      try {
+        const { collection, addDoc } = window.fbFunc;
+        const db = window.db;
+        await addDoc(collection(db, "KasKelas"), data);
+        alert("✅ Jurnal berhasil diposting!");
+        e.target.reset();
+        aturFormPemasukan(); 
+        isiDropdownSiswa(); 
+        muatDataKas();
+      } catch (error) {
+        alert("❌ Gagal: " + error.message);
+      } finally {
+        btn.textContent = tipe === 'Pemasukan' ? "POSTING KAS MASUK" : "POSTING KAS KELUAR";
+        btn.disabled = false;
+      }
+    }
+
+    let globalDataKas = [];
+    let chartInstance = null;
+    let listSiswaGlobal = [];
+
+    async function isiDropdownSiswa() {
+        try {
+            const { collection, getDocs } = window.fbFunc;
+            const db = window.db;
+            const querySnapshot = await getDocs(collection(db, "Siswa"));
+            
+            const dropdown = document.getElementById('inNamaKasSiswa');
+            dropdown.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
+            
+            listSiswaGlobal = []; 
+            querySnapshot.forEach((doc) => {
+                const siswa = doc.data();
+                const nama = siswa.nama_lengkap || siswa.nama || "Tanpa Nama";
+                listSiswaGlobal.push(nama); 
+
+                const option = document.createElement('option');
+                option.value = nama;
+                option.textContent = nama;
+                dropdown.appendChild(option);
+            });
+            
+        } catch (error) {
+            console.error("Gagal load siswa:", error);
+        }
+    }
+
+    async function muatDataKas() {
+      try {
+        if (!window.fbFunc) { setTimeout(muatDataKas, 500); return; }
+        const { collection, getDocs } = window.fbFunc;
+        const db = window.db;
+        const querySnapshot = await getDocs(collection(db, "KasKelas"));
+        
+        globalDataKas = [];
+        querySnapshot.forEach((doc) => {
+          let data = doc.data();
+          data.idDoc = doc.id;
+          globalDataKas.push(data);
         });
 
-        // Fungsi Simpan Perubahan
-        window.simpanProfil = async function() {
-            if (!currentUserDocId) {
-                alert("Gagal menyimpan: Data user tidak valid.");
-                return;
-            }
+        globalDataKas.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
-            const noHpBaru = document.getElementById('noHpSiswa').value;
-            const alamatBaru = document.getElementById('alamatSiswa').value;
-            const namaOrtuBaru = document.getElementById('namaOrtu').value;
-            const noHpOrtuBaru = document.getElementById('noHpOrtu').value;
+        let totalMasuk = 0;
+        let totalKeluar = 0;
+        let tabelMasukHTML = "";
+        let tabelKeluarHTML = "";
+        let tabelLPJHTML = "";
+        let siswaLunas = [];
 
-            try {
-                const siswaRef = doc(db, "Siswa", currentUserDocId);
-                await updateDoc(siswaRef, {
-                    no_hp: noHpBaru,
-                    alamat: alamatBaru,
-                    nama_orang_tua: namaOrtuBaru,
-                    no_hp_orang_tua: noHpOrtuBaru
-                });
-                
-                alert("✅ Profil berhasil diperbarui!");
-            } catch (error) {
-                console.error("Error: ", error);
-                alert("❌ Terjadi kesalahan saat menyimpan data.");
+        globalDataKas.forEach((row) => {
+          const tglFormat = new Date(row.tanggal).toLocaleDateString('id-ID');
+          
+          tabelLPJHTML += `
+            <tr>
+              <td>${tglFormat}</td>
+              <td>${row.tipe}</td>
+              <td>${row.nama} - ${row.keterangan}</td>
+              <td style="color: ${row.tipe === 'Pemasukan' ? '#34d399' : '#fb7185'}; font-weight:bold;">
+                ${row.tipe === 'Pemasukan' ? '+' : '-'} ${formatRp(row.nominal)}
+              </td>
+            </tr>
+          `;
+
+          if (row.tipe === 'Pemasukan') {
+            totalMasuk += row.nominal;
+            siswaLunas.push(row.nama.toLowerCase());
+            let btnHapus = isAdmin ? `<td><button class="btn-hapus" onclick="hapusKas('${row.idDoc}')">Hapus</button></td>` : '';
+            
+            tabelMasukHTML += `
+              <tr>
+                <td>${tglFormat}</td>
+                <td>${row.nama}</td>
+                <td style="color:#34d399; font-weight:bold;">${formatRp(row.nominal)}</td>
+                <td>${row.keterangan}</td>
+                ${btnHapus}
+              </tr>
+            `;
+          } else {
+            totalKeluar += row.nominal;
+            let btnHapus = isAdmin ? `<td><button class="btn-hapus" onclick="hapusKas('${row.idDoc}')">Hapus</button></td>` : '';
+            
+            tabelKeluarHTML += `
+              <tr>
+                <td>${tglFormat}</td>
+                <td>${row.keterangan}</td>
+                <td style="color:#fb7185; font-weight:bold;">${formatRp(row.nominal)}</td>
+                ${btnHapus}
+              </tr>
+            `;
+          }
+        });
+
+        const saldo = totalMasuk - totalKeluar;
+        document.getElementById('saldoTampil').innerText = formatRp(saldo);
+        document.getElementById('lpjMasuk').innerText = formatRp(totalMasuk);
+        document.getElementById('lpjKeluar').innerText = formatRp(totalKeluar);
+        document.getElementById('lpjSaldo').innerText = formatRp(saldo);
+
+        document.getElementById('tabelPemasukan').innerHTML = tabelMasukHTML || '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Belum ada jurnal masuk</td></tr>';
+        document.getElementById('tabelPengeluaran').innerHTML = tabelKeluarHTML || '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">Belum ada jurnal keluar</td></tr>';
+        document.getElementById('tabelLPJ').innerHTML = tabelLPJHTML || '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">Belum ada data arus kas</td></tr>';
+
+        muatStatusSiswa(siswaLunas);
+
+        if (isAdmin) { renderGrafik(totalMasuk, totalKeluar); }
+
+      } catch (error) { console.error("Error:", error); }
+    }
+
+    window.hapusKas = async function(idDoc) {
+      if(!isAdmin) return alert("Hanya Admin yang bisa menghapus data!");
+      if(!confirm("Hapus jurnal ini? Saldo akan disesuaikan.")) return;
+      try {
+        const { doc, deleteDoc } = window.fbFunc;
+        const db = window.db;
+        await deleteDoc(doc(db, "KasKelas", idDoc));
+        muatDataKas();
+      } catch (error) { alert("Gagal menghapus: " + error.message); }
+    }
+
+    function renderGrafik(masuk, keluar) {
+        const ctx = document.getElementById('kasChart').getContext('2d');
+        if(chartInstance) { chartInstance.destroy(); }
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Penerimaan', 'Total Pengeluaran'],
+                datasets: [{
+                    label: 'Nominal (Rp)',
+                    data: [masuk, keluar],
+                    backgroundColor: ['#06b6d4', '#e11d48'],
+                    borderRadius: 6,
+                    barThickness: 50
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Arus Kas Operasional', font: { size: 14, family: 'Inter' }, color: '#94a3b8' }
+                },
+                scales: { 
+                  y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8', font: { family: 'Inter' } } },
+                  x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { family: 'Inter' } } }
+                }
             }
+        });
+    }
+
+    async function muatStatusSiswa(siswaLunas) {
+      try {
+        let tabelHTML = "";
+        let totalKasSiswa = 0;
+        const dataPemasukan = globalDataKas.filter(item => item.tipe === 'Pemasukan');
+
+        if (listSiswaGlobal.length === 0) {
+            document.getElementById('tabelStatusSiswa').innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">Data siswa kosong.</td></tr>';
+            return;
         }
 
-        // Fungsi Keluar (Logout)
-        window.prosesKeluar = function() {
-            signOut(auth).then(() => {
-                window.location.href = "login.html";
-            }).catch((error) => {
-                alert("Gagal keluar.");
-            });
-        }
-    </script>
+        listSiswaGlobal.sort();
+
+        listSiswaGlobal.forEach((nama) => {
+          const cekBayar = dataPemasukan.filter(item => item.nama.toLowerCase() === nama.toLowerCase());
+          let nominalDibayar = 0;
+          let tanggalBayar = "-";
+
+          if(cekBayar.length > 0) {
+              nominalDibayar = cekBayar.reduce((total, item) => total + item.nominal, 0);
+              const transaksiTerakhir = cekBayar[0]; 
+              const tgl = new Date(transaksiTerakhir.tanggal);
+              tanggalBayar = tgl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+          }
+
+          const sudahLunas = nominalDibayar >= 5000;
+          if(sudahLunas) { totalKasSiswa += nominalDibayar; }
+
+          tabelHTML += `
+            <tr>
+              <td><b>${nama}</b></td>
+              <td style="color: ${nominalDibayar > 0 ? '#34d399' : '#fb7185'}; font-weight: 600;">
+                  ${nominalDibayar > 0 ? formatRp(nominalDibayar) : 'Rp 0'}
+              </td>
+              <td style="color: #94a3b8;">${tanggalBayar}</td>
+              <td>
+                ${sudahLunas 
+                  ? '<span class="badge-lunas">LUNAS</span>' 
+                  : '<span class="badge-belum">BELUM BAYAR</span>'}
+              </td>
+            </tr>
+          `;
+        });
+
+        document.getElementById('tabelStatusSiswa').innerHTML = tabelHTML;
+        document.getElementById('totalKasSiswa').innerText = formatRp(totalKasSiswa);
+
+      } catch (error) { console.error("Error load siswa:", error); }
+    }
+
+    window.eksporCSV = function() {
+        if (globalDataKas.length === 0) { return alert("Belum ada data."); }
+        let csvContent = "Tanggal,Tipe,Keterangan,Nominal\n";
+        globalDataKas.forEach(row => {
+            let ket = row.keterangan.replace(/,/g, ' ');
+            let tipe = row.tipe === 'Pemasukan' ? 'Kas Masuk' : 'Kas Keluar';
+            csvContent += `${row.tanggal},${tipe},${ket},${row.nominal}\n`;
+        });
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Laporan_Kas_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    window.addEventListener('firebaseReady', () => {
+      isiDropdownSiswa().then(() => { muatDataKas(); });
+    });
+  </script>
 </body>
 </html>
