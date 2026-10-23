@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kas Kelas - SIPADAK XI-6</title>
   
-  <!-- Tambahan Chart.js untuk Grafik -->
+  <!-- Library Grafik -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Firebase Config -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -241,22 +242,18 @@
   </div>
 
   <script>
-    // 1. CEK LOGIN & ROLE (DIPERBAIKI UNTUK BENDAHARA)
+    // 1. CEK LOGIN & ROLE
     const dataSiswa = JSON.parse(localStorage.getItem("dataSiswaLogin"));
     const roleGuru = localStorage.getItem("siTatibRole");
-    
-    // Daftarkan "bendahara" sebagai admin di halaman kas
     const isAdmin = (roleGuru === "admin" || roleGuru === "sekretaris" || roleGuru === "bendahara");
 
     const btnKembali = document.getElementById('btnKembali');
 
     if (isAdmin) {
       btnKembali.href = "dashboard-induk.html";
-      // Tampilkan menu admin (termasuk kas masuk/keluar & grafik)
       document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'inline-block');
     } else if (dataSiswa) {
       btnKembali.href = "profil-siswa.html";
-      // Sembunyikan tab pemasukan, buka tab status
       document.getElementById('tabMenuPemasukan').classList.remove('active');
       document.getElementById('tab-pemasukan').classList.remove('active');
       document.getElementById('tabMenuSiswa').classList.add('active');
@@ -266,7 +263,6 @@
       window.location.href = "index.html";
     }
 
-    // Fungsi Ganti Tab
     function bukaTab(nama) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -274,15 +270,12 @@
       event.target.classList.add('active');
     }
 
-    // Format Rupiah
     function formatRp(angka) {
       return "Rp " + parseInt(angka).toLocaleString('id-ID');
     }
 
-    // 2. SIMPAN KAS (MASUK / KELUAR)
     async function simpanKas(e, tipe) {
       if (!isAdmin) return alert("Hanya Admin yang bisa mencatat kas!");
-      
       e.preventDefault();
       const btn = e.target.querySelector('button');
       btn.textContent = "⏳ Menyimpan...";
@@ -305,10 +298,9 @@
         const { collection, addDoc } = window.fbFunc;
         const db = window.db;
         await addDoc(collection(db, "KasKelas"), data);
-        
         alert("✅ Data berhasil disimpan!");
         e.target.reset();
-        muatDataKas(); // Refresh data
+        muatDataKas();
       } catch (error) {
         alert("❌ Gagal menyimpan: " + error.message);
       } finally {
@@ -317,30 +309,26 @@
       }
     }
 
-    // Variabel Global untuk Data
     let globalDataKas = [];
     let chartInstance = null;
 
-    // 3. LOAD DATA KAS DARI FIREBASE
     async function muatDataKas() {
       try {
         if (!window.fbFunc) {
           setTimeout(muatDataKas, 500);
           return;
         }
-
         const { collection, getDocs } = window.fbFunc;
         const db = window.db;
-
         const querySnapshot = await getDocs(collection(db, "KasKelas"));
+        
         globalDataKas = [];
         querySnapshot.forEach((doc) => {
           let data = doc.data();
-          data.idDoc = doc.id; // Simpan ID untuk fitur hapus
+          data.idDoc = doc.id;
           globalDataKas.push(data);
         });
 
-        // Urutkan berdasarkan tanggal terbaru
         globalDataKas.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
         let totalMasuk = 0;
@@ -389,22 +377,18 @@
           }
         });
 
-        // Hitung Saldo
         const saldo = totalMasuk - totalKeluar;
         document.getElementById('saldoTampil').innerText = formatRp(saldo);
         document.getElementById('lpjMasuk').innerText = formatRp(totalMasuk);
         document.getElementById('lpjKeluar').innerText = formatRp(totalKeluar);
         document.getElementById('lpjSaldo').innerText = formatRp(saldo);
 
-        // Render Tabel
         document.getElementById('tabelPemasukan').innerHTML = tabelMasukHTML || '<tr><td colspan="5" style="text-align:center;">Belum ada data</td></tr>';
         document.getElementById('tabelPengeluaran').innerHTML = tabelKeluarHTML || '<tr><td colspan="4" style="text-align:center;">Belum ada data</td></tr>';
         document.getElementById('tabelLPJ').innerHTML = tabelLPJHTML || '<tr><td colspan="4" style="text-align:center;">Belum ada data</td></tr>';
 
-        // Render Status Siswa
         muatStatusSiswa(siswaLunas);
 
-        // Render Grafik (Jika Admin)
         if (isAdmin) {
             renderGrafik(totalMasuk, totalKeluar);
         }
@@ -414,7 +398,6 @@
       }
     }
 
-    // FITUR HAPUS KAS
     window.hapusKas = async function(idDoc) {
       if(!confirm("Yakin ingin menghapus data ini? Saldo akan disesuaikan.")) return;
       try {
@@ -422,20 +405,15 @@
         const db = window.db;
         await deleteDoc(doc(db, "KasKelas", idDoc));
         alert("Data berhasil dihapus!");
-        muatDataKas(); // Refresh
+        muatDataKas();
       } catch (error) {
         alert("Gagal menghapus: " + error.message);
       }
     }
 
-    // RENDER GRAFIK CHART.JS
     function renderGrafik(masuk, keluar) {
         const ctx = document.getElementById('kasChart').getContext('2d');
-        
-        if(chartInstance) {
-            chartInstance.destroy(); // Hapus chart lama jika ada
-        }
-
+        if(chartInstance) { chartInstance.destroy(); }
         chartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -453,36 +431,24 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
-                    title: {
-                        display: true,
-                        text: 'Grafik Arus Kas Kelas',
-                        font: { size: 16, family: 'Poppins' },
-                        color: '#333'
-                    }
+                    title: { display: true, text: 'Grafik Arus Kas Kelas', font: { size: 16, family: 'Poppins' }, color: '#333' }
                 },
-                scales: {
-                    y: { beginAtZero: true }
-                }
+                scales: { y: { beginAtZero: true } }
             }
         });
     }
 
-    // 4. LOAD DAFTAR SISWA & CEK LUNAS/BELUM
     async function muatStatusSiswa(siswaLunas) {
       try {
         const { collection, getDocs } = window.fbFunc;
         const db = window.db;
-
         const querySnapshot = await getDocs(collection(db, "Siswa"));
         let tabelHTML = "";
 
         querySnapshot.forEach((doc) => {
           const siswa = doc.data();
           const nama = siswa.nama || "Tanpa Nama";
-          
-          // Cek apakah namanya ada di daftar pemasukan
           const sudahBayar = siswaLunas.includes(nama.toLowerCase());
-          
           tabelHTML += `
             <tr>
               <td>${nama}</td>
@@ -494,29 +460,20 @@
             </tr>
           `;
         });
-
         document.getElementById('tabelStatusSiswa').innerHTML = tabelHTML;
-
       } catch (error) {
         console.error("Error load siswa:", error);
       }
     }
 
-    // FITUR EKSPOR CSV (EXCEL)
     window.eksporCSV = function() {
-        if (globalDataKas.length === 0) {
-            return alert("Belum ada data untuk diekspor.");
-        }
-
+        if (globalDataKas.length === 0) { return alert("Belum ada data untuk diekspor."); }
         let csvContent = "Tanggal,Tipe,Keterangan,Nominal\n";
-        
         globalDataKas.forEach(row => {
-            // Membersihkan teks dari koma agar format CSV tidak rusak
             let ket = row.keterangan.replace(/,/g, ' ');
             let tipe = row.tipe === 'Pemasukan' ? 'Kas Masuk' : 'Kas Keluar';
             csvContent += `${row.tanggal},${tipe},${ket},${row.nominal}\n`;
         });
-
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
@@ -527,7 +484,6 @@
         document.body.removeChild(link);
     }
 
-    // Jalankan saat halaman dibuka
     window.addEventListener('firebaseReady', () => {
       muatDataKas();
     });
