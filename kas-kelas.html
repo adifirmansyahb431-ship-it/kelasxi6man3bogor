@@ -209,9 +209,24 @@
     <!-- TAB 3: STATUS BAYAR SISWA -->
     <div id="tab-siswa" class="tab-content">
       <h3>Status Pembayaran Kas Siswa</h3>
-      <p style="font-size: 13px; color: #666;">Status diambil dari riwayat Kas Masuk. Jika nama ada di daftar pemasukan, statusnya <b>LUNAS</b>.</p>
+      
+      <!-- KOTAK TOTAL KAS MASUK SISWA -->
+      <div style="background: #e8f8f5; border-left: 4px solid #00b894; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+        <h4 style="margin: 0; color: #0a3622;">Total Kas Masuk dari Siswa</h4>
+        <h2 style="margin: 5px 0 0 0; color: #00b894;" id="totalKasSiswa">Rp 0</h2>
+      </div>
+
+      <p style="font-size: 13px; color: #666;">Daftar siswa dan status pembayaran. <b>✅ Lunas</b> berarti sudah membayar (minimal Rp 5.000).</p>
+      
       <table>
-        <thead><tr><th>Nama Siswa</th><th>Status Kas</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Nama Siswa</th>
+            <th>Nominal Dibayar</th>
+            <th>Tanggal Bayar</th>
+            <th>Status</th>
+          </tr>
+        </thead>
         <tbody id="tabelStatusSiswa"></tbody>
       </table>
     </div>
@@ -438,29 +453,68 @@
         });
     }
 
+    // 4. LOAD DAFTAR SISWA & CEK LUNAS/BELUM + TOTAL & TANGGAL
     async function muatStatusSiswa(siswaLunas) {
       try {
         const { collection, getDocs } = window.fbFunc;
         const db = window.db;
+
         const querySnapshot = await getDocs(collection(db, "Siswa"));
         let tabelHTML = "";
+        let totalKasSiswa = 0;
+
+        // Ambil semua data pemasukan dari globalDataKas
+        const dataPemasukan = globalDataKas.filter(item => item.tipe === 'Pemasukan');
 
         querySnapshot.forEach((doc) => {
           const siswa = doc.data();
           const nama = siswa.nama || "Tanpa Nama";
-          const sudahBayar = siswaLunas.includes(nama.toLowerCase());
+          
+          // Cari apakah siswa ini sudah bayar
+          const cekBayar = dataPemasukan.filter(item => item.nama.toLowerCase() === nama.toLowerCase());
+          
+          let nominalDibayar = 0;
+          let tanggalBayar = "-";
+
+          if(cekBayar.length > 0) {
+              // Jika ada lebih dari 1 transaksi, jumlahkan semuanya
+              nominalDibayar = cekBayar.reduce((total, item) => total + item.nominal, 0);
+              
+              // Ambil tanggal dari transaksi terakhir
+              const transaksiTerakhir = cekBayar[0]; 
+              const tgl = new Date(transaksiTerakhir.tanggal);
+              tanggalBayar = tgl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+          }
+
+          // Hanya centang jika nominal bayar >= 5000
+          const sudahLunas = nominalDibayar >= 5000;
+          
+          if(sudahLunas) {
+              totalKasSiswa += nominalDibayar;
+          }
+
           tabelHTML += `
             <tr>
-              <td>${nama}</td>
+              <td><b>${nama}</b></td>
+              <td style="color: ${nominalDibayar > 0 ? '#00b894' : '#ff4757'}; font-weight: 600;">
+                  ${nominalDibayar > 0 ? formatRp(nominalDibayar) : 'Rp 0'}
+              </td>
+              <td style="font-size: 12px; color: #666;">
+                  ${tanggalBayar}
+              </td>
               <td>
-                ${sudahBayar 
-                  ? '<span class="badge-lunas">LUNAS</span>' 
-                  : '<span class="badge-belum">BELUM BAYAR</span>'}
+                ${sudahLunas 
+                  ? '<span class="badge-lunas">✅ LUNAS</span>' 
+                  : '<span class="badge-belum">❌ BELUM</span>'}
               </td>
             </tr>
           `;
         });
+
+        // Tampilkan ke tabel dan kotak total
         document.getElementById('tabelStatusSiswa').innerHTML = tabelHTML;
+        document.getElementById('totalKasSiswa').innerText = formatRp(totalKasSiswa);
+
       } catch (error) {
         console.error("Error load siswa:", error);
       }
