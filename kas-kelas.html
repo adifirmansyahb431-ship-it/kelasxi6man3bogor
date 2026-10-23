@@ -29,19 +29,34 @@
   </script>
 
   <style>
-    /* FONT & WARNA PROFESIONAL */
+    /* --- TEMA DIGITAL FUTURISTIK --- */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --neon-blue: #0ea5e9;
+      --neon-cyan: #06b6d4;
+      --text-light: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
 
     body { 
       font-family: 'Inter', sans-serif; 
-      background: #f4f6f9; /* Latar abu-abu terang khas enterprise */
+      background-color: var(--bg-dark);
+      /* Efek Grid Sirkuit Digital */
+      background-image: 
+        linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
       margin: 0; 
       padding: 20px; 
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      color: #333;
+      color: var(--text-light);
     }
 
     .wrapper {
@@ -49,136 +64,152 @@
       max-width: 900px;
     }
 
-    /* HEADER BIRU NAVY */
+    /* HEADER NEON */
     .header { 
-      background: #1e293b; 
-      color: white; 
+      background: rgba(30, 41, 59, 0.8); 
+      backdrop-filter: blur(10px);
+      color: var(--neon-cyan); 
       padding: 15px 25px; 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      border-radius: 8px;
+      border-radius: 12px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: 1px solid var(--border-color);
+      border-bottom: 2px solid var(--neon-cyan);
+      box-shadow: 0 4px 20px rgba(6, 182, 212, 0.15);
     }
-    .header h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
+    .header h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
     
     .btn-back { 
-      background: #475569; 
-      color: white; 
+      background: transparent; 
+      color: var(--neon-cyan); 
       text-decoration: none; 
-      padding: 8px 15px; 
+      padding: 6px 15px; 
       border-radius: 6px; 
-      font-weight: 500; 
+      font-weight: 600; 
       font-size: 13px;
-      transition: 0.2s;
+      border: 1px solid var(--neon-cyan);
+      transition: 0.3s;
     }
-    .btn-back:hover { background: #334155; }
+    .btn-back:hover { background: rgba(6, 182, 212, 0.1); box-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
 
-    /* KARTU SALDO BERGAYA AKUNTANSI */
+    /* KARTU SALDO */
     .saldo-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      padding: 25px;
-      border-radius: 8px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid var(--border-color);
+      border-top: 4px solid var(--neon-blue);
+      padding: 30px;
+      border-radius: 12px;
       text-align: center;
       margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(14, 165, 233, 0.05);
       width: 100%;
       box-sizing: border-box;
-      border-top: 4px solid #0284c7; /* Aksen biru di atas */
     }
-    .saldo-card h2 { margin: 0; font-size: 14px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
-    .saldo-card h1 { margin: 10px 0 0 0; font-size: 38px; font-weight: 700; color: #0f172a; }
+    .saldo-card h2 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
+    .saldo-card h1 { margin: 10px 0 0 0; font-size: 42px; font-weight: 700; color: var(--text-light); text-shadow: 0 0 20px rgba(255, 255, 255, 0.2); }
 
     /* GRAFIK */
     .chart-container {
-      background: white;
+      background: var(--card-bg);
       padding: 20px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
       margin-bottom: 20px;
       width: 100%;
       box-sizing: border-box;
     }
 
-    /* TABS MENU PROFESIONAL */
-    .tabs { display: flex; gap: 5px; margin-bottom: -1px; border-bottom: 2px solid #e2e8f0; }
+    /* TABS DIGITAL */
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; }
     .tab-btn {
-      background: transparent; border: 1px solid transparent; border-bottom: none; 
-      padding: 12px 20px; border-radius: 6px 6px 0 0;
-      cursor: pointer; font-weight: 600; color: #64748b; font-size: 14px; transition: 0.2s;
+      background: var(--card-bg); border: 1px solid var(--border-color); 
+      padding: 10px 20px; border-radius: 8px;
+      cursor: pointer; font-weight: 600; color: var(--text-muted); font-size: 13px; transition: 0.3s;
       font-family: 'Inter', sans-serif;
     }
     .tab-btn.active { 
-      background: white; color: #0284c7; 
-      border-color: #e2e8f0; 
-      border-top: 2px solid #0284c7;
-      border-bottom: 2px solid white;
-      margin-bottom: -2px;
+      background: rgba(6, 182, 212, 0.1); 
+      color: var(--neon-cyan); 
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
     }
 
     .card { 
-      background: white; 
+      background: var(--card-bg); 
       padding: 25px; 
-      border-radius: 0 0 8px 8px; 
-      border: 1px solid #e2e8f0;
-      border-top: none;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.02); 
+      border-radius: 12px; 
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
       width: 100%; 
       box-sizing: border-box;
     }
 
     .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* FORM INPUT */
-    label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px; color: #475569; margin-top: 15px; }
+    /* FORM INPUT DIGITAL */
+    label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 8px; color: var(--text-muted); margin-top: 20px; }
     input, select { 
-      width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; 
-      box-sizing: border-box; font-family: 'Inter', sans-serif; font-size: 14px; color: #1e293b;
+      width: 100%; padding: 12px 15px; 
+      background: var(--bg-dark); 
+      border: 1px solid var(--border-color); 
+      border-radius: 8px; 
+      box-sizing: border-box; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text-light);
+      transition: 0.3s;
     }
-    input:focus, select:focus { outline: none; border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
+    input:focus, select:focus { 
+      outline: none; 
+      border-color: var(--neon-blue); 
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.3); 
+    }
     
-    /* TOMBOL SIMPAN */
+    /* TOMBOL POSTING */
     .btn-submit { 
-      background: #0284c7; color: white; border: none; padding: 12px; border-radius: 6px; 
-      width: 100%; font-weight: 600; cursor: pointer; margin-top: 20px; font-size: 14px;
-      transition: 0.2s;
+      background: linear-gradient(90deg, #0ea5e9, #06b6d4); 
+      color: white; border: none; padding: 14px; border-radius: 8px; 
+      width: 100%; font-weight: 700; cursor: pointer; margin-top: 25px; font-size: 14px;
+      transition: 0.3s; letter-spacing: 1px;
     }
-    .btn-submit:hover { background: #0369a1; }
-    .btn-submit.merah { background: #dc2626; }
-    .btn-submit.merah:hover { background: #b91c1c; }
+    .btn-submit:hover { box-shadow: 0 0 20px rgba(6, 182, 212, 0.6); transform: translateY(-2px); }
+    .btn-submit.merah { background: linear-gradient(90deg, #e11d48, #be123c); }
+    .btn-submit.merah:hover { box-shadow: 0 0 20px rgba(225, 29, 72, 0.6); }
 
-    /* TABEL AKUNTANSI */
-    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
-    th, td { border: 1px solid #e2e8f0; padding: 10px 12px; text-align: left; }
-    th { background: #f8fafc; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-    tr:nth-child(even) { background: #f8fafc; }
+    /* TABEL DIGITAL */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 20px; }
+    th, td { border: 1px solid var(--border-color); padding: 12px 15px; text-align: left; }
+    th { background: rgba(15, 23, 42, 0.8); color: var(--neon-cyan); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+    tr { transition: 0.2s; }
+    tr:hover { background: rgba(255, 255, 255, 0.02); }
     
     /* STATUS BADGE */
-    .badge-lunas { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; border: 1px solid #bbf7d0; }
-    .badge-belum { background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; border: 1px solid #fecaca; }
+    .badge-lunas { background: rgba(16, 185, 129, 0.15); color: #34d399; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; border: 1px solid #059669; }
+    .badge-belum { background: rgba(225, 29, 72, 0.15); color: #fb7185; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; border: 1px solid #e11d48; }
 
     /* TOMBOL AKSI */
     .btn-action {
-      background: #0f766e; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;
+      background: #0f766e; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.3s;
     }
+    .btn-action:hover { background: #14b8a6; box-shadow: 0 0 15px rgba(20, 184, 166, 0.4); }
+    
     .btn-hapus {
-      background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600;
+      background: #be123c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; transition: 0.3s;
     }
+    .btn-hapus:hover { background: #e11d48; box-shadow: 0 0 10px rgba(225, 29, 72, 0.4); }
 
     /* HANYA UNTUK ADMIN */
     .admin-only { display: none; }
 
     @media print {
-      body { background: white; padding: 0; }
+      body { background: white; color: black; }
       .header, .saldo-card, .tabs, form, .btn-submit, .btn-back, .chart-container, .btn-action, .btn-hapus { display: none !important; }
-      .card { box-shadow: none; padding: 0; border: none; }
+      .card { box-shadow: none; padding: 0; border: none; background: white; }
       .tab-content { display: block !important; margin-bottom: 30px; }
-      th { background: #eee !important; -webkit-print-color-adjust: exact; border: 1px solid #000; }
-      td { border: 1px solid #000; }
+      th { background: #eee !important; color: black; border: 1px solid #000; }
+      td { border: 1px solid #000; color: black; }
     }
   </style>
 </head>
@@ -186,13 +217,13 @@
 
   <div class="wrapper">
     <div class="header">
-      <h1>💼 SISTEM INFORMASI KAS KELAS</h1>
+      <h1>💠 SISTEM KAS KELAS</h1>
       <a href="#" id="btnKembali" class="btn-back">← Kembali</a>
     </div>
 
     <!-- KARTU SALDO -->
     <div class="saldo-card">
-      <h2>Total Saldo Kas</h2>
+      <h2>Total Saldo Kas Saat Ini</h2>
       <h1 id="saldoTampil">Rp 0</h1>
     </div>
 
@@ -201,120 +232,117 @@
       <canvas id="kasChart" height="80"></canvas>
     </div>
 
-    <div class="card" style="padding:0; border:none; background:transparent; box-shadow:none;">
-      <!-- MENU TABS -->
-      <div class="tabs">
-        <button class="tab-btn active admin-only" id="tabMenuPemasukan" onclick="bukaTab('pemasukan')">Kas Masuk</button>
-        <button class="tab-btn admin-only" onclick="bukaTab('pengeluaran')">Kas Keluar</button>
-        <button class="tab-btn" id="tabMenuSiswa" onclick="bukaTab('siswa')">Status Bayar Siswa</button>
-        <button class="tab-btn" id="tabMenuLpj" onclick="bukaTab('lpj')">Laporan LPJ</button>
-      </div>
+    <!-- MENU TABS -->
+    <div class="tabs">
+      <button class="tab-btn active admin-only" id="tabMenuPemasukan" onclick="bukaTab('pemasukan')">Kas Masuk</button>
+      <button class="tab-btn admin-only" onclick="bukaTab('pengeluaran')">Kas Keluar</button>
+      <button class="tab-btn" id="tabMenuSiswa" onclick="bukaTab('siswa')">Status Bayar Siswa</button>
+      <button class="tab-btn" id="tabMenuLpj" onclick="bukaTab('lpj')">Laporan LPJ</button>
+    </div>
 
-      <div style="background: white; padding: 25px; border-radius: 0 0 8px 8px; border: 1px solid #e2e8f0; border-top: none;">
-        
-        <!-- TAB 1: PEMASUKAN (ADMIN) -->
-        <div id="tab-pemasukan" class="tab-content active">
-          <h3 style="margin-top:0; color:#0f172a; font-size:18px;">Input Jurnal Kas Masuk</h3>
-          <form id="formPemasukan" onsubmit="simpanKas(event, 'Pemasukan')">
-            
-            <label>Sumber Pemasukan</label>
-            <select id="inSumberDana" onchange="aturFormPemasukan()" required style="margin-bottom: 10px;">
-              <option value="Iuran Siswa">Iuran Siswa</option>
-              <option value="Lainnya">Pemasukan Lainnya (Donasi, Dana Sekolah, dll)</option>
+    <div class="card">
+      <!-- TAB 1: PEMASUKAN (ADMIN) -->
+      <div id="tab-pemasukan" class="tab-content active">
+        <h3 style="margin-top:0; color:#f8fafc; font-size:18px;">Input Jurnal Kas Masuk</h3>
+        <form id="formPemasukan" onsubmit="simpanKas(event, 'Pemasukan')">
+          
+          <label>Sumber Pemasukan</label>
+          <select id="inSumberDana" onchange="aturFormPemasukan()" required style="margin-bottom: 10px;">
+            <option value="Iuran Siswa">Iuran Siswa</option>
+            <option value="Lainnya">Pemasukan Lainnya</option>
+          </select>
+
+          <div id="divNamaSiswa">
+            <label>Pilih Siswa</label>
+            <select id="inNamaKasSiswa" required>
+              <option value="">-- Memuat data siswa... --</option>
             </select>
-
-            <div id="divNamaSiswa">
-              <label>Pilih Siswa</label>
-              <select id="inNamaKasSiswa" required>
-                <option value="">-- Memuat data siswa... --</option>
-              </select>
-            </div>
-
-            <div id="divNamaLain" style="display: none;">
-              <label>Nama Sumber Pemasukan</label>
-              <input type="text" id="inNamaKasLain" placeholder="Contoh: Donasi Orang Tua">
-            </div>
-            
-            <label>Nominal (Rp)</label>
-            <input type="number" id="inNominalKas" required placeholder="Contoh: 5000" value="5000">
-            
-            <label>Keterangan / Memo</label>
-            <input type="text" id="inKetKas" required placeholder="Contoh: Pembayaran kas bulan Oktober">
-            
-            <button type="submit" class="btn-submit">Posting Kas Masuk</button>
-          </form>
-          <h4 style="margin-top:30px; color:#475569;">Jurnal Umum Kas Masuk</h4>
-          <table>
-            <thead><tr><th>Tanggal</th><th>Akun / Sumber</th><th>Debit (Rp)</th><th>Keterangan</th><th>Aksi</th></tr></thead>
-            <tbody id="tabelPemasukan"></tbody>
-          </table>
-        </div>
-
-        <!-- TAB 2: PENGELUARAN (ADMIN) -->
-        <div id="tab-pengeluaran" class="tab-content">
-          <h3 style="margin-top:0; color:#0f172a; font-size:18px;">Input Jurnal Kas Keluar</h3>
-          <form id="formPengeluaran" onsubmit="simpanKas(event, 'Pengeluaran')">
-            <label>Keterangan Pengeluaran</label>
-            <input type="text" id="inKetKeluar" required placeholder="Contoh: Pembelian ATK dan Spidol">
-            <label>Nominal (Rp)</label>
-            <input type="number" id="inNominalKeluar" required placeholder="Contoh: 15000">
-            <button type="submit" class="btn-submit merah">Posting Kas Keluar</button>
-          </form>
-          <h4 style="margin-top:30px; color:#475569;">Jurnal Umum Kas Keluar</h4>
-          <table>
-            <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kredit (Rp)</th><th>Aksi</th></tr></thead>
-            <tbody id="tabelPengeluaran"></tbody>
-          </table>
-        </div>
-
-        <!-- TAB 3: STATUS BAYAR SISWA -->
-        <div id="tab-siswa" class="tab-content">
-          <h3 style="margin-top:0; color:#0f172a; font-size:18px;">Rekapitulasi Iuran Siswa</h3>
-          
-          <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid #0284c7; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-            <h4 style="margin: 0; color: #0369a1; font-size: 13px; text-transform: uppercase;">Total Penerimaan Iuran Siswa</h4>
-            <h2 style="margin: 5px 0 0 0; color: #0f172a;" id="totalKasSiswa">Rp 0</h2>
           </div>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Nama Siswa</th>
-                <th>Nominal Disetor</th>
-                <th>Waktu Transaksi</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="tabelStatusSiswa">
-              <tr><td colspan="4" style="text-align:center;">Memuat data siswa...</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- TAB 4: LPJ -->
-        <div id="tab-lpj" class="tab-content">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="margin-top:0; color:#0f172a; font-size:18px;">Laporan Pertanggungjawaban (LPJ)</h3>
-            <div style="display:flex; gap:10px;">
-              <button onclick="eksporCSV()" class="btn-action">📥 Export CSV / Excel</button>
-              <button onclick="window.print()" style="background:#475569; color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">🖨️ Cetak PDF</button>
-            </div>
-          </div>
-          <div style="margin-top:20px; background:#f8fafc; border:1px solid #e2e8f0; padding:20px; border-radius:6px;">
-            <h4 style="margin:0; color:#475569;">Total Penerimaan: <span id="lpjMasuk" style="color:#166534;">Rp 0</span></h4>
-            <h4 style="margin:5px 0 0 0; color:#475569;">Total Pengeluaran: <span id="lpjKeluar" style="color:#991b1b;">Rp 0</span></h4>
-            <hr style="border:0; border-top:1px solid #cbd5e1; margin:15px 0;">
-            <h3 style="margin:0; color:#0f172a;">SALDO AKHIR: <span id="lpjSaldo">Rp 0</span></h3>
+          <div id="divNamaLain" style="display: none;">
+            <label>Nama Sumber Pemasukan</label>
+            <input type="text" id="inNamaKasLain" placeholder="Contoh: Donasi / Sponsor">
           </div>
           
-          <h4 style="margin-top:30px; color:#475569;">Buku Besar Arus Kas</h4>
-          <table>
-            <thead><tr><th>Tanggal</th><th>Tipe</th><th>Keterangan</th><th>Nominal</th></tr></thead>
-            <tbody id="tabelLPJ"></tbody>
-          </table>
-        </div>
-
+          <label>Nominal (Rp)</label>
+          <input type="number" id="inNominalKas" required placeholder="Contoh: 5000" value="5000">
+          
+          <label>Keterangan / Memo</label>
+          <input type="text" id="inKetKas" required placeholder="Contoh: Pembayaran kas bulan Oktober">
+          
+          <button type="submit" class="btn-submit">POSTING KAS MASUK</button>
+        </form>
+        <h4 style="margin-top:30px; color:#94a3b8; font-size:14px; text-transform:uppercase;">Jurnal Umum Kas Masuk</h4>
+        <table>
+          <thead><tr><th>Tanggal</th><th>Akun / Sumber</th><th>Debit (Rp)</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+          <tbody id="tabelPemasukan"></tbody>
+        </table>
       </div>
+
+      <!-- TAB 2: PENGELUARAN (ADMIN) -->
+      <div id="tab-pengeluaran" class="tab-content">
+        <h3 style="margin-top:0; color:#f8fafc; font-size:18px;">Input Jurnal Kas Keluar</h3>
+        <form id="formPengeluaran" onsubmit="simpanKas(event, 'Pengeluaran')">
+          <label>Keterangan Pengeluaran</label>
+          <input type="text" id="inKetKeluar" required placeholder="Contoh: Pembelian ATK dan Spidol">
+          <label>Nominal (Rp)</label>
+          <input type="number" id="inNominalKeluar" required placeholder="Contoh: 15000">
+          <button type="submit" class="btn-submit merah">POSTING KAS KELUAR</button>
+        </form>
+        <h4 style="margin-top:30px; color:#94a3b8; font-size:14px; text-transform:uppercase;">Jurnal Umum Kas Keluar</h4>
+        <table>
+          <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kredit (Rp)</th><th>Aksi</th></tr></thead>
+          <tbody id="tabelPengeluaran"></tbody>
+        </table>
+      </div>
+
+      <!-- TAB 3: STATUS BAYAR SISWA -->
+      <div id="tab-siswa" class="tab-content">
+        <h3 style="margin-top:0; color:#f8fafc; font-size:18px;">Rekapitulasi Iuran Siswa</h3>
+        
+        <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid var(--neon-cyan); border-left: 4px solid var(--neon-cyan); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="margin: 0; color: var(--neon-cyan); font-size: 13px; text-transform: uppercase;">Total Penerimaan Iuran</h4>
+          <h2 style="margin: 5px 0 0 0; color: #f8fafc;" id="totalKasSiswa">Rp 0</h2>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Nama Siswa</th>
+              <th>Nominal Disetor</th>
+              <th>Waktu Transaksi</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tabelStatusSiswa">
+            <tr><td colspan="4" style="text-align:center;">Memuat data siswa...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TAB 4: LPJ -->
+      <div id="tab-lpj" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 style="margin-top:0; color:#f8fafc; font-size:18px;">Laporan Pertanggungjawaban</h3>
+          <div style="display:flex; gap:10px;">
+            <button onclick="eksporCSV()" class="btn-action">📥 Export CSV</button>
+            <button onclick="window.print()" style="background:#475569; color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">🖨️ Cetak PDF</button>
+          </div>
+        </div>
+        <div style="margin-top:20px; background:rgba(15, 23, 42, 0.5); border:1px solid var(--border-color); padding:20px; border-radius:8px;">
+          <h4 style="margin:0; color:#94a3b8;">Total Penerimaan: <span id="lpjMasuk" style="color:#34d399;">Rp 0</span></h4>
+          <h4 style="margin:5px 0 0 0; color:#94a3b8;">Total Pengeluaran: <span id="lpjKeluar" style="color:#fb7185;">Rp 0</span></h4>
+          <hr style="border:0; border-top:1px solid var(--border-color); margin:15px 0;">
+          <h3 style="margin:0; color:#f8fafc;">SALDO AKHIR: <span id="lpjSaldo" style="color: var(--neon-cyan);">Rp 0</span></h3>
+        </div>
+        
+        <h4 style="margin-top:30px; color:#94a3b8; font-size:14px; text-transform:uppercase;">Buku Besar Arus Kas</h4>
+        <table>
+          <thead><tr><th>Tanggal</th><th>Tipe</th><th>Keterangan</th><th>Nominal</th></tr></thead>
+          <tbody id="tabelLPJ"></tbody>
+        </table>
+      </div>
+
     </div>
   </div>
 
@@ -405,7 +433,7 @@
       } catch (error) {
         alert("❌ Gagal: " + error.message);
       } finally {
-        btn.textContent = tipe === 'Pemasukan' ? "Posting Kas Masuk" : "Posting Kas Keluar";
+        btn.textContent = tipe === 'Pemasukan' ? "POSTING KAS MASUK" : "POSTING KAS KELUAR";
         btn.disabled = false;
       }
     }
@@ -471,7 +499,7 @@
               <td>${tglFormat}</td>
               <td>${row.tipe}</td>
               <td>${row.nama} - ${row.keterangan}</td>
-              <td style="color: ${row.tipe === 'Pemasukan' ? '#166534' : '#991b1b'}; font-weight:bold;">
+              <td style="color: ${row.tipe === 'Pemasukan' ? '#34d399' : '#fb7185'}; font-weight:bold;">
                 ${row.tipe === 'Pemasukan' ? '+' : '-'} ${formatRp(row.nominal)}
               </td>
             </tr>
@@ -484,7 +512,7 @@
               <tr>
                 <td>${tglFormat}</td>
                 <td>${row.nama}</td>
-                <td style="color:#166534; font-weight:bold;">${formatRp(row.nominal)}</td>
+                <td style="color:#34d399; font-weight:bold;">${formatRp(row.nominal)}</td>
                 <td>${row.keterangan}</td>
                 <td><button class="btn-hapus" onclick="hapusKas('${row.idDoc}')">Hapus</button></td>
               </tr>
@@ -495,7 +523,7 @@
               <tr>
                 <td>${tglFormat}</td>
                 <td>${row.keterangan}</td>
-                <td style="color:#991b1b; font-weight:bold;">${formatRp(row.nominal)}</td>
+                <td style="color:#fb7185; font-weight:bold;">${formatRp(row.nominal)}</td>
                 <td><button class="btn-hapus" onclick="hapusKas('${row.idDoc}')">Hapus</button></td>
               </tr>
             `;
@@ -508,9 +536,9 @@
         document.getElementById('lpjKeluar').innerText = formatRp(totalKeluar);
         document.getElementById('lpjSaldo').innerText = formatRp(saldo);
 
-        document.getElementById('tabelPemasukan').innerHTML = tabelMasukHTML || '<tr><td colspan="5" style="text-align:center;">Belum ada jurnal masuk</td></tr>';
-        document.getElementById('tabelPengeluaran').innerHTML = tabelKeluarHTML || '<tr><td colspan="4" style="text-align:center;">Belum ada jurnal keluar</td></tr>';
-        document.getElementById('tabelLPJ').innerHTML = tabelLPJHTML || '<tr><td colspan="4" style="text-align:center;">Belum ada data arus kas</td></tr>';
+        document.getElementById('tabelPemasukan').innerHTML = tabelMasukHTML || '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Belum ada jurnal masuk</td></tr>';
+        document.getElementById('tabelPengeluaran').innerHTML = tabelKeluarHTML || '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">Belum ada jurnal keluar</td></tr>';
+        document.getElementById('tabelLPJ').innerHTML = tabelLPJHTML || '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">Belum ada data arus kas</td></tr>';
 
         muatStatusSiswa(siswaLunas);
 
@@ -539,9 +567,9 @@
                 datasets: [{
                     label: 'Nominal (Rp)',
                     data: [masuk, keluar],
-                    backgroundColor: ['#0ea5e9', '#f43f5e'], /* Warna biru dan merah khas finance */
-                    borderRadius: 4,
-                    barThickness: 60
+                    backgroundColor: ['#06b6d4', '#e11d48'], /* Neon Cyan & Red */
+                    borderRadius: 6,
+                    barThickness: 50
                 }]
             },
             options: {
@@ -549,15 +577,18 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
-                    title: { display: true, text: 'Arus Kas Operasional', font: { size: 14, family: 'Inter' }, color: '#475569' }
+                    title: { display: true, text: 'Arus Kas Operasional', font: { size: 14, family: 'Inter' }, color: '#94a3b8' }
                 },
                 scales: { 
                   y: { 
                     beginAtZero: true, 
-                    grid: { color: '#f1f5f9' },
-                    ticks: { font: { family: 'Inter' } }
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#94a3b8', font: { family: 'Inter' } }
                   },
-                  x: { grid: { display: false }, ticks: { font: { family: 'Inter' } } }
+                  x: { 
+                    grid: { display: false }, 
+                    ticks: { color: '#94a3b8', font: { family: 'Inter' } } 
+                  }
                 }
             }
         });
@@ -570,7 +601,7 @@
         const dataPemasukan = globalDataKas.filter(item => item.tipe === 'Pemasukan');
 
         if (listSiswaGlobal.length === 0) {
-            document.getElementById('tabelStatusSiswa').innerHTML = '<tr><td colspan="4" style="text-align:center;">Data siswa kosong.</td></tr>';
+            document.getElementById('tabelStatusSiswa').innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">Data siswa kosong.</td></tr>';
             return;
         }
 
@@ -594,10 +625,10 @@
           tabelHTML += `
             <tr>
               <td><b>${nama}</b></td>
-              <td style="color: ${nominalDibayar > 0 ? '#166534' : '#991b1b'}; font-weight: 600;">
+              <td style="color: ${nominalDibayar > 0 ? '#34d399' : '#fb7185'}; font-weight: 600;">
                   ${nominalDibayar > 0 ? formatRp(nominalDibayar) : 'Rp 0'}
               </td>
-              <td style="color: #64748b;">${tanggalBayar}</td>
+              <td style="color: #94a3b8;">${tanggalBayar}</td>
               <td>
                 ${sudahLunas 
                   ? '<span class="badge-lunas">LUNAS</span>' 
@@ -618,22 +649,4 @@
         let csvContent = "Tanggal,Tipe,Keterangan,Nominal\n";
         globalDataKas.forEach(row => {
             let ket = row.keterangan.replace(/,/g, ' ');
-            let tipe = row.tipe === 'Pemasukan' ? 'Kas Masuk' : 'Kas Keluar';
-            csvContent += `${row.tanggal},${tipe},${ket},${row.nominal}\n`;
-        });
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", `Laporan_Kas_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    window.addEventListener('firebaseReady', () => {
-      isiDropdownSiswa().then(() => { muatDataKas(); });
-    });
-  </script>
-</body>
-</html>
+            let tipe = row.tipe ===
