@@ -7,131 +7,126 @@
   
   <style>
     :root { 
-      --dark-bg: #070b19; /* Warna latar belakang luar angkasa gelap */
-      --card-bg: #11182c; /* Warna kotak menu */
-      --neon-cyan: #00f3ff; /* Warna garis neon biru */
-      --gold: #d4af37; 
+      --dark-bg: #070b19; 
+      --sidebar-bg: #0d1326;
+      --card-bg: #11182c; 
+      --neon-cyan: #00f3ff; 
       --text: #e2e8f0; 
+      --hover-bg: rgba(0, 243, 255, 0.1);
     }
     * { box-sizing: border-box; }
     
-    /* BACKGROUND DIGITAL FUTURISTIK */
     body { 
       margin: 0; 
       font-family: 'Segoe UI', sans-serif; 
       background-color: var(--dark-bg);
-      /* Efek Grid Sirkuit */
-      background-image: 
-        linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
-      background-size: 30px 30px;
       color: var(--text); 
-      min-height: 100vh;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden; /* Mencegah scroll di body utama */
     }
 
-    /* HEADER GAYA DIGITAL */
+    /* HEADER ATAS */
     .header { 
-      background: rgba(7, 11, 25, 0.9); 
+      background: rgba(7, 11, 25, 0.95); 
       color: var(--neon-cyan); 
       display: flex; 
       align-items: center; 
       gap: 15px; 
-      padding: 15px 22px; 
+      padding: 10px 20px; 
       border-bottom: 2px solid var(--neon-cyan); 
       box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
-      position: sticky;
-      top: 0;
       z-index: 100;
+      height: 70px;
     }
-    .header img { height: 50px; width: 50px; background: white; border-radius: 8px; padding: 2px; object-fit: cover; }
-    .header .brand { flex: 1; font-size: 20px; font-weight: 800; line-height: 1.2; text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);}
-    .header .brand small { display: block; font-size: 13px; color: #aaa; font-weight: 600; margin-top: 2px; text-shadow: none;}
-    .header .logout { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 9px 14px; font-weight: 700; cursor: pointer; box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
+    .header img { height: 45px; width: 45px; background: white; border-radius: 8px; padding: 2px; object-fit: cover; }
+    .header .brand { flex: 1; font-size: 18px; font-weight: 800; line-height: 1.2; text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);}
+    .header .brand small { display: block; font-size: 12px; color: #aaa; font-weight: 600; text-shadow: none;}
+    .header .logout { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 8px 15px; font-weight: 700; cursor: pointer; box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
 
-    .container { max-width: 1000px; margin: 30px auto; padding: 0 16px; }
+    /* AREA UTAMA (KIRI & KANAN) */
+    .main-wrapper {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 70px); /* Sisa tinggi setelah header */
+    }
+
+    /* SIDEBAR KIRI */
+    .sidebar {
+      width: 260px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid rgba(0, 243, 255, 0.2);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 15px 0;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      color: #aaa;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: 0.2s;
+      cursor: pointer;
+      border-left: 4px solid transparent;
+    }
     
-    /* CSS RUNNING TEXT */
-    .ticker-wrapper {
-      overflow: hidden;
-      background: rgba(0, 243, 255, 0.05);
-      border: 1px solid var(--neon-cyan);
-      border-radius: 8px;
-      padding: 10px 0;
-      margin-bottom: 20px;
-      box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
-    }
-
-    .ticker-text {
-      display: inline-block;
-      white-space: nowrap;
-      padding-left: 100%; /* Mulai dari luar layar kanan */
-      animation: jalanTerus 25s linear infinite; /* 25 detik, terus berulang */
+    .menu-item:hover {
+      background-color: var(--hover-bg);
       color: var(--neon-cyan);
-      font-weight: 700;
-      font-size: 15px;
-      letter-spacing: 1px;
-      text-shadow: 0 0 5px rgba(0, 243, 255, 0.8);
+      border-left-color: var(--neon-cyan);
     }
-
-    @keyframes jalanTerus {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
-    }
-
-    /* KOTAK SAMBUTAN GAYA KACA DIGITAL */
-    .welcome { 
-      background: rgba(17, 24, 44, 0.8); 
-      padding: 20px; 
-      border-radius: 14px; 
-      margin-bottom: 25px; 
-      border: 1px solid rgba(0, 243, 255, 0.2); 
-      border-left: 4px solid var(--neon-cyan);
-      box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
-    }
-    .welcome h3 { margin: 0 0 5px; color: var(--neon-cyan); text-shadow: 0 0 5px rgba(0, 243, 255, 0.4);}
-    .welcome p { margin: 0; font-size: 14px; color: #aaa; }
     
-    /* MENU CARD FUTURISTIK */
-    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-    .menu-card { 
-      background: var(--card-bg); 
-      padding: 25px 20px; 
-      border-radius: 14px; 
-      text-align: center; 
-      text-decoration: none; 
-      color: var(--text); 
-      transition: 0.3s; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      justify-content: center; 
-      border: 1px solid rgba(0, 243, 255, 0.1);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    .menu-item.active {
+      background-color: var(--hover-bg);
+      color: var(--neon-cyan);
+      border-left-color: var(--neon-cyan);
+    }
+
+    .menu-item .icon {
+      font-size: 18px;
+      filter: drop-shadow(0 0 5px rgba(0, 243, 255, 0.5));
+    }
+
+    /* KONTEN KANAN (IFRAME) */
+    .content-area {
+      flex: 1;
+      background-color: var(--dark-bg);
       position: relative;
-      overflow: hidden;
     }
-    
-    /* EFEK NEON SAAT DISENTUH */
-    .menu-card:hover { 
-      transform: translateY(-5px); 
-      box-shadow: 0 0 20px rgba(0, 243, 255, 0.3); 
-      border-color: var(--neon-cyan); 
+
+    #mainFrame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: white; /* Warna dasar jika halaman belum termuat */
     }
-    .menu-card .icon { font-size: 40px; margin-bottom: 10px; filter: drop-shadow(0 0 8px rgba(0, 243, 255, 0.6)); }
-    .menu-card h4 { margin: 0; color: #fff; font-size: 18px; letter-spacing: 0.5px; }
-    .menu-card p { margin: 5px 0 0; font-size: 12px; color: #888; }
-    
-    .hidden { display: none !important; }
-    
-    /* RESPONSIF MOBILE */
-    @media (max-width: 600px) {
-      .header .brand { font-size: 16px; }
-      .header .brand small { font-size: 11px; }
+
+    /* TEKS SAMBUTAN DI KANAN (JIKA BELUM ADA MENU YANG DIKLIK) */
+    .welcome-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--neon-cyan);
+      text-align: center;
     }
+    .welcome-screen h2 { text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); margin-bottom: 10px;}
+    .welcome-screen p { color: #aaa; }
+
   </style>
 </head>
 <body>
 
+  <!-- HEADER -->
   <div class="header">
     <img src="fotogroupxi-6.png" alt="logo" />
     <div class="brand">
@@ -141,53 +136,24 @@
     <button class="logout" onclick="logout()">🚪 KELUAR</button>
   </div>
 
-  <div class="container">
+  <!-- AREA UTAMA -->
+  <div class="main-wrapper">
     
-    <!-- RUNNING TEXT -->
-    <div class="ticker-wrapper">
-      <div class="ticker-text">
-        SISTEM INFORMASI PANGKALAN DATA KELAS XI-6 ★ SIPADAK ★ MAN 3 BOGOR ★ SISTEM INFORMASI PANGKALAN DATA KELAS XI-6 ★ SIPADAK ★ MAN 3 BOGOR ★
+    <!-- SIDEBAR KIRI -->
+    <div class="sidebar" id="sidebar">
+      <!-- Menu akan diisi otomatis oleh JavaScript sesuai Role -->
+    </div>
+
+    <!-- KONTEN KANAN -->
+    <div class="content-area">
+      <!-- Pesan Default -->
+      <div class="welcome-screen" id="welcomeScreen">
+        <h2 id="welcomeText">Selamat Datang!</h2>
+        <p>Silakan pilih menu di sebelah kiri untuk mulai mengelola data.</p>
       </div>
-    </div>
-
-    <div class="welcome">
-      <h3 id="welcomeText">Selamat Datang!</h3>
-      <p>Silakan pilih menu di bawah ini untuk mengelola data.</p>
-    </div>
-
-    <div class="menu-grid">
-      <a href="pelanggaran.html" class="menu-card" id="menuPelanggaran">
-        <div class="icon">📝</div><h4>Input Pelanggaran</h4><p>Catat pelanggaran siswa</p>
-      </a>
       
-      <a href="rekap.html" class="menu-card" id="menuRekap">
-        <div class="icon">📊</div><h4>Rekap Poin</h4><p>Lihat akumulasi poin siswa</p>
-      </a>
-      
-      <a href="nilai.html" class="menu-card" id="menuNilai">
-        <div class="icon">⭐</div><h4>Input Nilai</h4><p>Catat nilai mata pelajaran</p>
-      </a>
-
-      <a href="absensi.html" class="menu-card" id="menuAbsensi">
-        <div class="icon">📋</div><h4>Absensi Siswa</h4><p>Catat kehadiran harian</p>
-      </a>
-
-      <a href="rekap-bulanan.html" class="menu-card" id="menuRekapBulanan">
-        <div class="icon">📅</div><h4>Rekap Bulanan</h4><p>Lihat absensi sebulan penuh</p>
-      </a>
-
-      <a href="kelola-siswa.html" class="menu-card" id="menuKelolaSiswa">
-        <div class="icon">📤</div><h4>Kelola Siswa</h4><p>Upload data siswa via Excel</p>
-      </a>
-
-      <a href="kelola-akun.html" class="menu-card" id="menuKelolaAkun">
-        <div class="icon">👤</div><h4>Akun Siswa</h4><p>Daftarkan Email Siswa</p>
-      </a>
-
-      <!-- MENU KAS KELAS -->
-      <a href="kas-kelas.html" class="menu-card" id="menuKasKelas">
-        <div class="icon">💰</div><h4>Kas Kelas</h4><p>Catat uang masuk & keluar</p>
-      </a>
+      <!-- Iframe untuk memuat halaman -->
+      <iframe id="mainFrame" style="display: none;" src=""></iframe>
     </div>
   </div>
 
@@ -203,27 +169,61 @@
     } else {
       // Tampilkan Nama di Header
       document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK <br><span style="color:#00f3ff;font-size:11px;">Login: ${nama}</span>`;
-      document.getElementById("welcomeText").textContent = `Selamat Datang, ${nama}`;
+      document.getElementById("welcomeText").textContent = `Selamat Datang, ${nama}!`;
 
-      // Logika Sembunyikan Menu untuk Sekretaris
-      if (role === "sekretaris") {
-        document.getElementById("menuPelanggaran").style.display = "none";
-        document.getElementById("menuRekap").style.display = "none";
-        document.getElementById("menuNilai").style.display = "none";
-        document.getElementById("menuKelolaSiswa").style.display = "none";
-        document.getElementById("menuKelolaAkun").style.display = "none";
+      // Daftar Semua Menu
+      const semuaMenu = [
+        { id: "menuPelanggaran", href: "pelanggaran.html", icon: "📝", title: "Input Pelanggaran" },
+        { id: "menuRekap", href: "rekap.html", icon: "📊", title: "Rekap Poin" },
+        { id: "menuNilai", href: "nilai.html", icon: "⭐", title: "Input Nilai" },
+        { id: "menuAbsensi", href: "absensi.html", icon: "📋", title: "Absensi Siswa" },
+        { id: "menuRekapBulanan", href: "rekap-bulanan.html", icon: "📅", title: "Rekap Bulanan" },
+        { id: "menuKelolaSiswa", href: "kelola-siswa.html", icon: "📤", title: "Kelola Siswa" },
+        { id: "menuKelolaAkun", href: "kelola-akun.html", icon: "👤", title: "Akun Siswa" },
+        { id: "menuKasKelas", href: "kas-kelas.html", icon: "💰", title: "Kas Kelas" }
+      ];
+
+      // Filter Menu Berdasarkan Role (Hak Akses)
+      let menuTampil = [];
+      
+      if (role === "admin") {
+        menuTampil = semuaMenu; // Admin bisa lihat semua
+      } else if (role === "sekretaris") {
+        // Sekretaris hanya bisa lihat Absensi, Rekap Bulanan, dan Kas Kelas
+        menuTampil = semuaMenu.filter(m => ["menuAbsensi", "menuRekapBulanan", "menuKasKelas"].includes(m.id));
+      } else if (role === "bendahara") {
+        // Bendahara HANYA bisa lihat Kas Kelas
+        menuTampil = semuaMenu.filter(m => m.id === "menuKasKelas");
       }
 
-      // Logika Sembunyikan Menu untuk Bendahara (Hanya Boleh Lihat Kas Kelas)
-      if (role === "bendahara") {
-        document.getElementById("menuPelanggaran").style.display = "none";
-        document.getElementById("menuRekap").style.display = "none";
-        document.getElementById("menuNilai").style.display = "none";
-        document.getElementById("menuAbsensi").style.display = "none";
-        document.getElementById("menuRekapBulanan").style.display = "none";
-        document.getElementById("menuKelolaSiswa").style.display = "none";
-        document.getElementById("menuKelolaAkun").style.display = "none";
-      }
+      // Render Menu ke Sidebar
+      const sidebar = document.getElementById("sidebar");
+      menuTampil.forEach(menu => {
+        const a = document.createElement("a");
+        a.className = "menu-item";
+        a.href = "javascript:void(0)";
+        a.innerHTML = `<div class="icon">${menu.icon}</div> ${menu.title}`;
+        a.onclick = function() {
+          bukaHalaman(menu.href, this);
+        };
+        sidebar.appendChild(a);
+      });
+    }
+
+    // Fungsi untuk membuka halaman di Iframe Kanan
+    function bukaHalaman(url, elementMenu) {
+      // 1. Sembunyikan layar sambutan, tampilkan iframe
+      document.getElementById("welcomeScreen").style.display = "none";
+      const iframe = document.getElementById("mainFrame");
+      iframe.style.display = "block";
+      
+      // 2. Muat URL di iframe
+      iframe.src = url;
+
+      // 3. Ubah status menu yang aktif (berwarna neon)
+      const semuaMenuItems = document.querySelectorAll('.menu-item');
+      semuaMenuItems.forEach(item => item.classList.remove('active'));
+      elementMenu.classList.add('active');
     }
 
     // Fungsi Logout
