@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Media Belajar - Ketenagakerjaan</title>
+  
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; --biru: #3b82f6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    
+    /* HEADER & NAVIGASI */
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 20px; }
+    .btn-back { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;}
+    
+    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; }
+    
+    /* TAB MENU */
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-btn { flex: 1; padding: 15px; text-align: center; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-weight: bold; font-size: 16px; color: #64748b; cursor: pointer; transition: 0.3s; }
+    .tab-btn:hover { background: #f1f5f9; }
+    .tab-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); box-shadow: 0 4px 10px rgba(10, 54, 34, 0.3); }
+
+    /* KONTEN */
+    .content-section { display: none; }
+    .content-section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* CARD MATERI */
+    .materi-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 25px; }
+    
+    /* VIDEO YOUTUBE */
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    
+    /* TEKS & VISUAL */
+    h3 { color: var(--hijau); margin-top: 0; font-size: 18px; border-left: 4px solid var(--gold); padding-left: 10px; }
+    p { line-height: 1.7; font-size: 15px; color: #475569; margin-bottom: 15px; }
+    
+    /* KOTAK INFO */
+    .kotak-info { background: #eff6ff; border-left: 4px solid var(--biru); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .kotak-info h4 { margin: 0 0 5px 0; color: var(--biru); font-size: 16px; }
+    .kotak-info p { margin: 0; font-size: 14px; color: #1e3a8a; }
+
+    /* TABEL DATA */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f8fafc; color: var(--hijau); font-weight: bold; }
+    tr:hover { background: #f1f5f9; }
+
+    /* =========================================
+       DESAIN CBT (COMPUTER BASED TEST)
+       ========================================= */
+    .cbt-header { display: flex; justify-content: space-between; align-items: center; background: var(--hijau); color: white; padding: 15px 20px; border-radius: 12px 12px 0 0; font-weight: bold; }
+    .timer { background: #ef4444; padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-size: 16px; }
+    
+    .cbt-body { background: white; padding: 25px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px; }
+    
+    .soal-header { display: flex; justify-content: space-between; margin-bottom: 15px; color: #64748b; font-size: 14px; font-weight: bold; }
+    .soal-text { font-size: 16px; line-height: 1.6; margin-bottom: 20px; color: #1e293b; }
+    
+    /* Opsi Jawaban */
+    .opsi-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+    .opsi-label { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 15px; }
+    .opsi-label:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .opsi-label input[type="radio"] { width: 18px; height: 18px; accent-color: var(--hijau); }
+    
+    /* Navigasi Bawah */
+    .cbt-nav { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+    .btn-nav { background: #e2e8f0; color: #333; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .btn-nav:hover { background: #cbd5e1; }
+    .btn-nav.primary { background: var(--hijau); color: white; }
+    .btn-nav.primary:hover { background: #1a5c3a; }
+    
+    .nomor-grid { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px; }
+    .nomor-btn { width: 35px; height: 35px; border-radius: 6px; border: 2px solid #e2e8f0; background: white; font-weight: bold; cursor: pointer; color: #64748b; }
+    .nomor-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); }
+    .nomor-btn.sudah-dijawab { background: var(--gold); color: white; border-color: var(--gold); }
+
+    /* Hasil CBT */
+    .hasil-box { text-align: center; padding: 40px 20px; }
+    .skor-angka { font-size: 60px; font-weight: 800; color: var(--hijau); margin: 0; }
+    .predikat { font-size: 20px; color: var(--gold); font-weight: bold; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>📚 Media Belajar</h1>
+    <button onclick="kembali()" class="btn-back">⬅ Kembali</button>
+  </div>
+
+  <div class="container">
+    
+    <!-- TAB MENU -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="bukaTab('pretest', this)">📝 Pre-Test</button>
+      <button class="tab-btn" onclick="bukaTab('materi', this)">📖 Materi</button>
+      <button class="tab-btn" onclick="bukaTab('posttest', this)">🎯 Post-Test</button>
+    </div>
+
+    <!-- ==================== SECTION 1: PRE-TEST (CBT) ==================== -->
+    <div id="pretest" class="content-section active">
+      <div class="cbt-header">
+        <span>PRE-TEST KETENAGAKERJAAN</span>
+        <div class="timer" id="timerPre">⏱️ 05:00</div>
+      </div>
+      <div class="cbt-body" id="cbtPreBody">
+        <!-- Soal akan di-render oleh JavaScript -->
+      </div>
+    </div>
+
+    <!-- ==================== SECTION 2: MATERI ==================== -->
+    <div id="materi" class="content-section">
+      <div class="materi-card">
+        <h3>🎥 Video Pembelajaran: Masalah Pengangguran di Indonesia</h3>
+        <div class="video-container">
+          <!-- VIDEO SUDAH DIGANTI DENGAN LINK YANG VALID & BISA DI-EMBED -->
+          <iframe src="https://www.youtube.com/embed/6N4wH1X6B8s?si=GZ0Y6X8B8Y6X8B8Y" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+
+        <h3>📖 Apa Itu Ketenagakerjaan?</h3>
+        <p><strong>Ketenagakerjaan</strong> adalah segala hal yang berhubungan dengan tenaga kerja pada waktu sebelum, selama, dan sesudah masa kerja. Dalam ekonomi, kita mengenal istilah <strong>Angkatan Kerja</strong>, yaitu penduduk usia kerja (15-64 tahun) yang sedang bekerja atau sedang mencari pekerjaan.</p>
+        
+        <div class="kotak-info">
+          <h4>💡 Tahukah Kamu?</h4>
+          <p>Berdasarkan data BPS, Tingkat Pengangguran Terbuka (TPT) di Indonesia per Februari 2024 berada di angka <strong>4,82%</strong>. Lulusan SMK menyumbang angka pengangguran tertinggi, lho! Kenapa? Karena kurangnya link and match antara sekolah dan industri.</p>
+        </div>
+
+        <h3>📊 Data Aktual: 5 Provinsi dengan TPT Tertinggi</h3>
+        <table>
+          <thead>
+            <tr><th>Provinsi</th><th>Tingkat Pengangguran Terbuka (TPT)</th><th>Keterangan</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Banten</td><td>7,97%</td><td>Terbanyak lulusan SMK</td></tr>
+            <tr><td>DKI Jakarta</td><td>6,53%</td><td>Persaingan kerja sangat ketat</td></tr>
+            <tr><td>Jawa Barat</td><td>6,50%</td><td>Banyak pabrik namun SDM belum siap</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ==================== SECTION 3: POST-TEST (CBT) ==================== -->
+    <div id="posttest" class="content-section">
+      <div class="cbt-header">
+        <span>POST-TEST KETENAGAKERJAAN</span>
+        <div class="timer" id="timerPost">⏱️ 05:00</div>
+      </div>
+      <div class="cbt-body" id="cbtPostBody">
+        <!-- Soal akan di-render oleh JavaScript -->
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Cek Login
+    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+
+    function kembali() {
+      if (window.parent && window.parent.tutupHalaman) {
+        window.parent.tutupHalaman();
+      } else {
+        window.location.href = "dashboard-induk.html";
+      }
+    }
+
+    // ==========================================
+    // LOGIKA TAB NAVIGASI
+    // ==========================================
+    function bukaTab(tabId, btnElement) {
+      document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      btnElement.classList.add('active');
+
+      if (tabId === 'pretest' && !preTestDimulai) { mulaiPreTest(); }
+      if (tabId === 'posttest' && !postTestDimulai) { mulaiPostTest(); }
+    }
+
+    // ==========================================
+    // BANK SOAL
+    // ==========================================
+    const soalPreTest = [
+      { q: "Apa yang dimaksud dengan Angkatan Kerja?", opsi: ["Semua orang yang sudah bekerja", "Penduduk usia 15-64 tahun yang bekerja atau mencari kerja", "Orang yang belum punya pekerjaan"], jawaban: 1 },
+      { q: "Lulusan pendidikan apa yang menyumbang pengangguran tertinggi di Indonesia?", opsi: ["SD", "SMA", "SMK"], jawaban: 2 },
+      { q: "Provinsi mana yang memiliki TPT tertinggi berdasarkan data di atas?", opsi: ["Jawa Barat", "DKI Jakarta", "Banten"], jawaban: 2 }
+    ];
+
+    const soalPostTest = [
+      { q: "Berdasarkan data, provinsi mana yang memiliki TPT tertinggi?", opsi: ["Jawa Barat", "DKI Jakarta", "Banten"], jawaban: 2 },
+      { q: "Apa penyebab utama lulusan SMK banyak yang menganggur?", opsi: ["Malas mencari kerja", "Kurangnya link and match dengan industri", "Gaji yang terlalu tinggi"], jawaban: 1 },
+      { q: "Berapa target inflasi ideal Bank Indonesia?", opsi: ["1% ± 1%", "3% ± 1%", "5% ± 1%"], jawaban: 1 }
+    ];
+
+    // ==========================================
+    // ENGINE CBT (PRE-TEST & POST-TEST)
+    // ==========================================
+    let preTestDimulai = false;
+    let postTestDimulai = false;
+    let waktuPre = 300; 
+    let waktuPost = 300;
+    let timerInterval;
+
+    function mulaiPreTest() {
+      preTestDimulai = true;
+      renderSoal(soalPreTest, 'cbtPreBody', 'pre');
+      mulaiTimer('timerPre', waktuPre, () => selesaiCBT(soalPreTest, 'pre'));
+    }
+
+    function mulaiPostTest() {
+      postTestDimulai = true;
+      renderSoal(soalPostTest, 'cbtPostBody', 'post');
+      mulaiTimer('timerPost', waktuPost, () => selesaiCBT(soalPostTest, 'post'));
+    }
+
+    function renderSoal(bankSoal, containerId, tipe) {
+      const container = document.getElementById(containerId);
+      let html = '';
+
+      bankSoal.forEach((soal, index) => {
+        html += `
+          <div class="soal-item" id="soal-${tipe}-${index}" style="display: ${index === 0 ? 'block' : 'none'};">
+            <div class="soal-header">
+              <span>Soal ${index + 1} dari ${bankSoal.length}</span>
+              <span>Pilih satu jawaban</span>
+            </div>
+            <div class="soal-text">${soal.q}</div>
+            <div class="opsi-container">
+              ${soal.opsi.map((opt, i) => `
+                <label class="opsi-label">
+                  <input type="radio" name="${tipe}_soal_${index}" value="${i}" onchange="cekDijawab('${tipe}', ${index})">
+                  ${String.fromCharCode(65 + i)}. ${opt}
+                </label>
+              `).join('')}
+            </div>
+            <div class="cbt-nav">
+              <button class="btn-nav" onclick="pindahSoal('${tipe}', ${index - 1})" ${index === 0 ? 'disabled' : ''}>⬅ Sebelumnya</button>
+              <button class="btn-nav primary" onclick="pindahSoal('${tipe}', ${index + 1})" ${index === bankSoal.length - 1 ? 'style="display:none"' : ''}>Selanjutnya ➡</button>
+              <button class="btn-nav primary" onclick="selesaiCBT(${bankSoal.length > 0 ? JSON.stringify(bankSoal).replace(/"/g, '&quot;') : '[]'}, '${tipe}')" ${index === bankSoal.length - 1 ? 'style="display:block"' : 'style="display:none"'}>Selesai & Lihat Skor</button>
+            </div>
+          </div>
+        `;
+      });
+
+      // Grid Nomor Soal
+      html += `<div class="nomor-grid" id="grid-${tipe}">`;
+      bankSoal.forEach((_, i) => {
+        html += `<button class="nomor-btn ${i === 0 ? 'active' : ''}" id="btn-nomor-${tipe}-${i}" onclick="pindahSoal('${tipe}', ${i})">${i + 1}</button>`;
+      });
+      html += `</div>`;
+
+      container.innerHTML = html;
+    }
+
+    let soalAktif = { pre: 0, post: 0 };
+
+    function pindahSoal(tipe, indexTujuan) {
+      if (indexTujuan < 0) return;
+      
+      const totalSoal = tipe === 'pre' ? soalPreTest.length : soalPostTest.length;
+      if (indexTujuan >= totalSoal) return;
+
+      document.querySelectorAll(`[id^="soal-${tipe}-"]`).forEach(el => el.style.display = 'none');
+      document.getElementById(`soal-${tipe}-${indexTujuan}`).style.display = 'block';
+
+      document.querySelectorAll(`[id^="btn-nomor-${tipe}-"]`).forEach(el => el.classList.remove('active'));
+      document.getElementById(`btn-nomor-${tipe}-${indexTujuan}`).classList.add('active');
+
+      soalAktif[tipe] = indexTujuan;
+    }
+
+    function cekDijawab(tipe, indexSoal) {
+      const btnNomor = document.getElementById(`btn-nomor-${tipe}-${indexSoal}`);
+      if (btnNomor) btnNomor.classList.add('sudah-dijawab');
+    }
+
+    function mulaiTimer(elementId, durasiDetik, callbackSelesai) {
+      const timerEl = document.getElementById(elementId);
+      let sisa = durasiDetik;
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const menit = Math.floor(sisa / 60).toString().padStart(2, '0');
+        const detik = (sisa % 60).toString().padStart(2, '0');
+        timerEl.innerHTML = `⏱️ ${menit}:${detik}`;
+
+        if (sisa <= 0) {
+          clearInterval(timerInterval);
+          alert("Waktu habis! Jawaban akan otomatis dikumpulkan.");
+          callbackSelesai();
+        }
+        sisa--;
+      }, 1000);
+    }
+
+    function selesaiCBT(bankSoal, tipe) {
+      clearInterval(timerInterval);
+
+      let skor = 0;
+      bankSoal.forEach((soal, index) => {
+        const jawabanUser = document.querySelector(`input[name="${tipe}_soal_${index}"]:checked`);
+        if (jawabanUser && parseInt(jawabanUser.value) === soal.jawaban) {
+          skor++;
+        }
+      });
+
+      const persentase = Math.round((skor / bankSoal.length) * 100);
+      
+      const container = document.getElementById(tipe === 'pre' ? 'cbtPreBody' : 'cbtPostBody');
+      container.innerHTML = `
+        <div class="hasil-box">
+          <h3 style="border:none; text-align:center;">Hasil ${tipe === 'pre' ? 'Pre-Test' : 'Post-Test'}</h3>
+          <p class="skor-angka">${persentase}</p>
+          <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
+          <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${bankSoal.length}</strong> soal.</p>
+          <button class="btn-nav primary" style="margin-top:20px;" onclick="location.reload()">🔄 Ulangi Tes</button>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
