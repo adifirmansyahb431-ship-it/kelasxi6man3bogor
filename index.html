@@ -89,6 +89,11 @@
   <script>
     let modeLogin = "guru"; 
 
+    // PENGAMAN: Jika halaman login terbuka di dalam iframe dashboard, alihkan ke halaman utama
+    if (window.top !== window.self) {
+      window.top.location.href = "index.html";
+    }
+
     function gantiTab(mode) {
       modeLogin = mode;
       document.getElementById("tabGuru").classList.toggle("active", mode === "guru");
@@ -145,7 +150,8 @@
             const data = doc.data();
             
             if(data.nis === inputNis) {
-               if(pass === "123456" || pass === data.nis) { 
+               // CEK PASSWORD: Terima password dari database (jika sudah diganti), atau default "123456"
+               if(pass === data.password || (data.password === undefined && pass === "123456")) { 
                  loginBerhasil = true;
                  dataSiswa = data;
                  dataSiswa.idDoc = doc.id; 
