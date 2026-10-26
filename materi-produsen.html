@@ -88,7 +88,7 @@
 <body>
 
   <div class="header">
-    <h1>📚 Media Belajar</h1>
+    <h1>📚 Media Belajar - Perilaku Produsen</h1>
     <button onclick="kembali()" class="btn-back">⬅ Kembali</button>
   </div>
 
@@ -115,12 +115,13 @@
     <!-- ==================== SECTION 2: MATERI ==================== -->
     <div id="materi" class="content-section">
       <div class="materi-card">
-        <h3>🎥 Video Pembelajaran: Masalah Pengangguran di Indonesia</h3>
+        <h3>🎥 Video Pembelajaran: Perilaku Produsen</h3>
           <div class="video-container">
+          <!-- Video Materi Perilaku Produsen -->
           <iframe width="560" height="315" src="https://www.youtube.com/embed/zK6GpN00DUU?si=JDRDYo-reHkHFFiO" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </div>
         
-               <h3>📖 Apa Itu Perilaku Produsen?</h3>
+        <h3>📖 Apa Itu Perilaku Produsen?</h3>
         <p><strong>Produsen</strong> adalah pihak yang melakukan kegiatan produksi, yaitu kegiatan menghasilkan barang atau jasa untuk memenuhi kebutuhan konsumen. Tujuan utama produsen adalah mendapatkan keuntungan (profit) dengan memaksimalkan sumber daya yang ada.</p>
         
         <div class="kotak-info">
@@ -128,7 +129,7 @@
           <p>Ada hukum ekonomi yang sangat terkenal: <strong>The Law of Diminishing Returns</strong> (Hukum Hasil Lebih yang Menurun). Artinya, jika kita terus menambah tenaga kerja atau mesin tanpa menambah faktor produksi lain (seperti lahan), hasil tambahannya akan semakin sedikit. Contoh: Menambah 1 petani di lahan 10 hektar akan sangat membantu. Tapi menambah 100 petani di lahan yang sama malah bikin mereka saling mengganggu!</p>
         </div>
 
-        <h3>📊 Data Aktual: 3 Jenis Faktor Produksi di UMKM</h3>
+        <h3>📊 Data Aktual: 4 Jenis Faktor Produksi di UMKM</h3>
         <p>Berikut adalah contoh perilaku produsen di UMKM "Kopi Kekinian" dan cara mereka mengelola faktor produksi:</p>
         
         <table>
@@ -164,7 +165,7 @@
     <!-- ==================== SECTION 3: POST-TEST (CBT) ==================== -->
     <div id="posttest" class="content-section">
       <div class="cbt-header">
-        <span>POST-TEST PERILAKU PROFUSEN</span>
+        <span>POST-TEST PERILAKU PRODUSEN</span>
         <div class="timer" id="timerPost">⏱️ 05:00</div>
       </div>
       <div class="cbt-body" id="cbtPostBody">
@@ -201,18 +202,18 @@
     }
 
     // ==========================================
-    // BANK SOAL
+    // BANK SOAL PERILAKU PRODUSEN
     // ==========================================
     const soalPreTest = [
-      { q: "Apa yang dimaksud dengan Angkatan Kerja?", opsi: ["Semua orang yang sudah bekerja", "Penduduk usia 15-64 tahun yang bekerja atau mencari kerja", "Orang yang belum punya pekerjaan"], jawaban: 1 },
-      { q: "Lulusan pendidikan apa yang menyumbang pengangguran tertinggi di Indonesia?", opsi: ["SD", "SMA", "SMK"], jawaban: 2 },
-      { q: "Provinsi mana yang memiliki TPT tertinggi berdasarkan data di atas?", opsi: ["Jawa Barat", "DKI Jakarta", "Banten"], jawaban: 2 }
+      { q: "Pihak yang melakukan kegiatan produksi untuk menghasilkan barang/jasa disebut...", opsi: ["Konsumen", "Produsen", "Distributor"], jawaban: 1 },
+      { q: "Tujuan utama seorang produsen adalah...", opsi: ["Memuaskan konsumen", "Mendapatkan keuntungan", "Menimbun barang"], jawaban: 1 },
+      { q: "Hukum yang menyatakan bahwa penambahan faktor produksi terus-menerus akan menurunkan hasil disebut...", opsi: ["Hukum Gossen", "Hukum Permintaan", "The Law of Diminishing Returns"], jawaban: 2 }
     ];
 
     const soalPostTest = [
-      { q: "Berdasarkan data, provinsi mana yang memiliki TPT tertinggi?", opsi: ["Jawa Barat", "DKI Jakarta", "Banten"], jawaban: 2 },
-      { q: "Apa penyebab utama lulusan SMK banyak yang menganggur?", opsi: ["Malas mencari kerja", "Kurangnya link and match dengan industri", "Gaji yang terlalu tinggi"], jawaban: 1 },
-      { q: "Berapa target inflasi ideal Bank Indonesia?", opsi: ["1% ± 1%", "3% ± 1%", "5% ± 1%"], jawaban: 1 }
+      { q: "Barista dan kasir dalam sebuah kafe termasuk dalam faktor produksi...", opsi: ["Alam", "Tenaga Kerja", "Modal"], jawaban: 1 },
+      { q: "Jika produsen terus menambah tenaga kerja tanpa menambah lahan, hasil produksi akan...", opsi: ["Semakin meningkat pesat", "Menurun atau tidak maksimal", "Stabil selamanya"], jawaban: 1 },
+      { q: "Faktor produksi yang berkaitan dengan pengambilan risiko dan inovasi adalah...", opsi: ["Modal", "Kewirausahaan", "Sumber Daya Alam"], jawaban: 1 }
     ];
 
     // ==========================================
