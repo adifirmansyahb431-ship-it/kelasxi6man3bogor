@@ -132,7 +132,11 @@
         <b>NISN:</b> <span id="modalNisn"></span><br>
         <b>Kelas:</b> <span id="modalKelas"></span><br>
         <b>No. HP:</b> <span id="modalHp"></span><br>
-        <b>Alamat:</b> <span id="modalAlamat"></span>
+        <b>Alamat:</b> <span id="modalAlamat"></span><br>
+        
+        <!-- TAMBAHAN BARIS ORANG TUA -->
+        <b>Nama Orang Tua:</b> <span id="modalNamaOrtu"></span><br>
+        <b>No. HP Orang Tua:</b> <span id="modalHpOrtu"></span>
       </div>
       
       <button onclick="tutupModal()" style="background: #e74c3c; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; margin-top: 20px; cursor: pointer;">Tutup</button>
@@ -337,7 +341,7 @@
       }
     }
 
-    // FUNGSI LIHAT PROFIL SISWA
+    // FUNGSI LIHAT PROFIL SISWA (SUDAH DIPERBAIKI)
     async function lihatProfil(docId) {
       const { doc, getDoc } = window.fbFunc;
       const db = window.fbDB;
@@ -354,6 +358,10 @@
           document.getElementById("modalKelas").textContent = data.kelas || "-";
           document.getElementById("modalHp").textContent = data.noHp || "-";
           document.getElementById("modalAlamat").textContent = data.alamat || "-";
+          
+          // Ambil data orang tua
+          document.getElementById("modalNamaOrtu").textContent = data.namaOrtu || "-";
+          document.getElementById("modalHpOrtu").textContent = data.noHpOrtu || "-";
           
           if (data.foto) {
             document.getElementById("modalFoto").src = data.foto;
