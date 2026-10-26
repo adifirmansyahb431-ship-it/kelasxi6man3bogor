@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kartu Pelajar - SIPADAK XI-6</title>
+  
+  <!-- Library Barcode -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    window.fbFunc = { collection, getDocs };
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    .card-control { background: white; padding: 20px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
+    label { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
+    select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; font-size: 15px; }
+    .btn { border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; font-size: 15px; }
+    .btn-print { background: #e67e22; width: 100%; }
+    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+
+    /* ================= DESAIN KARTU PELAJAR ================= */
+    .kartu-wrapper {
+      display: none; 
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .kartu {
+      width: 85.6mm; /* Ukuran standar ID Card (CR80) */
+      height: 54mm;
+      background: linear-gradient(135deg, #0a3622 0%, #1a5c3a 100%);
+      border-radius: 10px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      border: 2px solid var(--gold);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kartu::before {
+      content: "";
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 150px; height: 150px;
+      background: rgba(212, 175, 55, 0.2);
+      border-radius: 50%;
+      z-index: 0;
+    }
+
+    .kartu-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1;
+    }
+    .kartu-header img {
+      width: 35px; height: 35px;
+      background: white; border-radius: 50%;
+      padding: 2px;
+      object-fit: cover;
+    }
+    .kartu-header .sekolah { flex: 1; }
+    .kartu-header h3 { margin: 0; font-size: 12px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
+    .kartu-header p { margin: 0; font-size: 8px; color: #ddd; }
+
+    /* Tata letak body kartu dibagi 2: Kiri (Info) dan Kanan (Foto+Barcode) */
+    .kartu-body {
+      display: flex;
+      gap: 10px;
+      z-index: 1;
+      align-items: flex-start;
+      margin-top: 5px;
+    }
+    
+    .kartu-info {
+      flex: 1;
+    }
+    .kartu-info h2 {
+      margin: 0 0 3px 0;
+      font-size: 13px;
+      color: #fff;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+    .kartu-info p {
+      margin: 0;
+      font-size: 9px;
+      color: #ccc;
+      line-height: 1.5;
+    }
+    .kartu-info b { color: var(--gold); }
+
+    /* Area Foto & Barcode di Kanan */
+    .kartu-kanan {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 65px;
+    }
+    .kartu-foto {
+      width: 55px; height: 70px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 2px solid var(--gold);
+      margin-bottom: 4px;
+    }
+    
+    /* Area Barcode di Bawah Foto */
+    .barcode-area {
+      background: white;
+      padding: 2px 4px;
+      border-radius: 4px;
+      width: 100%;
+      text-align: center;
+    }
+    .barcode-area svg {
+      width: 100%;
+      height: 20px; /* Tinggi barcode */
+    }
+
+    .kartu-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 1;
+      margin-top: auto;
+    }
+    .kartu-footer p {
+      margin: 0;
+      font-size: 7px;
+      color: #aaa;
+    }
+
+    /* CSS KHUSUS CETAK */
+    @media print {
+      body { background: white; }
+      .header, .container > .btn-back, .card-control, h3, p { display: none !important; }
+      .kartu-wrapper { display: flex !important; margin: 0; padding: 0; }
+      .kartu { box-shadow: none; border: 1px solid #000; }
+      @page { size: auto; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>🪪 Kartu Pelajar</h1>
+    <span>SIPADAK XI-6</span>
+  </div>
+
+  <div class="container">
+    <a href="javascript:void(0)" onclick="kembali()" class="btn-back">⬅ Kembali ke Dashboard</a>
+
+    <div class="card-control">
+      <h3 style="margin-top: 0; color: var(--hijau);">Cetak Kartu Pelajar</h3>
+      <p style="font-size: 13px; color: #666;">Pilih nama siswa untuk menampilkan dan mencetak kartu.</p>
+      
+      <label>Pilih Siswa</label>
+      <select id="pilihSiswa" onchange="tampilkanKartu()">
+        <option value="">-- Pilih Siswa --</option>
+      </select>
+
+      <button class="btn btn-print" onclick="window.print()">🖨️ CETAK KARTU</button>
+    </div>
+
+    <!-- AREA KARTU -->
+    <div class="kartu-wrapper" id="kartuWrapper">
+      <div class="kartu">
+        <div class="kartu-header">
+          <img src="fotogroupxi-6.png" alt="Logo">
+          <div class="sekolah">
+            <h3>SIPADAK XI-6</h3>
+            <p>MAN 3 BOGOR</p>
+          </div>
+        </div>
+        
+        <div class="kartu-body">
+          <!-- KIRI: INFO SISWA -->
+          <div class="kartu-info">
+            <h2 id="kartuNama">NAMA SISWA</h2>
+            <p><b>NIS:</b> <span id="kartuNis">-</span></p>
+            <p><b>NISN:</b> <span id="kartuNisn">-</span></p>
+            <p><b>Kelas:</b> XI-6</p>
+          </div>
+
+          <!-- KANAN: FOTO & BARCODE -->
+          <div class="kartu-kanan">
+            <img id="kartuFoto" src="https://ui-avatars.com/api/?name=Siswa&background=0a3622&color=fff" class="kartu-foto">
+            <div class="barcode-area">
+              <svg id="barcodeSiswa"></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="kartu-footer">
+          <p>Kartu ini sah tanpa tanda tangan</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Cek Login
+    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+
+    function kembali() {
+      if (window.parent && window.parent.tutupHalaman) {
+        window.parent.tutupHalaman();
+      } else {
+        window.location.href = "dashboard-induk.html";
+      }
+    }
+
+    let semuaSiswa = [];
+
+    window.addEventListener('firebaseReady', async () => {
+      const { collection, getDocs } = window.fbFunc;
+      const db = window.db;
+      const select = document.getElementById("pilihSiswa");
+      
+      try {
+        const snap = await getDocs(collection(db, "Siswa"));
+        semuaSiswa = [];
+        
+        snap.forEach(doc => {
+          const data = doc.data();
+          semuaSiswa.push(data);
+          select.innerHTML += `<option value="${data.nama}">${data.nama}</option>`;
+        });
+        
+        // Urutkan nama
+        const options = Array.from(select.options).slice(1).sort((a, b) => a.text.localeCompare(b.text));
+        select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+        options.forEach(opt => select.appendChild(opt));
+
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    function tampilkanKartu() {
+      const nama = document.getElementById("pilihSiswa").value;
+      const wrapper = document.getElementById("kartuWrapper");
+      
+      if (!nama) {
+        wrapper.style.display = "none";
+        return;
+      }
+
+      const siswa = semuaSiswa.find(s => s.nama === nama);
+      
+      if (siswa) {
+        document.getElementById("kartuNama").textContent = siswa.nama || "NAMA SISWA";
+        document.getElementById("kartuNis").textContent = siswa.nis || "-";
+        document.getElementById("kartuNisn").textContent = siswa.nisn || "-";
+        
+        if (siswa.foto) {
+          document.getElementById("kartuFoto").src = siswa.foto;
+        } else {
+          document.getElementById("kartuFoto").src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(siswa.nama) + '&background=0a3622&color=fff';
+        }
+
+        // GENERATE BARCODE
+        // Menggunakan NIS sebagai isi barcode. Jika NIS kosong, gunakan "12345678"
+        const isiBarcode = siswa.nis ? String(siswa.nis) : "12345678";
+        
+        try {
+          JsBarcode("#barcodeSiswa", isiBarcode, {
+            format: "CODE128", // Format standar yang bisa dibaca scanner
+            lineColor: "#000",
+            width: 1, // Ketebalan garis
+            height: 25, // Tinggi barcode
+            displayValue: true, // Tampilkan angka di bawah barcode
+            fontSize: 8,
+            margin: 0
+          });
+        } catch (err) {
+          console.error("Gagal membuat barcode:", err);
+        }
+        
+        wrapper.style.display = "flex";
+      }
+    }
+  </script>
+</body>
+</html>
