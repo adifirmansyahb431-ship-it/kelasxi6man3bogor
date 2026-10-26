@@ -98,6 +98,35 @@
       position: relative;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* CSS RUNNING TEXT */
+    .ticker-wrapper {
+      overflow: hidden;
+      background: rgba(0, 243, 255, 0.05);
+      border-bottom: 1px solid var(--neon-cyan);
+      padding: 10px 0;
+      box-shadow: 0 4px 10px rgba(0, 243, 255, 0.1);
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    .ticker-text {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%; 
+      animation: jalanTerus 25s linear infinite; 
+      color: var(--neon-cyan);
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 5px rgba(0, 243, 255, 0.8);
+    }
+
+    @keyframes jalanTerus {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
     }
 
     /* LAYAR SAMBUTAN */
@@ -110,6 +139,7 @@
       color: var(--neon-cyan);
       text-align: center;
       padding: 20px;
+      flex: 1;
     }
     .welcome-screen h2 { text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); margin-bottom: 10px; font-size: 28px;}
     .welcome-screen p { color: #aaa; font-size: 16px; }
@@ -120,7 +150,8 @@
       height: 100%;
       border: none;
       display: none;
-      background: var(--bg); 
+      background: white; 
+      flex: 1;
     }
   </style>
 </head>
@@ -142,6 +173,14 @@
 
     <!-- KONTEN KANAN -->
     <div class="content-area">
+      
+      <!-- RUNNING TEXT -->
+      <div class="ticker-wrapper">
+        <div class="ticker-text">
+          SISTEM INFORMASI PANGKALAN DATA KELAS XI-6 ★ SIPADAK ★ MAN 3 BOGOR ★ SISTEM INFORMASI PANGKALAN DATA KELAS XI-6 ★ SIPADAK ★ MAN 3 BOGOR ★
+        </div>
+      </div>
+
       <div class="welcome-screen" id="welcomeScreen">
         <h2 id="welcomeText">Selamat Datang!</h2>
         <p>Silakan pilih menu di sebelah kiri untuk mulai mengelola data.</p>
@@ -152,7 +191,7 @@
   </div>
 
   <script>
-    // MENCEGAH LOOPING (Jika dashboard terbuka di dalam iframe, tendang ke halaman utama)
+    // MENCEGAH LOOPING
     if (window.top !== window.self) {
       window.top.location.href = "dashboard-induk.html";
     }
