@@ -9,7 +9,6 @@
     :root { 
       --dark-bg: #070b19; 
       --sidebar-bg: #0d1326;
-      --card-bg: #11182c; 
       --neon-cyan: #00f3ff; 
       --text: #e2e8f0; 
       --hover-bg: rgba(0, 243, 255, 0.1);
@@ -24,7 +23,7 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow: hidden; /* Mencegah scroll di body utama */
+      overflow: hidden; 
     }
 
     /* HEADER ATAS */
@@ -49,7 +48,7 @@
     .main-wrapper {
       display: flex;
       flex: 1;
-      height: calc(100vh - 70px); /* Sisa tinggi setelah header */
+      height: calc(100vh - 70px);
     }
 
     /* SIDEBAR KIRI */
@@ -78,13 +77,7 @@
       border-left: 4px solid transparent;
     }
     
-    .menu-item:hover {
-      background-color: var(--hover-bg);
-      color: var(--neon-cyan);
-      border-left-color: var(--neon-cyan);
-    }
-    
-    .menu-item.active {
+    .menu-item:hover, .menu-item.active {
       background-color: var(--hover-bg);
       color: var(--neon-cyan);
       border-left-color: var(--neon-cyan);
@@ -95,21 +88,15 @@
       filter: drop-shadow(0 0 5px rgba(0, 243, 255, 0.5));
     }
 
-    /* KONTEN KANAN (IFRAME) */
+    /* KONTEN KANAN */
     .content-area {
       flex: 1;
       background-color: var(--dark-bg);
       position: relative;
+      overflow: hidden;
     }
 
-    #mainFrame {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: white; /* Warna dasar jika halaman belum termuat */
-    }
-
-    /* TEKS SAMBUTAN DI KANAN (JIKA BELUM ADA MENU YANG DIKLIK) */
+    /* LAYAR SAMBUTAN (Muncul saat pertama kali buka) */
     .welcome-screen {
       display: flex;
       flex-direction: column;
@@ -118,9 +105,19 @@
       height: 100%;
       color: var(--neon-cyan);
       text-align: center;
+      padding: 20px;
     }
-    .welcome-screen h2 { text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); margin-bottom: 10px;}
-    .welcome-screen p { color: #aaa; }
+    .welcome-screen h2 { text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); margin-bottom: 10px; font-size: 28px;}
+    .welcome-screen p { color: #aaa; font-size: 16px; }
+
+    /* IFRAME (Tersembunyi di awal, muncul saat menu diklik) */
+    #mainFrame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none; /* Sembunyikan dulu */
+      background: white; 
+    }
 
   </style>
 </head>
@@ -139,21 +136,19 @@
   <!-- AREA UTAMA -->
   <div class="main-wrapper">
     
-    <!-- SIDEBAR KIRI -->
-    <div class="sidebar" id="sidebar">
-      <!-- Menu akan diisi otomatis oleh JavaScript sesuai Role -->
-    </div>
+    <!-- SIDEBAR KIRI (Menu akan diisi JS) -->
+    <div class="sidebar" id="sidebar"></div>
 
     <!-- KONTEN KANAN -->
     <div class="content-area">
-      <!-- Pesan Default -->
+      <!-- Layar Sambutan -->
       <div class="welcome-screen" id="welcomeScreen">
         <h2 id="welcomeText">Selamat Datang!</h2>
         <p>Silakan pilih menu di sebelah kiri untuk mulai mengelola data.</p>
       </div>
       
       <!-- Iframe untuk memuat halaman -->
-      <iframe id="mainFrame" style="display: none;" src=""></iframe>
+      <iframe id="mainFrame" src=""></iframe>
     </div>
   </div>
 
@@ -163,15 +158,13 @@
     const role = localStorage.getItem("siTatibRole");
     const nama = localStorage.getItem("siTatibNama");
 
-    // Jika belum login, atau yang login adalah siswa, tendang keluar
     if (sudahLogin !== "true" || role === "siswa" || !nama) {
       window.location.href = "index.html";
     } else {
-      // Tampilkan Nama di Header
       document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK <br><span style="color:#00f3ff;font-size:11px;">Login: ${nama}</span>`;
       document.getElementById("welcomeText").textContent = `Selamat Datang, ${nama}!`;
 
-      // Daftar Semua Menu
+      // Daftar Menu (TIDAK ADA Dashboard lagi di sini)
       const semuaMenu = [
         { id: "menuPelanggaran", href: "pelanggaran.html", icon: "📝", title: "Input Pelanggaran" },
         { id: "menuRekap", href: "rekap.html", icon: "📊", title: "Rekap Poin" },
@@ -183,16 +176,13 @@
         { id: "menuKasKelas", href: "kas-kelas.html", icon: "💰", title: "Kas Kelas" }
       ];
 
-      // Filter Menu Berdasarkan Role (Hak Akses)
+      // Filter Menu Berdasarkan Role
       let menuTampil = [];
-      
       if (role === "admin") {
-        menuTampil = semuaMenu; // Admin bisa lihat semua
+        menuTampil = semuaMenu;
       } else if (role === "sekretaris") {
-        // Sekretaris hanya bisa lihat Absensi, Rekap Bulanan, dan Kas Kelas
         menuTampil = semuaMenu.filter(m => ["menuAbsensi", "menuRekapBulanan", "menuKasKelas"].includes(m.id));
       } else if (role === "bendahara") {
-        // Bendahara HANYA bisa lihat Kas Kelas
         menuTampil = semuaMenu.filter(m => m.id === "menuKasKelas");
       }
 
@@ -203,6 +193,8 @@
         a.className = "menu-item";
         a.href = "javascript:void(0)";
         a.innerHTML = `<div class="icon">${menu.icon}</div> ${menu.title}`;
+        
+        // Event saat menu diklik
         a.onclick = function() {
           bukaHalaman(menu.href, this);
         };
@@ -210,20 +202,28 @@
       });
     }
 
-    // Fungsi untuk membuka halaman di Iframe Kanan
+    // Fungsi membuka halaman di Iframe
     function bukaHalaman(url, elementMenu) {
-      // 1. Sembunyikan layar sambutan, tampilkan iframe
+      // 1. Sembunyikan layar sambutan
       document.getElementById("welcomeScreen").style.display = "none";
+      
+      // 2. Tampilkan iframe dan muat URL
       const iframe = document.getElementById("mainFrame");
       iframe.style.display = "block";
-      
-      // 2. Muat URL di iframe
       iframe.src = url;
 
-      // 3. Ubah status menu yang aktif (berwarna neon)
-      const semuaMenuItems = document.querySelectorAll('.menu-item');
-      semuaMenuItems.forEach(item => item.classList.remove('active'));
+      // 3. Highlight menu yang aktif
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
       elementMenu.classList.add('active');
+    }
+
+    // Fungsi Kembali ke Sambutan (Dipanggil dari dalam iframe)
+    window.tutupHalaman = function() {
+      const iframe = document.getElementById("mainFrame");
+      iframe.style.display = "none";
+      iframe.src = "";
+      document.getElementById("welcomeScreen").style.display = "flex";
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
     }
 
     // Fungsi Logout
