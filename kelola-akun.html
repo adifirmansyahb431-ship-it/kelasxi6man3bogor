@@ -61,7 +61,7 @@
   </div>
 
   <div class="container">
-    <a href="dashboard-induk.html" class="btn-back">⬅ Kembali ke Dashboard</a>
+    <a href="javascript:void(0)" onclick="kembali()" class="btn-back">⬅ Kembali ke Dashboard</a>
 
     <div class="card">
       <h3>Form Data Siswa</h3>
@@ -120,12 +120,40 @@
     </div>
   </div>
 
+  <!-- MODAL LIHAT PROFIL -->
+  <div id="modalProfil" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 25px; border-radius: 14px; width: 90%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+      <h3 style="text-align: center; color: #0a3622; margin-top: 0;">Profil Siswa</h3>
+      <img id="modalFoto" src="" style="width: 120px; height: 150px; object-fit: cover; border-radius: 10px; display: block; margin: 0 auto 15px; border: 3px solid #16a085;">
+      
+      <div style="font-size: 14px; line-height: 1.8;">
+        <b>Nama:</b> <span id="modalNama"></span><br>
+        <b>NIS:</b> <span id="modalNis"></span><br>
+        <b>NISN:</b> <span id="modalNisn"></span><br>
+        <b>Kelas:</b> <span id="modalKelas"></span><br>
+        <b>No. HP:</b> <span id="modalHp"></span><br>
+        <b>Alamat:</b> <span id="modalAlamat"></span>
+      </div>
+      
+      <button onclick="tutupModal()" style="background: #e74c3c; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; margin-top: 20px; cursor: pointer;">Tutup</button>
+    </div>
+  </div>
+
   <script>
     // Cek Sesi Login (Hanya Guru/Admin)
     const isLogin = localStorage.getItem("siTatibLogin");
     const roleUser = localStorage.getItem("siTatibRole");
     if (isLogin !== "true" || roleUser === "siswa" || !roleUser) {
       window.location.href = "index.html";
+    }
+
+    // Fungsi Kembali ke Dashboard (Iframe Support)
+    function kembali() {
+      if (window.parent && window.parent.tutupHalaman) {
+        window.parent.tutupHalaman();
+      } else {
+        window.location.href = "dashboard-induk.html";
+      }
     }
 
     let dataAkunSiswa = {};
@@ -139,7 +167,6 @@
         const select = document.getElementById("pilihSiswa");
         let opsi = '<option value="">Pilih Siswa</option>';
         
-        // Tampilkan SEMUA nama siswa
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           opsi += `<option value="${data.nama}">${data.nama}</option>`;
@@ -201,7 +228,10 @@
               <td>${data.email || "-"}</td>
               <td>${data.nis || "-"}<br><small>${data.nisn || "-"}</small></td>
               <td>${data.noHp || "-"}</td>
-              <td><button class="btn-hapus" onclick="hapusAkun('${doc.id}')">Hapus</button></td>
+              <td>
+                <button class="btn-hapus" onclick="hapusAkun('${doc.id}')">Hapus</button>
+                <button style="background: #3498db; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer;" onclick="lihatProfil('${doc.id}')">Lihat</button>
+              </td>
             </tr>
           `;
         });
@@ -263,7 +293,6 @@
           foto: fotoBase64
         };
 
-        // Gunakan UID sebagai ID dokumen
         await setDoc(doc(db, "Siswa", uid), dataAkun);
 
         alert("✅ Akun Login dan Profil Siswa berhasil dibuat!");
@@ -306,6 +335,44 @@
         console.error(error);
         alert("Gagal menghapus akun.");
       }
+    }
+
+    // FUNGSI LIHAT PROFIL SISWA
+    async function lihatProfil(docId) {
+      const { doc, getDoc } = window.fbFunc;
+      const db = window.fbDB;
+
+      try {
+        const docSnap = await getDoc(doc(db, "Siswa", docId));
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          
+          document.getElementById("modalNama").textContent = data.nama || "-";
+          document.getElementById("modalNis").textContent = data.nis || "-";
+          document.getElementById("modalNisn").textContent = data.nisn || "-";
+          document.getElementById("modalKelas").textContent = data.kelas || "-";
+          document.getElementById("modalHp").textContent = data.noHp || "-";
+          document.getElementById("modalAlamat").textContent = data.alamat || "-";
+          
+          if (data.foto) {
+            document.getElementById("modalFoto").src = data.foto;
+          } else {
+            document.getElementById("modalFoto").src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.nama) + '&background=16a085&color=fff';
+          }
+          
+          document.getElementById("modalProfil").style.display = "flex";
+        } else {
+          alert("Data siswa tidak ditemukan.");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Gagal mengambil data profil.");
+      }
+    }
+
+    function tutupModal() {
+      document.getElementById("modalProfil").style.display = "none";
     }
   </script>
 </body>
