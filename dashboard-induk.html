@@ -206,6 +206,7 @@
       document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK <br><span style="color:#00f3ff;font-size:11px;">Login: ${nama}</span>`;
       document.getElementById("welcomeText").textContent = `Selamat Datang, ${nama}!`;
 
+      // DAFTAR MENU
       const semuaMenu = [
         { id: "menuPelanggaran", href: "pelanggaran.html", icon: "📝", title: "Input Pelanggaran" },
         { id: "menuRekap", href: "rekap.html", icon: "📊", title: "Rekap Poin" },
@@ -214,13 +215,17 @@
         { id: "menuRekapBulanan", href: "rekap-bulanan.html", icon: "📅", title: "Rekap Bulanan" },
         { id: "menuKelolaSiswa", href: "kelola-siswa.html", icon: "📤", title: "Kelola Siswa" },
         { id: "menuKelolaAkun", href: "kelola-akun.html", icon: "👤", title: "Akun Siswa" },
-        { id: "menuKasKelas", href: "kas-kelas.html", icon: "💰", title: "Kas Kelas" }
+        { id: "menuKasKelas", href: "kas-kelas.html", icon: "💰", title: "Kas Kelas" },
+        { id: "menuKartuKelas", href: "kartu-siswa.html", icon: "🪪", title: "Kartu Kelas" }
       ];
 
       let menuTampil = [];
+      
+      // LOGIKA HAK AKSES
       if (role === "admin") {
-        menuTampil = semuaMenu;
+        menuTampil = semuaMenu; // Admin dapat semua menu, termasuk Kartu Kelas
       } else if (role === "sekretaris") {
+        // Sekretaris TIDAK mendapat menu Kartu Kelas
         menuTampil = semuaMenu.filter(m => ["menuAbsensi", "menuRekapBulanan", "menuKasKelas"].includes(m.id));
       } else if (role === "bendahara") {
         menuTampil = semuaMenu.filter(m => m.id === "menuKasKelas");
