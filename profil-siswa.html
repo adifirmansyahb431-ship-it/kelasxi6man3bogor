@@ -236,7 +236,7 @@
       padding: 10px 0;
       margin-bottom: 20px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      max-width: 700px; /* Sejajar dengan card */
+      max-width: 700px; 
       margin-left: auto;
       margin-right: auto;
     }
@@ -279,7 +279,11 @@
 
   <div class="header">
     <h1>Profil Siswa</h1>
-    <button class="btn-logout" onclick="logout()">KELUAR</button>
+    <!-- TOMBOL KARTU KELAS & KELUAR -->
+    <div style="display: flex; gap: 10px;">
+      <a href="kartu-siswa.html" style="background: #0984e3; color: white; text-decoration: none; padding: 8px 15px; border-radius: 20px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 15px rgba(9, 132, 227, 0.4); transition: 0.3s;">🪪 Kartu Kelas</a>
+      <button class="btn-logout" onclick="logout()">KELUAR</button>
+    </div>
   </div>
 
   <div class="card">
