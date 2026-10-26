@@ -45,12 +45,24 @@
     .header .brand small { display: block; font-size: 12px; color: #aaa; font-weight: 600; text-shadow: none;}
     .header .logout { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 8px 15px; font-weight: 700; cursor: pointer; box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
 
+    /* TOMBOL MENU (Hanya muncul di HP) */
+    .menu-toggle {
+      display: none; /* Sembunyikan di layar besar */
+      background: transparent;
+      border: none;
+      color: var(--neon-cyan);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 5px;
+    }
+
     /* AREA UTAMA (KIRI & KANAN) */
     .main-wrapper {
       display: flex;
       flex: 1;
       height: calc(100vh - 70px); 
       overflow: hidden;
+      position: relative;
     }
 
     /* SIDEBAR KIRI */
@@ -64,6 +76,8 @@
       padding: 15px 0;
       box-shadow: 2px 0 10px rgba(0,0,0,0.5);
       flex-shrink: 0;
+      transition: transform 0.3s ease-in-out; /* Animasi geser */
+      z-index: 90;
     }
 
     .menu-item {
@@ -153,11 +167,51 @@
       background: white; 
       flex: 1;
     }
+
+    /* =========================================
+       TAMPILAN KHUSUS HP (RESPONSIF)
+       ========================================= */
+    @media (max-width: 768px) {
+      /* Tampilkan tombol menu */
+      .menu-toggle {
+        display: block;
+      }
+
+      /* Sembunyikan sidebar ke kiri (off-screen) */
+      .sidebar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%); /* Geser ke kiri */
+      }
+
+      /* Jika sidebar dibuka (class active) */
+      .sidebar.active {
+        transform: translateX(0); /* Kembali ke posisi normal */
+      }
+
+      /* Overlay gelap saat sidebar terbuka */
+      .sidebar-overlay {
+        display: none;
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 80;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+    }
   </style>
 </head>
 <body>
 
   <div class="header">
+    <!-- Tombol Menu untuk HP -->
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    
     <img src="fotogroupxi-6.png" alt="logo" />
     <div class="brand">
       SIPADAK XI-6
@@ -168,6 +222,9 @@
 
   <div class="main-wrapper">
     
+    <!-- Overlay (Latar Gelap saat menu terbuka di HP) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
     <!-- SIDEBAR KIRI -->
     <div class="sidebar" id="sidebar"></div>
 
@@ -217,7 +274,7 @@
         { id: "menuKelolaAkun", href: "kelola-akun.html", icon: "👤", title: "Akun Siswa" },
         { id: "menuKasKelas", href: "kas-kelas.html", icon: "💰", title: "Kas Kelas" },
         { id: "menuKartuKelas", href: "kartu-siswa.html", icon: "🪪", title: "Kartu Kelas" },
-        { id: "menuMedia", href: "media-belajar.html", icon: "📚", title: "Media Belajar" } // MENU BARU
+        { id: "menuMedia", href: "media-belajar.html", icon: "📚", title: "Media Belajar" }
       ];
 
       let menuTampil = [];
@@ -242,6 +299,14 @@
       });
     }
 
+    // Fungsi Buka/Tutup Sidebar (HP)
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebarOverlay");
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    }
+
     function bukaHalaman(url, elementMenu) {
       document.getElementById("welcomeScreen").style.display = "none";
       const iframe = document.getElementById("mainFrame");
@@ -249,6 +314,11 @@
       iframe.src = url;
       document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
       elementMenu.classList.add('active');
+
+      // Otomatis tutup sidebar di HP setelah menu diklik
+      if (window.innerWidth <= 768) {
+        toggleSidebar();
+      }
     }
 
     window.tutupHalaman = function() {
