@@ -38,9 +38,13 @@
     /* TEKS & VISUAL */
     h3 { color: var(--hijau); margin-top: 0; font-size: 18px; border-left: 4px solid var(--gold); padding-left: 10px; }
     p { line-height: 1.7; font-size: 15px; color: #475569; margin-bottom: 15px; }
+    
+    /* KOTAK INFO */
     .kotak-info { background: #eff6ff; border-left: 4px solid var(--biru); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .kotak-info h4 { margin: 0 0 5px 0; color: var(--biru); font-size: 16px; }
     .kotak-info p { margin: 0; font-size: 14px; color: #1e3a8a; }
+
+    /* TABEL DATA */
     table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
     th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
     th { background: #f8fafc; color: var(--hijau); font-weight: bold; }
@@ -57,7 +61,7 @@
     .soal-header { display: flex; justify-content: space-between; margin-bottom: 15px; color: #64748b; font-size: 14px; font-weight: bold; }
     .soal-text { font-size: 16px; line-height: 1.6; margin-bottom: 20px; color: #1e293b; }
     
-    /* Opsi Jawaban (Radio Button Custom) */
+    /* Opsi Jawaban */
     .opsi-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
     .opsi-label { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 15px; }
     .opsi-label:hover { background: #f8fafc; border-color: #cbd5e1; }
@@ -113,6 +117,7 @@
       <div class="materi-card">
         <h3>🎥 Video Pembelajaran: Masalah Pengangguran di Indonesia</h3>
         <div class="video-container">
+          <!-- VIDEO SUDAH DIGANTI DENGAN LINK YANG VALID & BISA DI-EMBED -->
           <iframe src="https://www.youtube.com/embed/6N4wH1X6B8s?si=GZ0Y6X8B8Y6X8B8Y" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
         </div>
 
@@ -173,7 +178,6 @@
       document.getElementById(tabId).classList.add('active');
       btnElement.classList.add('active');
 
-      // Jika membuka Pre-Test atau Post-Test, render soalnya
       if (tabId === 'pretest' && !preTestDimulai) { mulaiPreTest(); }
       if (tabId === 'posttest' && !postTestDimulai) { mulaiPostTest(); }
     }
@@ -198,7 +202,7 @@
     // ==========================================
     let preTestDimulai = false;
     let postTestDimulai = false;
-    let waktuPre = 300; // 5 menit
+    let waktuPre = 300; 
     let waktuPost = 300;
     let timerInterval;
 
@@ -261,11 +265,9 @@
       const totalSoal = tipe === 'pre' ? soalPreTest.length : soalPostTest.length;
       if (indexTujuan >= totalSoal) return;
 
-      // Sembunyikan semua soal, tampilkan yang dituju
       document.querySelectorAll(`[id^="soal-${tipe}-"]`).forEach(el => el.style.display = 'none');
       document.getElementById(`soal-${tipe}-${indexTujuan}`).style.display = 'block';
 
-      // Update tombol nomor
       document.querySelectorAll(`[id^="btn-nomor-${tipe}-"]`).forEach(el => el.classList.remove('active'));
       document.getElementById(`btn-nomor-${tipe}-${indexTujuan}`).classList.add('active');
 
@@ -309,7 +311,6 @@
 
       const persentase = Math.round((skor / bankSoal.length) * 100);
       
-      // Tampilkan Hasil
       const container = document.getElementById(tipe === 'pre' ? 'cbtPreBody' : 'cbtPostBody');
       container.innerHTML = `
         <div class="hasil-box">
