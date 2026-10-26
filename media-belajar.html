@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Media Belajar Ekonomi - SIPADAK XI-6</title>
+  <title>Media Belajar - Ketenagakerjaan</title>
   
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; --biru: #3b82f6; }
@@ -13,32 +13,32 @@
     /* HEADER & NAVIGASI */
     .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100; }
     .header h1 { margin: 0; font-size: 20px; }
-    .btn-back { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; }
+    .btn-back { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;}
     
     .container { max-width: 900px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; }
     
-    /* CARD MATERI UTAMA */
-    .materi-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0; }
+    /* TAB MENU (PRE-TEST, MATERI, POST-TEST) */
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-btn { flex: 1; padding: 15px; text-align: center; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-weight: bold; font-size: 16px; color: #64748b; cursor: pointer; transition: 0.3s; }
+    .tab-btn:hover { background: #f1f5f9; }
+    .tab-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); box-shadow: 0 4px 10px rgba(10, 54, 34, 0.3); }
+
+    /* KONTEN */
+    .content-section { display: none; } /* Sembunyikan semua konten dulu */
+    .content-section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
     
-    /* BANNER JUDUL */
-    .materi-banner { background: linear-gradient(135deg, var(--hijau), #1a5c3a); padding: 30px 25px; color: white; }
-    .badge-mapel { background: var(--gold); color: var(--hijau); font-size: 12px; font-weight: 800; padding: 5px 12px; border-radius: 20px; display: inline-block; margin-bottom: 15px; text-transform: uppercase; }
-    .materi-banner h2 { margin: 0 0 10px 0; font-size: 26px; line-height: 1.3; }
-    .materi-banner p { margin: 0; font-size: 14px; color: #cbd5e1; }
-    
-    /* KONTEN MATERI */
-    .materi-content { padding: 25px; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* CARD MATERI */
+    .materi-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 25px; }
     
     /* VIDEO YOUTUBE */
     .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
     
     /* TEKS & VISUAL */
-    .materi-content h3 { color: var(--hijau); margin-top: 0; font-size: 18px; border-left: 4px solid var(--gold); padding-left: 10px; }
-    .materi-content p { line-height: 1.7; font-size: 15px; color: #475569; margin-bottom: 15px; }
-    
-    /* INFOGRAFIS / GAMBAR */
-    .infografis { width: 100%; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+    h3 { color: var(--hijau); margin-top: 0; font-size: 18px; border-left: 4px solid var(--gold); padding-left: 10px; }
+    p { line-height: 1.7; font-size: 15px; color: #475569; margin-bottom: 15px; }
     
     /* KOTAK INFO */
     .kotak-info { background: #eff6ff; border-left: 4px solid var(--biru); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
@@ -53,129 +53,192 @@
     .naik { color: #ef4444; font-weight: bold; }
     .turun { color: #22c55e; font-weight: bold; }
 
-    /* LATIHAN SOAL */
-    .kuis-box { background: #fffbeb; border: 2px dashed #f59e0b; border-radius: 12px; padding: 20px; margin-top: 30px; }
-    .kuis-box h4 { margin-top: 0; color: #b45309; }
-    .kuis-box button { background: var(--hijau); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .kuis-box button:hover { background: #1a5c3a; }
+    /* KUIS / SOAL */
+    .soal-box { background: #fffbeb; border: 2px dashed #f59e0b; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .soal-box h4 { margin-top: 0; color: #b45309; }
+    .soal-box label { display: block; margin-bottom: 10px; font-weight: normal; cursor: pointer; }
+    .btn-cek { background: var(--hijau); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px;}
+    .btn-cek:hover { background: #1a5c3a; }
+    .hasil { font-weight: bold; margin-top: 15px; text-align: center; font-size: 16px;}
   </style>
 </head>
 <body>
 
   <div class="header">
     <h1>📚 Media Belajar</h1>
-    <a href="javascript:void(0)" onclick="kembali()" class="btn-back">⬅ Kembali</a>
+    <button onclick="kembali()" class="btn-back">⬅ Kembali</button>
   </div>
 
   <div class="container">
-    <div class="materi-card">
-      
-      <!-- BANNER JUDUL -->
-      <div class="materi-banner">
-        <span class="badge-mapel">Ekonomi</span>
-        <h2>Waspada Inflasi! Kenapa Harga Cabai Bisa Naik Turun?</h2>
-        <p>Materi Interaktif - Kelas XI Semester 1</p>
-      </div>
+    
+    <!-- TAB MENU -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="bukaTab('pretest', this)">📝 Pre-Test</button>
+      <button class="tab-btn" onclick="bukaTab('materi', this)">📖 Materi</button>
+      <button class="tab-btn" onclick="bukaTab('posttest', this)">🎯 Post-Test</button>
+    </div>
 
-      <div class="materi-content">
+    <!-- ==================== SECTION 1: PRE-TEST ==================== -->
+    <div id="pretest" class="content-section active">
+      <div class="materi-card">
+        <h3>Pre-Test: Seberapa Paham Kamu?</h3>
+        <p>Jawablah pertanyaan berikut sebelum mempelajari materi untuk mengukur pengetahuan awalmu.</p>
         
-        <!-- VIDEO YOUTUBE (Ganti Link Embed sesuai kebutuhan) -->
-        <h3>🎥 Video Pembelajaran</h3>
-        <div class="video-container">
-          <!-- Ini adalah video contoh tentang Inflasi dari Bank Indonesia / Edukasi -->
-          <iframe src="https://www.youtube.com/embed/3X6X9sP5-c0?si=GZ0Y6X8B8Y6X8B8Y" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        <div class="soal-box">
+          <h4>1. Apa yang dimaksud dengan Angkatan Kerja?</h4>
+          <label><input type="radio" name="pre1" value="A"> A. Semua orang yang sudah bekerja</label>
+          <label><input type="radio" name="pre1" value="B"> B. Penduduk usia 15-64 tahun yang bekerja atau mencari kerja</label>
+          <label><input type="radio" name="pre1" value="C"> C. Orang yang belum punya pekerjaan</label>
         </div>
 
-        <h3>📖 Apa Itu Inflasi?</h3>
-        <p><strong>Inflasi</strong> adalah kondisi di mana harga barang dan jasa secara umum mengalami kenaikan secara terus-menerus dalam jangka waktu tertentu. Bayangkan uang Rp 10.000 tahun lalu bisa membeli 2 bungkus bakso, tapi sekarang hanya cukup untuk 1 bungkus saja. Itulah kekuatan inflasi!</p>
+        <div class="soal-box">
+          <h4>2. Lulusan pendidikan apa yang menyumbang pengangguran tertinggi di Indonesia?</h4>
+          <label><input type="radio" name="pre2" value="A"> A. SD</label>
+          <label><input type="radio" name="pre2" value="B"> B. SMA</label>
+          <label><input type="radio" name="pre2" value="C"> C. SMK</label>
+        </div>
+
+        <button class="btn-cek" onclick="cekPretest()">Cek Jawaban Pre-Test</button>
+        <div id="hasilPretest" class="hasil"></div>
+      </div>
+    </div>
+
+    <!-- ==================== SECTION 2: MATERI ==================== -->
+    <div id="materi" class="content-section">
+      <div class="materi-card">
+        <h3>🎥 Video Pembelajaran: Masalah Pengangguran di Indonesia</h3>
+        <div class="video-container">
+          <iframe src="https://www.youtube.com/embed/6N4wH1X6B8s?si=GZ0Y6X8B8Y6X8B8Y" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+
+        <h3>📖 Apa Itu Ketenagakerjaan?</h3>
+        <p><strong>Ketenagakerjaan</strong> adalah segala hal yang berhubungan dengan tenaga kerja pada waktu sebelum, selama, dan sesudah masa kerja. Dalam ekonomi, kita mengenal istilah <strong>Angkatan Kerja</strong>, yaitu penduduk usia kerja (15-64 tahun) yang sedang bekerja atau sedang mencari pekerjaan.</p>
         
         <div class="kotak-info">
           <h4>💡 Tahukah Kamu?</h4>
-          <p>Bank Indonesia (BI) memiliki target inflasi yang ideal, yaitu sekitar <strong>3% ± 1%</strong> per tahun. Jika inflasi terlalu tinggi, daya beli masyarakat akan menurun drastis.</p>
+          <p>Berdasarkan data BPS, Tingkat Pengangguran Terbuka (TPT) di Indonesia per Februari 2024 berada di angka <strong>4,82%</strong>. Lulusan SMK menyumbang angka pengangguran tertinggi, lho! Kenapa? Karena kurangnya link and match antara sekolah dan industri.</p>
         </div>
 
-        <h3>📊 Data Aktual: Harga Pangan Hari Ini</h3>
-        <p>Berikut adalah contoh data harga komoditas pangan yang sering memicu inflasi di Indonesia (Data dapat diperbarui sesuai kondisi terkini):</p>
-        
+        <h3>📊 Data Aktual: 5 Provinsi dengan TPT Tertinggi</h3>
         <table>
           <thead>
             <tr>
-              <th>Komoditas</th>
-              <th>Harga Minggu Lalu</th>
-              <th>Harga Hari Ini</th>
-              <th>Perubahan</th>
+              <th>Provinsi</th>
+              <th>Tingkat Pengangguran Terbuka (TPT)</th>
+              <th>Keterangan</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Cabai Merah Keriting</td>
-              <td>Rp 45.000 /kg</td>
-              <td>Rp 65.000 /kg</td>
-              <td class="naik">▲ Naik 44%</td>
+              <td>Banten</td>
+              <td>7,97%</td>
+              <td>Terbanyak lulusan SMK</td>
             </tr>
             <tr>
-              <td>Bawang Merah</td>
-              <td>Rp 35.000 /kg</td>
-              <td>Rp 40.000 /kg</td>
-              <td class="naik">▲ Naik 14%</td>
+              <td>DKI Jakarta</td>
+              <td>6,53%</td>
+              <td>Persaingan kerja sangat ketat</td>
             </tr>
             <tr>
-              <td>Telur Ayam</td>
-              <td>Rp 28.000 /kg</td>
-              <td>Rp 27.000 /kg</td>
-              <td class="turun">▼ Turun 3%</td>
+              <td>Jawa Barat</td>
+              <td>6,50%</td>
+              <td>Banyak pabrik namun SDM belum siap</td>
             </tr>
           </tbody>
         </table>
-
-        <h3>🧠 Latihan Soal (Kuis)</h3>
-        <div class="kuis-box">
-          <h4>Pertanyaan:</h4>
-          <p>Berdasarkan tabel di atas, komoditas apa yang harganya naik paling signifikan dan berpotensi menyebabkan inflasi?</p>
-          
-          <input type="radio" name="jawaban" value="A"> A. Telur Ayam <br><br>
-          <input type="radio" name="jawaban" value="B"> B. Bawang Merah <br><br>
-          <input type="radio" name="jawaban" value="C"> C. Cabai Merah Keriting <br><br>
-          
-          <button onclick="cekKuis()">Cek Jawaban</button>
-          <p id="hasilKuis" style="font-weight: bold; margin-top: 10px;"></p>
-        </div>
-
       </div>
     </div>
+
+    <!-- ==================== SECTION 3: POST-TEST ==================== -->
+    <div id="posttest" class="content-section">
+      <div class="materi-card">
+        <h3>Post-Test: Uji Pemahaman Akhir</h3>
+        <p>Setelah membaca materi, jawablah pertanyaan berikut untuk melihat peningkatan pemahamanmu.</p>
+        
+        <div class="soal-box">
+          <h4>1. Berdasarkan data, provinsi mana yang memiliki TPT tertinggi?</h4>
+          <label><input type="radio" name="post1" value="A"> A. Jawa Barat</label>
+          <label><input type="radio" name="post1" value="B"> B. DKI Jakarta</label>
+          <label><input type="radio" name="post1" value="C"> C. Banten</label>
+        </div>
+
+        <div class="soal-box">
+          <h4>2. Apa penyebab utama lulusan SMK banyak yang menganggur?</h4>
+          <label><input type="radio" name="post2" value="A"> A. Malas mencari kerja</label>
+          <label><input type="radio" name="post2" value="B"> B. Kurangnya link and match dengan industri</label>
+          <label><input type="radio" name="post2" value="C"> C. Gaji yang terlalu tinggi</label>
+        </div>
+
+        <button class="btn-cek" onclick="cekPosttest()">Cek Jawaban Post-Test</button>
+        <div id="hasilPosttest" class="hasil"></div>
+      </div>
+    </div>
+
   </div>
 
   <script>
-    // Cek Login (Opsional, agar hanya siswa/guru yang login bisa lihat)
+    // Cek Login
     if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
 
-    // Fungsi Kembali ke Dashboard/Iframe
     function kembali() {
       if (window.parent && window.parent.tutupHalaman) {
-        window.parent.tutupHalaman(); // Jika di dalam iframe
+        window.parent.tutupHalaman();
       } else {
-        window.location.href = "dashboard-induk.html"; // Jika dibuka mandiri
+        window.location.href = "dashboard-induk.html";
       }
     }
 
-    // Fungsi Kuis Interaktif
-    function cekKuis() {
-      const jawaban = document.querySelector('input[name="jawaban"]:checked');
-      const hasil = document.getElementById("hasilKuis");
+    // Fungsi Ganti Tab
+    function bukaTab(tabId, btnElement) {
+      // 1. Sembunyikan semua section
+      document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+      
+      // 2. Hilangkan status aktif dari semua tombol
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      
+      // 3. Tampilkan section yang dipilih dan aktifkan tombolnya
+      document.getElementById(tabId).classList.add('active');
+      btnElement.classList.add('active');
+    }
 
-      if (!jawaban) {
+    // Fungsi Cek Pre-Test
+    function cekPretest() {
+      const q1 = document.querySelector('input[name="pre1"]:checked');
+      const q2 = document.querySelector('input[name="pre2"]:checked');
+      const hasil = document.getElementById("hasilPretest");
+
+      if (!q1 || !q2) {
         hasil.style.color = "red";
-        hasil.textContent = "⚠️ Silakan pilih jawaban terlebih dahulu!";
+        hasil.textContent = "⚠️ Silakan jawab semua pertanyaan terlebih dahulu!";
         return;
       }
 
-      if (jawaban.value === "C") {
-        hasil.style.color = "green";
-        hasil.textContent = "✅ Benar! Cabai Merah Keriting naik 44%, ini adalah penyumbang inflasi tertinggi pada tabel.";
-      } else {
+      let skor = 0;
+      if (q1.value === "B") skor++;
+      if (q2.value === "C") skor++;
+
+      hasil.style.color = (skor === 2) ? "green" : "#d97706";
+      hasil.textContent = `Skor Pre-Test Kamu: ${skor} / 2. ${skor === 2 ? "Luar biasa!" : "Jangan khawatir, ayo baca materinya dulu!"}`;
+    }
+
+    // Fungsi Cek Post-Test
+    function cekPosttest() {
+      const q1 = document.querySelector('input[name="post1"]:checked');
+      const q2 = document.querySelector('input[name="post2"]:checked');
+      const hasil = document.getElementById("hasilPosttest");
+
+      if (!q1 || !q2) {
         hasil.style.color = "red";
-        hasil.textContent = "❌ Salah. Coba perhatikan lagi kolom 'Perubahan' pada tabel di atas.";
+        hasil.textContent = "⚠️ Silakan jawab semua pertanyaan terlebih dahulu!";
+        return;
       }
+
+      let skor = 0;
+      if (q1.value === "C") skor++;
+      if (q2.value === "B") skor++;
+
+      hasil.style.color = (skor === 2) ? "green" : "red";
+      hasil.textContent = `Skor Post-Test Kamu: ${skor} / 2. ${skor === 2 ? "Sempurna! Kamu sudah paham materinya." : "Silakan baca kembali materinya ya."}`;
     }
   </script>
 </body>
