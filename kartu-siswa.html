@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kartu Pelajar - SIPADAK XI-6</title>
+  <title>Kartu Kelas - SIPADAK XI-6</title>
   
   <!-- Library Barcode -->
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
@@ -23,7 +23,7 @@
 
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    window.fbFunc = { collection, getDocs };
+    window.fbFunc = { collection, getDocs, doc, getDoc };
     window.dispatchEvent(new Event('firebaseReady'));
   </script>
 
@@ -34,6 +34,8 @@
     .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
     .header h1 { margin: 0; font-size: 20px; }
     .container { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    
+    /* Card Control (Hanya muncul untuk Admin) */
     .card-control { background: white; padding: 20px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
     label { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
     select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; font-size: 15px; }
@@ -74,89 +76,25 @@
       z-index: 0;
     }
 
-    .kartu-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      z-index: 1;
-    }
-    .kartu-header img {
-      width: 35px; height: 35px;
-      background: white; border-radius: 50%;
-      padding: 2px;
-      object-fit: cover;
-    }
+    .kartu-header { display: flex; align-items: center; gap: 10px; z-index: 1; }
+    .kartu-header img { width: 35px; height: 35px; background: white; border-radius: 50%; padding: 2px; object-fit: cover; }
     .kartu-header .sekolah { flex: 1; }
     .kartu-header h3 { margin: 0; font-size: 12px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
     .kartu-header p { margin: 0; font-size: 8px; color: #ddd; }
 
-    /* Tata letak body kartu dibagi 2: Kiri (Info) dan Kanan (Foto+Barcode) */
-    .kartu-body {
-      display: flex;
-      gap: 10px;
-      z-index: 1;
-      align-items: flex-start;
-      margin-top: 5px;
-    }
-    
-    .kartu-info {
-      flex: 1;
-    }
-    .kartu-info h2 {
-      margin: 0 0 3px 0;
-      font-size: 13px;
-      color: #fff;
-      line-height: 1.1;
-      text-transform: uppercase;
-    }
-    .kartu-info p {
-      margin: 0;
-      font-size: 9px;
-      color: #ccc;
-      line-height: 1.5;
-    }
+    .kartu-body { display: flex; gap: 10px; z-index: 1; align-items: flex-start; margin-top: 5px; }
+    .kartu-info { flex: 1; }
+    .kartu-info h2 { margin: 0 0 3px 0; font-size: 13px; color: #fff; line-height: 1.1; text-transform: uppercase; }
+    .kartu-info p { margin: 0; font-size: 9px; color: #ccc; line-height: 1.5; }
     .kartu-info b { color: var(--gold); }
 
-    /* Area Foto & Barcode di Kanan */
-    .kartu-kanan {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 65px;
-    }
-    .kartu-foto {
-      width: 55px; height: 70px;
-      border-radius: 6px;
-      object-fit: cover;
-      border: 2px solid var(--gold);
-      margin-bottom: 4px;
-    }
-    
-    /* Area Barcode di Bawah Foto */
-    .barcode-area {
-      background: white;
-      padding: 2px 4px;
-      border-radius: 4px;
-      width: 100%;
-      text-align: center;
-    }
-    .barcode-area svg {
-      width: 100%;
-      height: 20px; /* Tinggi barcode */
-    }
+    .kartu-kanan { display: flex; flex-direction: column; align-items: center; width: 65px; }
+    .kartu-foto { width: 55px; height: 70px; border-radius: 6px; object-fit: cover; border: 2px solid var(--gold); margin-bottom: 4px; }
+    .barcode-area { background: white; padding: 2px 4px; border-radius: 4px; width: 100%; text-align: center; }
+    .barcode-area svg { width: 100%; height: 20px; }
 
-    .kartu-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      z-index: 1;
-      margin-top: auto;
-    }
-    .kartu-footer p {
-      margin: 0;
-      font-size: 7px;
-      color: #aaa;
-    }
+    .kartu-footer { display: flex; justify-content: space-between; align-items: flex-end; z-index: 1; margin-top: auto; }
+    .kartu-footer p { margin: 0; font-size: 7px; color: #aaa; }
 
     /* CSS KHUSUS CETAK */
     @media print {
@@ -171,24 +109,25 @@
 <body>
 
   <div class="header">
-    <h1>🪪 Kartu Pelajar</h1>
+    <h1>🪪 Kartu Kelas</h1>
     <span>SIPADAK XI-6</span>
   </div>
 
   <div class="container">
-    <a href="javascript:void(0)" onclick="kembali()" class="btn-back">⬅ Kembali ke Dashboard</a>
+    <a href="javascript:void(0)" onclick="kembali()" class="btn-back" id="btnKembali">⬅ Kembali ke Dashboard</a>
 
-    <div class="card-control">
-      <h3 style="margin-top: 0; color: var(--hijau);">Cetak Kartu Pelajar</h3>
+    <!-- CARD CONTROL (Hanya Muncul untuk Admin) -->
+    <div class="card-control" id="cardControl">
+      <h3 style="margin-top: 0; color: var(--hijau);">Cetak Kartu Kelas</h3>
       <p style="font-size: 13px; color: #666;">Pilih nama siswa untuk menampilkan dan mencetak kartu.</p>
       
       <label>Pilih Siswa</label>
       <select id="pilihSiswa" onchange="tampilkanKartu()">
         <option value="">-- Pilih Siswa --</option>
       </select>
-
-      <button class="btn btn-print" onclick="window.print()">🖨️ CETAK KARTU</button>
     </div>
+
+    <button class="btn btn-print" onclick="window.print()" id="btnCetak" style="display: none; margin-bottom: 20px;">🖨️ CETAK KARTU</button>
 
     <!-- AREA KARTU -->
     <div class="kartu-wrapper" id="kartuWrapper">
@@ -202,7 +141,6 @@
         </div>
         
         <div class="kartu-body">
-          <!-- KIRI: INFO SISWA -->
           <div class="kartu-info">
             <h2 id="kartuNama">NAMA SISWA</h2>
             <p><b>NIS:</b> <span id="kartuNis">-</span></p>
@@ -210,7 +148,6 @@
             <p><b>Kelas:</b> XI-6</p>
           </div>
 
-          <!-- KANAN: FOTO & BARCODE -->
           <div class="kartu-kanan">
             <img id="kartuFoto" src="https://ui-avatars.com/api/?name=Siswa&background=0a3622&color=fff" class="kartu-foto">
             <div class="barcode-area">
@@ -231,82 +168,121 @@
     if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
 
     function kembali() {
+      // Jika dibuka lewat iframe Dashboard
       if (window.parent && window.parent.tutupHalaman) {
         window.parent.tutupHalaman();
       } else {
-        window.location.href = "dashboard-induk.html";
+        // Jika dibuka mandiri (dari Profil Siswa)
+        window.location.href = "profil-siswa.html";
       }
     }
 
     let semuaSiswa = [];
+    const urlParams = new URLSearchParams(window.location.search);
+    const idSiswaUrl = urlParams.get('id'); // Ambil ID dari URL jika ada
 
     window.addEventListener('firebaseReady', async () => {
-      const { collection, getDocs } = window.fbFunc;
+      const { collection, getDocs, doc, getDoc } = window.fbFunc;
       const db = window.db;
-      const select = document.getElementById("pilihSiswa");
-      
-      try {
-        const snap = await getDocs(collection(db, "Siswa"));
-        semuaSiswa = [];
-        
-        snap.forEach(doc => {
-          const data = doc.data();
-          semuaSiswa.push(data);
-          select.innerHTML += `<option value="${data.nama}">${data.nama}</option>`;
-        });
-        
-        // Urutkan nama
-        const options = Array.from(select.options).slice(1).sort((a, b) => a.text.localeCompare(b.text));
-        select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
-        options.forEach(opt => select.appendChild(opt));
 
-      } catch (error) {
-        console.error(error);
+      // ==========================================
+      // SKENARIO 1: DIBUKA OLEH SISWA (ADA ID DI URL)
+      // ==========================================
+      if (idSiswaUrl) {
+        document.getElementById("cardControl").style.display = "none"; // Sembunyikan pilihan
+        document.getElementById("btnKembali").innerHTML = "⬅ Kembali ke Profil";
+        
+        try {
+          const docSnap = await getDoc(doc(db, "Siswa", idSiswaUrl));
+          if (docSnap.exists()) {
+            const siswa = docSnap.data();
+            tampilkanDataKartu(siswa);
+            document.getElementById("btnCetak").style.display = "block";
+          } else {
+            alert("Data siswa tidak ditemukan.");
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      } 
+      
+      // ==========================================
+      // SKENARIO 2: DIBUKA OLEH ADMIN (TANPA ID DI URL)
+      // ==========================================
+      else {
+        const select = document.getElementById("pilihSiswa");
+        
+        try {
+          const snap = await getDocs(collection(db, "Siswa"));
+          semuaSiswa = [];
+          
+          snap.forEach(doc => {
+            const data = doc.data();
+            semuaSiswa.push(data);
+            select.innerHTML += `<option value="${data.nama}">${data.nama}</option>`;
+          });
+          
+          // Urutkan nama
+          const options = Array.from(select.options).slice(1).sort((a, b) => a.text.localeCompare(b.text));
+          select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+          options.forEach(opt => select.appendChild(opt));
+
+        } catch (error) {
+          console.error(error);
+        }
       }
     });
 
+    // Fungsi untuk Admin memilih dari dropdown
     function tampilkanKartu() {
       const nama = document.getElementById("pilihSiswa").value;
       const wrapper = document.getElementById("kartuWrapper");
+      const btnCetak = document.getElementById("btnCetak");
       
       if (!nama) {
         wrapper.style.display = "none";
+        btnCetak.style.display = "none";
         return;
       }
 
       const siswa = semuaSiswa.find(s => s.nama === nama);
-      
       if (siswa) {
-        document.getElementById("kartuNama").textContent = siswa.nama || "NAMA SISWA";
-        document.getElementById("kartuNis").textContent = siswa.nis || "-";
-        document.getElementById("kartuNisn").textContent = siswa.nisn || "-";
-        
-        if (siswa.foto) {
-          document.getElementById("kartuFoto").src = siswa.foto;
-        } else {
-          document.getElementById("kartuFoto").src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(siswa.nama) + '&background=0a3622&color=fff';
-        }
-
-        // GENERATE BARCODE
-        // Menggunakan NIS sebagai isi barcode. Jika NIS kosong, gunakan "12345678"
-        const isiBarcode = siswa.nis ? String(siswa.nis) : "12345678";
-        
-        try {
-          JsBarcode("#barcodeSiswa", isiBarcode, {
-            format: "CODE128", // Format standar yang bisa dibaca scanner
-            lineColor: "#000",
-            width: 1, // Ketebalan garis
-            height: 25, // Tinggi barcode
-            displayValue: true, // Tampilkan angka di bawah barcode
-            fontSize: 8,
-            margin: 0
-          });
-        } catch (err) {
-          console.error("Gagal membuat barcode:", err);
-        }
-        
-        wrapper.style.display = "flex";
+        tampilkanDataKartu(siswa);
+        btnCetak.style.display = "block";
       }
+    }
+
+    // Fungsi inti untuk mengisi data ke dalam desain kartu
+    function tampilkanDataKartu(siswa) {
+      const wrapper = document.getElementById("kartuWrapper");
+      
+      document.getElementById("kartuNama").textContent = siswa.nama || "NAMA SISWA";
+      document.getElementById("kartuNis").textContent = siswa.nis || "-";
+      document.getElementById("kartuNisn").textContent = siswa.nisn || "-";
+      
+      if (siswa.foto) {
+        document.getElementById("kartuFoto").src = siswa.foto;
+      } else {
+        document.getElementById("kartuFoto").src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(siswa.nama) + '&background=0a3622&color=fff';
+      }
+
+      // Generate Barcode berdasarkan NIS
+      const isiBarcode = siswa.nis ? String(siswa.nis) : "12345678";
+      try {
+        JsBarcode("#barcodeSiswa", isiBarcode, {
+          format: "CODE128",
+          lineColor: "#000",
+          width: 1,
+          height: 25,
+          displayValue: true,
+          fontSize: 8,
+          margin: 0
+        });
+      } catch (err) {
+        console.error("Gagal membuat barcode:", err);
+      }
+      
+      wrapper.style.display = "flex";
     }
   </script>
 </body>
