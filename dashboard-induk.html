@@ -216,16 +216,16 @@
         { id: "menuKelolaSiswa", href: "kelola-siswa.html", icon: "📤", title: "Kelola Siswa" },
         { id: "menuKelolaAkun", href: "kelola-akun.html", icon: "👤", title: "Akun Siswa" },
         { id: "menuKasKelas", href: "kas-kelas.html", icon: "💰", title: "Kas Kelas" },
-        { id: "menuKartuKelas", href: "kartu-siswa.html", icon: "🪪", title: "Kartu Kelas" }
+        { id: "menuKartuKelas", href: "kartu-siswa.html", icon: "🪪", title: "Kartu Kelas" },
+        { id: "menuMedia", href: "media-belajar.html", icon: "📚", title: "Media Belajar" } // MENU BARU
       ];
 
       let menuTampil = [];
       
       // LOGIKA HAK AKSES
       if (role === "admin") {
-        menuTampil = semuaMenu; // Admin dapat semua menu, termasuk Kartu Kelas
+        menuTampil = semuaMenu; 
       } else if (role === "sekretaris") {
-        // Sekretaris TIDAK mendapat menu Kartu Kelas
         menuTampil = semuaMenu.filter(m => ["menuAbsensi", "menuRekapBulanan", "menuKasKelas"].includes(m.id));
       } else if (role === "bendahara") {
         menuTampil = semuaMenu.filter(m => m.id === "menuKasKelas");
