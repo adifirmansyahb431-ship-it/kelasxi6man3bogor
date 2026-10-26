@@ -1,216 +1,3 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Media Belajar - Perilaku Produsen</title>
-  
-  <style>
-    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; --biru: #3b82f6; }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
-    
-    /* HEADER & NAVIGASI */
-    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100; }
-    .header h1 { margin: 0; font-size: 20px; }
-    .btn-back { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;}
-    
-    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; }
-    
-    /* TAB MENU */
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-    .tab-btn { flex: 1; padding: 15px; text-align: center; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-weight: bold; font-size: 16px; color: #64748b; cursor: pointer; transition: 0.3s; }
-    .tab-btn:hover { background: #f1f5f9; }
-    .tab-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); box-shadow: 0 4px 10px rgba(10, 54, 34, 0.3); }
-
-    /* KONTEN */
-    .content-section { display: none; }
-    .content-section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* CARD MATERI */
-    .materi-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 25px; }
-    
-    /* VIDEO YOUTUBE */
-    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-    
-    /* TEKS & VISUAL */
-    h3 { color: var(--hijau); margin-top: 25px; margin-bottom: 10px; font-size: 18px; border-left: 4px solid var(--gold); padding-left: 10px; }
-    h4 { color: var(--hijau); font-size: 16px; margin-bottom: 5px; }
-    p { line-height: 1.7; font-size: 15px; color: #475569; margin-bottom: 15px; }
-    ul, ol { line-height: 1.7; font-size: 15px; color: #475569; margin-bottom: 15px; padding-left: 20px; }
-    
-    /* KOTAK INFO */
-    .kotak-info { background: #eff6ff; border-left: 4px solid var(--biru); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-    .kotak-info h4 { margin: 0 0 5px 0; color: var(--biru); font-size: 16px; }
-    .kotak-info p { margin: 0; font-size: 14px; color: #1e3a8a; }
-
-    /* TABEL DATA */
-    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
-    th, td { padding: 12px 15px; text-align: center; border-bottom: 1px solid #e2e8f0; }
-    th { background: #f8fafc; color: var(--hijau); font-weight: bold; }
-    tr:hover { background: #f1f5f9; }
-    .highlight { background: #fef3c7; font-weight: bold; } /* Untuk menandai keseimbangan */
-
-    /* =========================================
-       DESAIN CBT (COMPUTER BASED TEST)
-       ========================================= */
-    .cbt-header { display: flex; justify-content: space-between; align-items: center; background: var(--hijau); color: white; padding: 15px 20px; border-radius: 12px 12px 0 0; font-weight: bold; }
-    .timer { background: #ef4444; padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-size: 16px; }
-    
-    .cbt-body { background: white; padding: 25px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px; }
-    
-    .soal-header { display: flex; justify-content: space-between; margin-bottom: 15px; color: #64748b; font-size: 14px; font-weight: bold; }
-    .soal-text { font-size: 16px; line-height: 1.6; margin-bottom: 20px; color: #1e293b; }
-    
-    /* Opsi Jawaban */
-    .opsi-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
-    .opsi-label { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 15px; }
-    .opsi-label:hover { background: #f8fafc; border-color: #cbd5e1; }
-    .opsi-label input[type="radio"] { width: 18px; height: 18px; accent-color: var(--hijau); }
-    
-    /* Navigasi Bawah */
-    .cbt-nav { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
-    .btn-nav { background: #e2e8f0; color: #333; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    .btn-nav:hover { background: #cbd5e1; }
-    .btn-nav.primary { background: var(--hijau); color: white; }
-    .btn-nav.primary:hover { background: #1a5c3a; }
-    
-    .nomor-grid { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px; }
-    .nomor-btn { width: 35px; height: 35px; border-radius: 6px; border: 2px solid #e2e8f0; background: white; font-weight: bold; cursor: pointer; color: #64748b; }
-    .nomor-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); }
-    .nomor-btn.sudah-dijawab { background: var(--gold); color: white; border-color: var(--gold); }
-
-    /* Hasil CBT */
-    .hasil-box { text-align: center; padding: 40px 20px; }
-    .skor-angka { font-size: 60px; font-weight: 800; color: var(--hijau); margin: 0; }
-    .predikat { font-size: 20px; color: var(--gold); font-weight: bold; margin-top: 10px; }
-  </style>
-</head>
-<body>
-
-  <div class="header">
-    <h1>📚 Media Belajar - Perilaku Produsen</h1>
-    <button onclick="kembali()" class="btn-back">⬅ Kembali</button>
-  </div>
-
-  <div class="container">
-    
-    <!-- TAB MENU -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="bukaTab('pretest', this)">📝 Pre-Test</button>
-      <button class="tab-btn" onclick="bukaTab('materi', this)">📖 Materi</button>
-      <button class="tab-btn" onclick="bukaTab('posttest', this)">🎯 Post-Test</button>
-    </div>
-
-    <!-- ==================== SECTION 1: PRE-TEST (CBT) ==================== -->
-    <div id="pretest" class="content-section active">
-      <div class="cbt-header">
-        <span>PRE-TEST PERILAKU PRODUSEN</span>
-        <div class="timer" id="timerPre">⏱️ 15:00</div>
-      </div>
-      <div class="cbt-body" id="cbtPreBody">
-        <!-- Soal akan di-render oleh JavaScript -->
-      </div>
-    </div>
-
-    <!-- ==================== SECTION 2: MATERI ==================== -->
-    <div id="materi" class="content-section">
-      <div class="materi-card">
-        <h3>🎥 Video Pembelajaran: Teori Produksi</h3>
-          <div class="video-container">
-          <!-- Video Materi Perilaku Produsen -->
-          <iframe width="560" height="315" src="https://www.youtube.com/embed/zK6GpN00DUU?si=JDRDYo-reHkHFFiO" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        </div>
-        
-        <h3>📖 A. Definisi Perilaku Produsen</h3>
-        <p><strong>Perilaku Produsen</strong> adalah keseluruhan tindakan dan keputusan yang diambil oleh produsen dalam mengombinasikan faktor-faktor produksi (input) untuk menghasilkan barang atau jasa (output) secara efisien demi mencapai keuntungan optimal dan menjaga keberlangsungan usaha.</p>
-        
-        <h3>📖 B. Faktor-Faktor yang Mempengaruhi Perilaku Produsen</h3>
-        <ol>
-          <li><strong>Harga Faktor Produksi (Biaya Input):</strong> Biaya tenaga kerja (upah/gaji), harga bahan baku, biaya sewa modal/mesin, dan suku bunga.</li>
-          <li><strong>Tingkat Teknologi:</strong> Kemajuan teknologi dapat meningkatkan produktivitas, efisiensi waktu, serta menurunkan biaya produksi total.</li>
-          <li><strong>Harga Produk di Pasar:</strong> Ekspektasi harga jual produk yang mempengaruhi besarnya keuntungan yang ingin dicapai.</li>
-          <li><strong>Tujuan Perusahaan:</strong> Memaksimalkan profit, memperluas pangsa pasar (<em>market share</em>), atau efisiensi biaya.</li>
-          <li><strong>Kebijakan Pemerintah:</strong> Pajak usaha, subsidi produksi, UMR/UMP, serta regulasi dan perizinan lingkungan.</li>
-        </ol>
-
-        <h3>📖 C. Isoquant (Kurva Produksi Sama)</h3>
-        <p><strong>Isoquant</strong> (iso = sama, quant = jumlah) adalah kurva yang menunjukkan berbagai kombinasi penggunaan dua faktor produksi variabel (Tenaga Kerja / L dan Modal / K) yang menghasilkan jumlah total output (Q) yang sama.</p>
-        <h4>Contoh Tabel Kombinasi Isoquant (Target Output Q = 100 unit)</h4>
-        <table>
-          <thead>
-            <tr><th>Kombinasi</th><th>Tenaga Kerja (L)</th><th>Modal (K)</th><th>Total Output (Q)</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>A</td><td>1</td><td>12</td><td>100 unit</td></tr>
-            <tr><td>B</td><td>2</td><td>8</td><td>100 unit</td></tr>
-            <tr><td>C</td><td>3</td><td>5</td><td>100 unit</td></tr>
-            <tr><td>D</td><td>4</td><td>3</td><td>100 unit</td></tr>
-            <tr><td>E</td><td>5</td><td>2</td><td>100 unit</td></tr>
-          </tbody>
-        </table>
-        <div class="kotak-info">
-          <h4>💡 Interpretasi Kurva Isoquant</h4>
-          <p><strong>Marginal Rate of Technical Substitution (MRTS):</strong> Untuk mempertahankan output, produsen dapat menggantikan Modal dengan Tenaga Kerja. Contoh dari titik A (1,12) ke B (2,8): Tambahan 1 tenaga kerja menggantikan 4 unit modal (MRTS = -4). Semakin ke kanan bawah, kurva semakin landai (Hukum Diminishing MRTS).</p>
-        </div>
-
-        <h3>📖 D. Isocost (Garis Biaya Sama)</h3>
-        <p><strong>Isocost</strong> adalah garis yang menunjukkan seluruh kombinasi dua faktor produksi (L dan K) yang dapat dibeli oleh produsen dengan total anggaran/biaya produksi (C) yang sama.</p>
-        <p><strong>Persamaan:</strong> C = (w × L) + (r × K)</p>
-        <p>Di mana: C = Total Biaya, w = Upah Tenaga Kerja, r = Biaya Sewa Modal, L = Tenaga Kerja, K = Modal.</p>
-        
-        <h4>Contoh Tabel Kombinasi Isocost</h4>
-        <p>Asumsi: C = Rp 12.000.000, w = Rp 2.000.000/orang, r = Rp 3.000.000/unit.</p>
-        <table>
-          <thead>
-            <tr><th>Kombinasi</th><th>Tenaga Kerja (L)</th><th>Modal (K)</th><th>Kalkulasi Biaya</th><th>Total Biaya (C)</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>P</td><td>0</td><td>4</td><td>(0 × 2M) + (4 × 3M)</td><td>Rp 12.000.000</td></tr>
-            <tr><td>Q</td><td>3</td><td>2</td><td>(3 × 2M) + (2 × 3M)</td><td>Rp 12.000.000</td></tr>
-            <tr><td>R</td><td>6</td><td>0</td><td>(6 × 2M) + (0 × 3M)</td><td>Rp 12.000.000</td></tr>
-          </tbody>
-        </table>
-
-        <h3>📖 E. Keseimbangan Produsen (Producer Equilibrium)</h3>
-        <p>Keseimbangan Produsen adalah kondisi di mana produsen mencapai output maksimal dengan anggaran biaya tertentu (<em>least cost combination</em>), atau mencapai biaya minimal untuk target output tertentu. Secara grafis, tercapai pada titik bersinggungannya kurva Isoquant dan garis Isocost.</p>
-        <p><strong>Syarat Keseimbangan:</strong> MRTS<sub>L,K</sub> = w / r atau MP<sub>L</sub> / w = MP<sub>K</sub> / r</p>
-        
-        <h4>Tabel Penentuan Keseimbangan Produsen</h4>
-        <p>Dengan C = Rp 12.000.000, w = Rp 2.000.000, r = Rp 3.000.000:</p>
-        <table>
-          <thead>
-            <tr><th>Kombinasi (L, K)</th><th>Biaya Terpakai</th><th>Output Dihasilkan</th><th>Status Keseimbangan</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>(1, 3)</td><td>Rp 11.000.000</td><td>Q = 80 unit</td><td>Tidak Efisien (Sisa anggaran)</td></tr>
-            <tr class="highlight"><td>(3, 2)</td><td>Rp 12.000.000</td><td>Q = 100 unit</td><td>Keseimbangan Produsen (Optimal)</td></tr>
-            <tr><td>(4, 3)</td><td>Rp 17.000.000</td><td>Q = 140 unit</td><td>Tidak Terjangkau (Melebihi anggaran)</td></tr>
-          </tbody>
-        </table>
-        <div class="kotak-info">
-          <h4>💡 Interpretasi Keseimbangan</h4>
-          <p>Titik (3,2) adalah titik optimal. Produsen menggunakan 3 tenaga kerja dan 2 mesin, menghabiskan seluruh anggaran Rp 12.000.000 secara efisien untuk memproduksi 100 unit barang.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- ==================== SECTION 3: POST-TEST (CBT) ==================== -->
-    <div id="posttest" class="content-section">
-      <div class="cbt-header">
-        <span>POST-TEST PERILAKU PRODUSEN</span>
-        <div class="timer" id="timerPost">⏱️ 20:00</div>
-      </div>
-      <div class="cbt-body" id="cbtPostBody">
-        <!-- Soal akan di-render oleh JavaScript -->
-      </div>
-    </div>
-
-  </div>
-
-  <script>
     // Cek Login
     if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
 
@@ -236,55 +23,50 @@
       if (tabId === 'posttest' && !postTestDimulai) { mulaiPostTest(); }
     }
 
-      // ==========================================
-    // BANK SOAL PRE-TEST (10 Soal - C2, C3, C4)
+    // ==========================================
+    // BANK SOAL PRE-TEST (10 Soal)
     // ==========================================
     const soalPreTest = [
-      // C2 (Pemahaman)
       { q: "Keseluruhan tindakan produsen dalam mengombinasikan input untuk menghasilkan output secara efisien disebut...", opsi: ["Perilaku Konsumen", "Perilaku Produsen", "Distribusi", "Konsumsi"], jawaban: 1 },
       { q: "Kurva yang menunjukkan berbagai kombinasi dua faktor produksi yang menghasilkan jumlah output yang sama disebut...", opsi: ["Isocost", "Isoquant", "Kurva Permintaan", "Kurva Penawaran"], jawaban: 1 },
       { q: "Garis yang menunjukkan kombinasi faktor produksi yang dapat dibeli dengan anggaran tertentu disebut...", opsi: ["Isoquant", "Isocost", "Kurva Indiferen", "Garis Anggaran"], jawaban: 1 },
       { q: "Manakah yang BUKAN termasuk faktor yang mempengaruhi perilaku produsen?", opsi: ["Harga faktor produksi", "Tingkat teknologi", "Selera konsumen", "Kebijakan pemerintah"], jawaban: 2 },
-      // C3 (Penerapan)
       { q: "Jika total biaya (C) Rp 10.000.000, upah tenaga kerja (w) Rp 2.000.000, dan sewa modal (r) Rp 2.000.000. Jika produsen menggunakan 3 tenaga kerja, berapa unit modal yang bisa disewa?", opsi: ["1 unit", "2 unit", "3 unit", "4 unit"], jawaban: 1 },
       { q: "Pada tabel Isoquant, kombinasi A (1L, 12K) dan B (2L, 8K) menghasilkan output 100 unit. Berapakah MRTS dari A ke B?", opsi: ["-2", "-3", "-4", "-5"], jawaban: 2 },
       { q: "Jika anggaran produsen naik dari Rp 12.000.000 menjadi Rp 15.000.000, apa yang terjadi pada garis Isocost?", opsi: ["Bergerak ke kiri bawah", "Bergeser sejajar ke kanan atas", "Berputar pada sumbu L", "Tetap di posisi semula"], jawaban: 1 },
-      // C4 (Analisis)
       { q: "Seorang produsen memiliki anggaran Rp 12.000.000. Kombinasi (3L, 2K) menghabiskan Rp 12.000.000 dan menghasilkan 100 unit. Kombinasi (1L, 3K) menghabiskan Rp 11.000.000 dan menghasilkan 80 unit. Analisis yang tepat adalah...", opsi: ["Kombinasi (1,3) lebih efisien karena lebih murah", "Kombinasi (3,2) adalah keseimbangan produsen karena anggaran terpakai optimal untuk output maksimal", "Kombinasi (1,3) sebaiknya dipilih karena menyisakan uang", "Kedua kombinasi sama efisiennya"], jawaban: 1 },
       { q: "Mengapa kurva Isoquant berbentuk cembung ke arah titik asal (origin)?", opsi: ["Karena harga input selalu naik", "Karena berlakunya hukum Diminishing MRTS (tingkat substitusi semakin menurun)", "Karena anggaran produsen terbatas", "Karena teknologi tidak berubah"], jawaban: 1 },
       { q: "Jika upah tenaga kerja (w) naik, sementara anggaran dan sewa modal tetap, bagaimana pengaruhnya terhadap garis Isocost?", opsi: ["Garis Isocost bergeser sejajar ke kanan", "Garis Isocost menjadi lebih landai (berputar pada sumbu K)", "Garis Isocost menjadi lebih curam (berputar pada sumbu K)", "Garis Isocost tidak berubah"], jawaban: 2 }
     ];
 
     // ==========================================
-    // BANK SOAL POST-TEST (15 Soal - C2, C3, C4)
+    // BANK SOAL POST-TEST (15 Soal)
     // ==========================================
     const soalPostTest = [
-      // C2 (Pemahaman)
       { q: "Tujuan utama produsen dalam melakukan kegiatan produksi adalah...", opsi: ["Meminimalkan kepuasan", "Memaksimalkan keuntungan (profit)", "Menghabiskan anggaran", "Menimbun barang"], jawaban: 1 },
       { q: "Faktor produksi yang berupa mesin dan bangunan disebut...", opsi: ["Tenaga Kerja", "Sumber Daya Alam", "Modal (Capital)", "Kewirausahaan"], jawaban: 2 },
       { q: "Kurva Isoquant menghubungkan titik-titik yang menunjukkan...", opsi: ["Biaya produksi yang sama", "Output yang sama dari kombinasi input berbeda", "Keuntungan yang sama", "Harga yang sama"], jawaban: 1 },
       { q: "Persamaan garis Isocost adalah...", opsi: ["Q = f(L, K)", "C = (w × L) + (r × K)", "MRTS = -ΔK/ΔL", "TR = P × Q"], jawaban: 1 },
       { q: "Titik keseimbangan produsen tercapai ketika...", opsi: ["Garis Isocost memotong sumbu L", "Kurva Isoquant bersinggungan dengan garis Isocost", "Kurva Isoquant berada di atas garis Isocost", "Anggaran produsen habis"], jawaban: 1 },
-      // C3 (Penerapan)
       { q: "Diketahui C = Rp 20.000.000, w = Rp 4.000.000, r = Rp 2.000.000. Jika produsen memilih 2 tenaga kerja, berapa unit modal yang bisa disewa?", opsi: ["4 unit", "5 unit", "6 unit", "7 unit"], jawaban: 2 },
       { q: "Pada tabel Isoquant, kombinasi C (3L, 5K) ke D (4L, 3K) menghasilkan output sama. Berapakah MRTS dari C ke D?", opsi: ["-1", "-2", "-3", "-4"], jawaban: 1 },
       { q: "Jika sewa modal (r) turun, sementara upah dan anggaran tetap, maka garis Isocost akan...", opsi: ["Bergeser sejajar ke kanan", "Berputar pada sumbu L (menjadi lebih datar)", "Berputar pada sumbu K (menjadi lebih curam)", "Tidak berubah"], jawaban: 1 },
       { q: "Seorang produsen memiliki anggaran Rp 15.000.000. Upah (w) = Rp 3.000.000, Sewa modal (r) = Rp 3.000.000. Berapa kombinasi maksimal tenaga kerja dan modal?", opsi: ["3L dan 2K", "2L dan 3K", "4L dan 1K", "5L dan 0K"], jawaban: 0 },
       { q: "Jika produsen ingin memproduksi 100 unit dengan biaya minimal, maka ia harus berada pada...", opsi: ["Titik potong sumbu", "Titik singgung Isocost dan Isoquant terendah yang menyentuh target output", "Titik tertinggi kurva Isoquant", "Titik tengah garis Isocost"], jawaban: 1 },
-      // C4 (Analisis)
       { q: "Perhatikan data: Kombinasi X (2L, 4K) biaya Rp 14 jt, output 90 unit. Kombinasi Y (4L, 2K) biaya Rp 14 jt, output 90 unit. Analisis yang tepat adalah...", opsi: ["Kombinasi X lebih efisien", "Kombinasi Y lebih efisien", "Kedua kombinasi berada pada Isoquant yang sama dengan biaya sama (Isocost sama)", "Produsen sebaiknya menambah anggaran"], jawaban: 2 },
       { q: "Mengapa produsen tidak memilih kombinasi yang berada di atas garis Isocost?", opsi: ["Karena outputnya terlalu kecil", "Karena biayanya melebihi anggaran yang dimiliki", "Karena teknologinya sudah usang", "Karena tenaga kerjanya kurang"], jawaban: 1 },
       { q: "Apa yang terjadi pada keseimbangan produsen jika harga tenaga kerja (w) naik tajam?", opsi: ["Produsen akan beralih menggunakan lebih banyak modal (K) dan lebih sedikit tenaga kerja (L)", "Produsen akan menambah tenaga kerja", "Produsen akan berhenti produksi", "Kurva Isoquant akan bergeser ke atas"], jawaban: 0 },
       { q: "Dalam jangka panjang, jika produsen ingin meningkatkan output dari 100 unit menjadi 200 unit, maka ia harus...", opsi: ["Tetap pada Isoquant yang sama", "Bergerak ke kurva Isoquant yang lebih tinggi (kanan atas) dengan anggaran yang mungkin lebih besar", "Mengurangi penggunaan modal", "Menurunkan harga jual"], jawaban: 1 },
       { q: "Diketahui MRTS = 2, w = Rp 4.000.000, r = Rp 2.000.000. Apakah produsen sudah dalam keseimbangan?", opsi: ["Ya, karena MRTS = w/r", "Belum, karena MRTS (2) tidak sama dengan w/r (2)", "Belum, karena MRTS (2) lebih kecil dari w/r (2)", "Tidak dapat ditentukan"], jawaban: 0 }
     ];
+
     // ==========================================
-    // ENGINE CBT (PRE-TEST & POST-TEST)
+    // ENGINE CBT
     // ==========================================
     let preTestDimulai = false;
     let postTestDimulai = false;
-    let waktuPre = 900; // 15 menit
-    let waktuPost = 1200; // 20 menit
+    let waktuPre = 900; 
+    let waktuPost = 1200; 
     let timerInterval;
 
     function mulaiPreTest() {
@@ -322,13 +104,12 @@
             <div class="cbt-nav">
               <button class="btn-nav" onclick="pindahSoal('${tipe}', ${index - 1})" ${index === 0 ? 'disabled' : ''}>⬅ Sebelumnya</button>
               <button class="btn-nav primary" onclick="pindahSoal('${tipe}', ${index + 1})" ${index === bankSoal.length - 1 ? 'style="display:none"' : ''}>Selanjutnya ➡</button>
-              <button class="btn-nav primary" onclick="selesaiCBT(${bankSoal.length > 0 ? JSON.stringify(bankSoal).replace(/"/g, '&quot;') : '[]'}, '${tipe}')" ${index === bankSoal.length - 1 ? 'style="display:block"' : 'style="display:none"'}>Selesai & Lihat Skor</button>
+              <button class="btn-nav primary" onclick="selesaiCBT(JSON.stringify(${JSON.stringify(bankSoal)}), '${tipe}')" ${index === bankSoal.length - 1 ? 'style="display:block"' : 'style="display:none"'}>Selesai & Lihat Skor</button>
             </div>
           </div>
         `;
       });
 
-      // Grid Nomor Soal
       html += `<div class="nomor-grid" id="grid-${tipe}">`;
       bankSoal.forEach((_, i) => {
         html += `<button class="nomor-btn ${i === 0 ? 'active' : ''}" id="btn-nomor-${tipe}-${i}" onclick="pindahSoal('${tipe}', ${i})">${i + 1}</button>`;
@@ -342,7 +123,6 @@
 
     function pindahSoal(tipe, indexTujuan) {
       if (indexTujuan < 0) return;
-      
       const totalSoal = tipe === 'pre' ? soalPreTest.length : soalPostTest.length;
       if (indexTujuan >= totalSoal) return;
 
@@ -362,3 +142,43 @@
 
     function mulaiTimer(elementId, durasiDetik, callbackSelesai) {
       const timerEl = document.getElementById(elementId);
+      let sisa = durasiDetik;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const menit = Math.floor(sisa / 60).toString().padStart(2, '0');
+        const detik = (sisa % 60).toString().padStart(2, '0');
+        timerEl.innerHTML = `⏱️ ${menit}:${detik}`;
+
+        if (sisa <= 0) {
+          clearInterval(timerInterval);
+          alert("Waktu habis! Jawaban akan otomatis dikumpulkan.");
+          callbackSelesai();
+        }
+        sisa--;
+      }, 1000);
+    }
+
+    function selesaiCBT(bankSoal, tipe) {
+      clearInterval(timerInterval);
+      let skor = 0;
+      
+      bankSoal.forEach((soal, index) => {
+        const jawabanUser = document.querySelector(`input[name="${tipe}_soal_${index}"]:checked`);
+        if (jawabanUser && parseInt(jawabanUser.value) === soal.jawaban) {
+          skor++;
+        }
+      });
+
+      const persentase = Math.round((skor / bankSoal.length) * 100);
+      const container = document.getElementById(tipe === 'pre' ? 'cbtPreBody' : 'cbtPostBody');
+      
+      container.innerHTML = `
+        <div class="hasil-box">
+          <h3 style="border:none; text-align:center;">Hasil ${tipe === 'pre' ? 'Pre-Test' : 'Post-Test'}</h3>
+          <p class="skor-angka">${persentase}</p>
+          <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
+          <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${bankSoal.length}</strong> soal.</p>
+          <button class="btn-nav primary" style="margin-top:20px;" onclick="location.reload()">🔄 Ulangi Tes</button>
+        </div>
+      `;
+    }
