@@ -28,20 +28,19 @@
   </script>
 
   <style>
-    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    :root { --biru: #0056b3; --kuning: #ffc107; --bg: #f3f5f4; }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
-    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #333; }
+    .header { background: #0a3622; color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; }
     .header h1 { margin: 0; font-size: 20px; }
     .container { max-width: 900px; margin: 20px auto; padding: 0 16px; }
     
-    /* Card Control (Hanya muncul untuk Admin) */
     .card-control { background: white; padding: 20px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
     label { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
     select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; font-size: 15px; }
     .btn { border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; font-size: 15px; }
     .btn-print { background: #e67e22; width: 100%; }
-    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+    .btn-back { background: #0a3622; color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
 
     /* ================= DESAIN KARTU PELAJAR ================= */
     .kartu-wrapper {
@@ -53,48 +52,124 @@
     .kartu {
       width: 85.6mm; /* Ukuran standar ID Card (CR80) */
       height: 54mm;
-      background: linear-gradient(135deg, #0a3622 0%, #1a5c3a 100%);
+      background: #ffffff; /* DASAR PUTIH */
       border-radius: 10px;
-      color: white;
+      color: #333;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-      border: 2px solid var(--gold);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      border: 1px solid #ddd;
       padding: 10px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
+    /* Aksen Garis Biru di Kiri */
     .kartu::before {
       content: "";
       position: absolute;
-      top: -50px; right: -50px;
-      width: 150px; height: 150px;
-      background: rgba(212, 175, 55, 0.2);
+      top: 0; left: 0;
+      width: 12px; height: 100%;
+      background: var(--biru);
+      z-index: 1;
+    }
+
+    /* Aksen Lengkung Kuning di Kanan Atas */
+    .kartu::after {
+      content: "";
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 120px; height: 120px;
+      background: var(--kuning);
       border-radius: 50%;
       z-index: 0;
     }
 
-    .kartu-header { display: flex; align-items: center; gap: 10px; z-index: 1; }
-    .kartu-header img { width: 35px; height: 35px; background: white; border-radius: 50%; padding: 2px; object-fit: cover; }
+    .kartu-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 2;
+      padding-left: 10px;
+    }
+    .kartu-header img {
+      width: 35px; height: 35px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
     .kartu-header .sekolah { flex: 1; }
-    .kartu-header h3 { margin: 0; font-size: 12px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
-    .kartu-header p { margin: 0; font-size: 8px; color: #ddd; }
+    .kartu-header h3 { margin: 0; font-size: 13px; color: var(--biru); font-weight: 800; text-transform: uppercase; }
+    .kartu-header p { margin: 0; font-size: 8px; color: #666; font-weight: 600; }
 
-    .kartu-body { display: flex; gap: 10px; z-index: 1; align-items: flex-start; margin-top: 5px; }
+    .kartu-body {
+      display: flex;
+      gap: 10px;
+      z-index: 2;
+      align-items: flex-start;
+      margin-top: 5px;
+      padding-left: 10px;
+    }
+    
     .kartu-info { flex: 1; }
-    .kartu-info h2 { margin: 0 0 3px 0; font-size: 13px; color: #fff; line-height: 1.1; text-transform: uppercase; }
-    .kartu-info p { margin: 0; font-size: 9px; color: #ccc; line-height: 1.5; }
-    .kartu-info b { color: var(--gold); }
+    .kartu-info h2 {
+      margin: 0 0 3px 0;
+      font-size: 14px;
+      color: #111;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+    .kartu-info p {
+      margin: 0;
+      font-size: 9px;
+      color: #555;
+      line-height: 1.5;
+    }
+    .kartu-info b { color: var(--biru); }
 
-    .kartu-kanan { display: flex; flex-direction: column; align-items: center; width: 65px; }
-    .kartu-foto { width: 55px; height: 70px; border-radius: 6px; object-fit: cover; border: 2px solid var(--gold); margin-bottom: 4px; }
-    .barcode-area { background: white; padding: 2px 4px; border-radius: 4px; width: 100%; text-align: center; }
-    .barcode-area svg { width: 100%; height: 20px; }
+    /* Area Foto & Barcode di Kanan */
+    .kartu-kanan {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 65px;
+      background: white;
+      padding: 4px;
+      border-radius: 6px;
+      border: 1px solid #eee;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .kartu-foto {
+      width: 100%; height: 65px;
+      border-radius: 4px;
+      object-fit: cover;
+      margin-bottom: 4px;
+    }
+    
+    /* Area Barcode */
+    .barcode-area {
+      width: 100%;
+      text-align: center;
+      background: white;
+    }
+    .barcode-area svg {
+      width: 100%;
+      height: 18px;
+    }
 
-    .kartu-footer { display: flex; justify-content: space-between; align-items: flex-end; z-index: 1; margin-top: auto; }
-    .kartu-footer p { margin: 0; font-size: 7px; color: #aaa; }
+    .kartu-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 2;
+      margin-top: auto;
+      padding-left: 10px;
+    }
+    .kartu-footer p {
+      margin: 0;
+      font-size: 7px;
+      color: #999;
+    }
 
     /* CSS KHUSUS CETAK */
     @media print {
@@ -118,7 +193,7 @@
 
     <!-- CARD CONTROL (Hanya Muncul untuk Admin) -->
     <div class="card-control" id="cardControl">
-      <h3 style="margin-top: 0; color: var(--hijau);">Cetak Kartu Kelas</h3>
+      <h3 style="margin-top: 0; color: #0a3622;">Cetak Kartu Kelas</h3>
       <p style="font-size: 13px; color: #666;">Pilih nama siswa untuk menampilkan dan mencetak kartu.</p>
       
       <label>Pilih Siswa</label>
@@ -149,7 +224,7 @@
           </div>
 
           <div class="kartu-kanan">
-            <img id="kartuFoto" src="https://ui-avatars.com/api/?name=Siswa&background=0a3622&color=fff" class="kartu-foto">
+            <img id="kartuFoto" src="https://ui-avatars.com/api/?name=Siswa&background=0056b3&color=fff" class="kartu-foto">
             <div class="barcode-area">
               <svg id="barcodeSiswa"></svg>
             </div>
@@ -168,28 +243,24 @@
     if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
 
     function kembali() {
-      // Jika dibuka lewat iframe Dashboard
       if (window.parent && window.parent.tutupHalaman) {
         window.parent.tutupHalaman();
       } else {
-        // Jika dibuka mandiri (dari Profil Siswa)
         window.location.href = "profil-siswa.html";
       }
     }
 
     let semuaSiswa = [];
     const urlParams = new URLSearchParams(window.location.search);
-    const idSiswaUrl = urlParams.get('id'); // Ambil ID dari URL jika ada
+    const idSiswaUrl = urlParams.get('id');
 
     window.addEventListener('firebaseReady', async () => {
       const { collection, getDocs, doc, getDoc } = window.fbFunc;
       const db = window.db;
 
-      // ==========================================
-      // SKENARIO 1: DIBUKA OLEH SISWA (ADA ID DI URL)
-      // ==========================================
+      // SKENARIO 1: DIBUKA OLEH SISWA
       if (idSiswaUrl) {
-        document.getElementById("cardControl").style.display = "none"; // Sembunyikan pilihan
+        document.getElementById("cardControl").style.display = "none"; 
         document.getElementById("btnKembali").innerHTML = "⬅ Kembali ke Profil";
         
         try {
@@ -206,9 +277,7 @@
         }
       } 
       
-      // ==========================================
-      // SKENARIO 2: DIBUKA OLEH ADMIN (TANPA ID DI URL)
-      // ==========================================
+      // SKENARIO 2: DIBUKA OLEH ADMIN
       else {
         const select = document.getElementById("pilihSiswa");
         
@@ -222,7 +291,6 @@
             select.innerHTML += `<option value="${data.nama}">${data.nama}</option>`;
           });
           
-          // Urutkan nama
           const options = Array.from(select.options).slice(1).sort((a, b) => a.text.localeCompare(b.text));
           select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
           options.forEach(opt => select.appendChild(opt));
@@ -233,7 +301,6 @@
       }
     });
 
-    // Fungsi untuk Admin memilih dari dropdown
     function tampilkanKartu() {
       const nama = document.getElementById("pilihSiswa").value;
       const wrapper = document.getElementById("kartuWrapper");
@@ -252,7 +319,6 @@
       }
     }
 
-    // Fungsi inti untuk mengisi data ke dalam desain kartu
     function tampilkanDataKartu(siswa) {
       const wrapper = document.getElementById("kartuWrapper");
       
@@ -263,10 +329,9 @@
       if (siswa.foto) {
         document.getElementById("kartuFoto").src = siswa.foto;
       } else {
-        document.getElementById("kartuFoto").src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(siswa.nama) + '&background=0a3622&color=fff';
+        document.getElementById("kartuFoto").src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(siswa.nama) + '&background=0056b3&color=fff';
       }
 
-      // Generate Barcode berdasarkan NIS
       const isiBarcode = siswa.nis ? String(siswa.nis) : "12345678";
       try {
         JsBarcode("#barcodeSiswa", isiBarcode, {
