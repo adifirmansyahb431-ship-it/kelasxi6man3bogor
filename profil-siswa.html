@@ -281,7 +281,8 @@
     <h1>Profil Siswa</h1>
     <!-- TOMBOL KARTU KELAS & KELUAR -->
     <div style="display: flex; gap: 10px;">
-      <a href="kartu-siswa.html" style="background: #0984e3; color: white; text-decoration: none; padding: 8px 15px; border-radius: 20px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 15px rgba(9, 132, 227, 0.4); transition: 0.3s;">🪪 Kartu Kelas</a>
+      <!-- TOMBOL DIUBAH MENJADI FUNGSI JS AGAR MENGIRIM ID -->
+      <a href="javascript:void(0)" onclick="bukaKartuSaya()" style="background: #0984e3; color: white; text-decoration: none; padding: 8px 15px; border-radius: 20px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 15px rgba(9, 132, 227, 0.4); transition: 0.3s;">🪪 Kartu Kelas</a>
       <button class="btn-logout" onclick="logout()">KELUAR</button>
     </div>
   </div>
@@ -379,6 +380,15 @@
       }
 
       muatRiwayatAbsensi();
+    }
+
+    // FUNGSI BUKA KARTU (MENGIRIM ID SISWA)
+    function bukaKartuSaya() {
+      if (dataLogin && dataLogin.idDoc) {
+        window.location.href = "kartu-siswa.html?id=" + dataLogin.idDoc;
+      } else {
+        alert("ID siswa tidak ditemukan. Silakan login ulang.");
+      }
     }
 
     async function simpanProfil(e) {
