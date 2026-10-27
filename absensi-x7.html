@@ -85,7 +85,7 @@
       </div>
 
       <p style="font-size:13px; color:#666; margin-bottom:15px;">
-        Format Excel: <b>No | NISN | Nama Lengkap Siswa | L/P</b>. Baris pertama (judul) akan dilewati.
+        Format Excel: <b>No | NISN | Nama Lengkap Siswa | L/P</b>. Pastikan tidak ada data angka di kolom nama.
       </p>
 
       <div style="overflow-x: auto;">
@@ -124,7 +124,7 @@
     }
 
     // ==========================================
-    // FITUR UPLOAD EXCEL (DIPERBAIKI)
+    // FITUR UPLOAD EXCEL (LOGIKA LEBIH KETAT)
     // ==========================================
     function importDariExcel(event) {
       const file = event.target.files[0];
@@ -150,17 +150,17 @@
           let idxNama = headerRow.findIndex(h => h.includes("NAMA LENGKAP") || h === "NAMA");
           let idxNisn = headerRow.findIndex(h => h.includes("NISN") || h === "NIS");
 
-          // Jika header tidak ditemukan, gunakan asumsi default (kolom 2 = NISN, kolom 3 = Nama)
           if (idxNama === -1) idxNama = 2; 
           if (idxNisn === -1) idxNisn = 1;
 
           let siswaBaru = [];
-          for (let i = 1; i < json.length; i++) { // Mulai dari baris ke-2 (indeks 1)
+          for (let i = 1; i < json.length; i++) { 
             const row = json[i];
             const nama = row[idxNama] ? String(row[idxNama]).trim() : "";
             
-            // Abaikan baris kosong atau baris yang bukan nama (misal nomor)
-            if (nama !== "" && nama !== "undefined" && nama.toUpperCase() !== "KELAS : X-7") {
+            // Validasi: Nama harus ada, bukan angka murni, dan bukan teks "KELAS"
+            const isAngka = /^\d+$/.test(nama);
+            if (nama !== "" && !isAngka && !nama.toUpperCase().includes("KELAS")) {
               siswaBaru.push({
                 nama: nama,
                 nisn: row[idxNisn] ? String(row[idxNisn]).trim() : "-"
@@ -263,7 +263,6 @@
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
 
       try {
-        // 1. Ambil data siswa X-7
         const snapSiswa = await getDocs(collection(db, "SiswaX7"));
         listSiswaX7 = [];
         snapSiswa.forEach(doc => {
@@ -276,7 +275,6 @@
           return;
         }
 
-        // 2. Ambil data absensi hari ini
         dataAbsensiHariIni = {};
         const q = query(collection(db, "AbsensiX7"), where("tanggal", "==", tgl));
         const snapAbsensi = await getDocs(q);
@@ -284,7 +282,6 @@
           dataAbsensiHariIni[doc.data().nama] = doc.data();
         });
 
-        // 3. Render Tabel
         tbody.innerHTML = "";
         listSiswaX7.forEach((siswa, index) => {
           const record = dataAbsensiHariIni[siswa.nama] || { status: "Hadir", keterangan: "" };
