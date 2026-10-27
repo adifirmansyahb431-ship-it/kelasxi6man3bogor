@@ -115,60 +115,17 @@
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
 
-    // ==========================================
-    // BANK SOAL BARU (HITUNGAN & ANALISIS MRTS)
-    // ==========================================
     const soalPreTest = [
-      { 
-        q: "Diketahui kombinasi input A (2 unit tenaga kerja, 10 unit modal) dan B (3 unit tenaga kerja, 7 unit modal) menghasilkan output yang sama. Berapakah nilai MRTS (Marginal Rate of Technical Substitution) dari A ke B?", 
-        opsi: ["A. -1", "B. -2", "C. -3", "D. -4", "E. -5"], 
-        jawaban: 2 
-      },
-      { 
-        q: "Sebuah perusahaan memiliki fungsi anggaran C = 20.000.000. Upah tenaga kerja (w) = Rp 4.000.000 dan sewa modal (r) = Rp 2.000.000. Jika perusahaan menggunakan 3 tenaga kerja, berapa unit modal yang dapat disewa?", 
-        opsi: ["A. 2 unit", "B. 3 unit", "C. 4 unit", "D. 5 unit", "E. 6 unit"], 
-        jawaban: 2 
-      },
-      { 
-        q: "Pada tabel Isoquant, kombinasi X (4L, 6K) dan Y (5L, 4K) menghasilkan 200 unit output. Berapakah MRTS dari X ke Y?", 
-        opsi: ["A. -1", "B. -2", "C. -3", "D. -4", "E. -5"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Jika anggaran produsen (C) adalah Rp 30.000.000, upah (w) = Rp 5.000.000, dan sewa modal (r) = Rp 3.000.000. Berapakah kombinasi maksimum tenaga kerja dan modal yang bisa dicapai jika seluruh anggaran dibelanjakan?", 
-        opsi: ["A. 6L dan 0K", "B. 0L dan 10K", "C. 3L dan 5K", "D. 4L dan 3K", "E. 5L dan 2K"], 
-        jawaban: 0 
-      },
-      { 
-        q: "Diketahui MRTS antara Tenaga Kerja (L) dan Modal (K) adalah 3. Harga tenaga kerja (w) = Rp 6.000.000 dan harga modal (r) = Rp 2.000.000. Apakah produsen sudah dalam kondisi keseimbangan (efisien)?", 
-        opsi: ["A. Ya, karena MRTS = w/r", "B. Belum, karena MRTS > w/r", "C. Belum, karena MRTS < w/r", "D. Ya, karena w > r", "E. Tidak dapat ditentukan"], 
-        jawaban: 0 
-      },
-      { 
-        q: "Seorang produsen memproduksi 100 unit barang dengan kombinasi (2L, 6K). Jika ia ingin menambah tenaga kerja menjadi 3L dan tetap mempertahankan output 100 unit, berapa unit modal yang harus dikurangi jika MRTS = -3?", 
-        opsi: ["A. 1 unit", "B. 2 unit", "C. 3 unit", "D. 4 unit", "E. 5 unit"], 
-        jawaban: 2 
-      },
-      { 
-        q: "Perhatikan data berikut: Kombinasi P (0L, 8K) dan Q (4L, 0K) berada pada garis Isocost yang sama. Berapakah kemiringan (slope) garis Isocost tersebut (r/w)?", 
-        opsi: ["A. -0,5", "B. -1", "C. -2", "D. -4", "E. -8"], 
-        jawaban: 2 
-      },
-      { 
-        q: "Sebuah UMKM memiliki anggaran Rp 12.000.000. Upah tenaga kerja Rp 3.000.000/orang dan sewa mesin Rp 1.500.000/unit. Jika UMKM tersebut memilih kombinasi (2L, 4K), berapa sisa anggaran yang tidak terpakai?", 
-        opsi: ["A. Rp 0", "B. Rp 1.500.000", "C. Rp 3.000.000", "D. Rp 4.500.000", "E. Rp 6.000.000"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Mengapa kurva Isoquant tidak pernah berpotongan (bersilangan) dengan kurva Isoquant lainnya?", 
-        opsi: ["A. Karena harga input berbeda", "B. Karena akan melanggar hukum efisiensi (satu kombinasi input tidak mungkin menghasilkan dua output berbeda)", "C. Karena anggaran produsen terbatas", "D. Karena kurva Isoquant selalu lurus", "E. Karena teknologi bersifat konstan"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Jika harga tenaga kerja (w) turun, sementara anggaran dan harga modal tetap, bagaimana perubahan pada garis Isocost?", 
-        opsi: ["A. Bergeser sejajar ke kanan", "B. Berputar pada sumbu K (menjadi lebih datar)", "C. Berputar pada sumbu K (menjadi lebih curam)", "D. Tetap di posisi semula", "E. Bergeser ke kiri bawah"], 
-        jawaban: 1 
-      }
+      { q: "Diketahui kombinasi input A (2 unit tenaga kerja, 10 unit modal) dan B (3 unit tenaga kerja, 7 unit modal) menghasilkan output yang sama. Berapakah nilai MRTS (Marginal Rate of Technical Substitution) dari A ke B?", opsi: ["A. -1", "B. -2", "C. -3", "D. -4", "E. -5"], jawaban: 2 },
+      { q: "Sebuah perusahaan memiliki fungsi anggaran C = 20.000.000. Upah tenaga kerja (w) = Rp 4.000.000 dan sewa modal (r) = Rp 2.000.000. Jika perusahaan menggunakan 3 tenaga kerja, berapa unit modal yang dapat disewa?", opsi: ["A. 2 unit", "B. 3 unit", "C. 4 unit", "D. 5 unit", "E. 6 unit"], jawaban: 2 },
+      { q: "Pada tabel Isoquant, kombinasi X (4L, 6K) dan Y (5L, 4K) menghasilkan 200 unit output. Berapakah MRTS dari X ke Y?", opsi: ["A. -1", "B. -2", "C. -3", "D. -4", "E. -5"], jawaban: 1 },
+      { q: "Jika anggaran produsen (C) adalah Rp 30.000.000, upah (w) = Rp 5.000.000, dan sewa modal (r) = Rp 3.000.000. Berapakah kombinasi maksimum tenaga kerja dan modal yang bisa dicapai jika seluruh anggaran dibelanjakan?", opsi: ["A. 6L dan 0K", "B. 0L dan 10K", "C. 3L dan 5K", "D. 4L dan 3K", "E. 5L dan 2K"], jawaban: 0 },
+      { q: "Diketahui MRTS antara Tenaga Kerja (L) dan Modal (K) adalah 3. Harga tenaga kerja (w) = Rp 6.000.000 dan harga modal (r) = Rp 2.000.000. Apakah produsen sudah dalam kondisi keseimbangan (efisien)?", opsi: ["A. Ya, karena MRTS = w/r", "B. Belum, karena MRTS > w/r", "C. Belum, karena MRTS < w/r", "D. Ya, karena w > r", "E. Tidak dapat ditentukan"], jawaban: 0 },
+      { q: "Seorang produsen memproduksi 100 unit barang dengan kombinasi (2L, 6K). Jika ia ingin menambah tenaga kerja menjadi 3L dan tetap mempertahankan output 100 unit, berapa unit modal yang harus dikurangi jika MRTS = -3?", opsi: ["A. 1 unit", "B. 2 unit", "C. 3 unit", "D. 4 unit", "E. 5 unit"], jawaban: 2 },
+      { q: "Perhatikan data berikut: Kombinasi P (0L, 8K) dan Q (4L, 0K) berada pada garis Isocost yang sama. Berapakah kemiringan (slope) garis Isocost tersebut (r/w)?", opsi: ["A. -0,5", "B. -1", "C. -2", "D. -4", "E. -8"], jawaban: 2 },
+      { q: "Sebuah UMKM memiliki anggaran Rp 12.000.000. Upah tenaga kerja Rp 3.000.000/orang dan sewa mesin Rp 1.500.000/unit. Jika UMKM tersebut memilih kombinasi (2L, 4K), berapa sisa anggaran yang tidak terpakai?", opsi: ["A. Rp 0", "B. Rp 1.500.000", "C. Rp 3.000.000", "D. Rp 4.500.000", "E. Rp 6.000.000"], jawaban: 1 },
+      { q: "Mengapa kurva Isoquant tidak pernah berpotongan (bersilangan) dengan kurva Isoquant lainnya?", opsi: ["A. Karena harga input berbeda", "B. Karena akan melanggar hukum efisiensi (satu kombinasi input tidak mungkin menghasilkan dua output berbeda)", "C. Karena anggaran produsen terbatas", "D. Karena kurva Isoquant selalu lurus", "E. Karena teknologi bersifat konstan"], jawaban: 1 },
+      { q: "Jika harga tenaga kerja (w) turun, sementara anggaran dan harga modal tetap, bagaimana perubahan pada garis Isocost?", opsi: ["A. Bergeser sejajar ke kanan", "B. Berputar pada sumbu K (menjadi lebih datar)", "C. Berputar pada sumbu K (menjadi lebih curam)", "D. Tetap di posisi semula", "E. Bergeser ke kiri bawah"], jawaban: 1 }
     ];
 
     let soalAktif = 0;
@@ -201,8 +158,13 @@
               `).join('')}
             </div>
             <div class="cbt-nav">
+              <!-- TOMBOL SEBELUMNYA -->
               <button class="btn-nav" onclick="pindahSoal(${index - 1})" ${index === 0 ? 'style="visibility:hidden"' : ''}>⬅ Sebelumnya</button>
+              
+              <!-- TOMBOL SELANJUTNYA -->
               <button class="btn-nav primary" onclick="pindahSoal(${index + 1})" ${index === bankSoal.length - 1 ? 'style="display:none"' : ''}>Selanjutnya ➡</button>
+              
+              <!-- TOMBOL SELESAI -->
               <button class="btn-nav primary" onclick="selesaiUjian()" ${index === bankSoal.length - 1 ? 'style="display:block"' : 'style="display:none"'}>Selesai & Lihat Skor</button>
             </div>
           </div>
@@ -219,13 +181,19 @@
       gridNomor.innerHTML = htmlNomor;
     }
 
+    // FUNGSI NAVIGASI SOAL (SUDAH DIPERBAIKI)
     function pindahSoal(indexTujuan) {
+      // Cek batas minimal dan maksimal soal
       if (indexTujuan < 0 || indexTujuan >= soalPreTest.length) return;
 
+      // Sembunyikan semua soal
       document.querySelectorAll('.soal-item').forEach(el => el.style.display = 'none');
+      
+      // Tampilkan soal yang dituju
       const soalTarget = document.getElementById(`soal-${indexTujuan}`);
       if (soalTarget) soalTarget.style.display = 'block';
 
+      // Update warna tombol nomor
       document.querySelectorAll('.nomor-btn').forEach(el => el.classList.remove('active'));
       const btnNomor = document.getElementById(`btn-nomor-${indexTujuan}`);
       if (btnNomor) btnNomor.classList.add('active');
@@ -280,6 +248,7 @@
         </div>
       `;
 
+      // Sembunyikan sidebar nomor saat ujian selesai
       document.querySelector('.sidebar-nomor').style.display = 'none';
 
       if (namaSiswa) {
