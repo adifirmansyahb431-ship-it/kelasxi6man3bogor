@@ -60,9 +60,27 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
     // ==========================================
-    // 1. BANK SOAL (HARUS DI ATAS)
+    // 1. IMPORT FIREBASE (WAJIB UNTUK SIMPAN NILAI)
+    // ==========================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+
+    // ==========================================
+    // 2. BANK SOAL (10 SOAL)
     // ==========================================
     const soalPreTest = [
       { q: "Keseluruhan tindakan produsen dalam mengombinasikan input untuk menghasilkan output secara efisien disebut...", opsi: ["A. Perilaku Konsumen", "B. Perilaku Produsen", "C. Distribusi", "D. Konsumsi", "E. Produksi"], jawaban: 1 },
@@ -78,10 +96,11 @@
     ];
 
     // ==========================================
-    // 2. VARIABEL & FUNGSI-FUNGSI CBT
+    // 3. VARIABEL & FUNGSI-FUNGSI CBT
     // ==========================================
     let soalAktif = 0;
     let timerInterval;
+    const namaSiswa = localStorage.getItem("cbtNamaSiswa");
 
     function mulaiUjian() {
       renderSoal(soalPreTest);
@@ -161,7 +180,7 @@
       }, 1000);
     }
 
-    function selesaiUjian() {
+    async function selesaiUjian() {
       clearInterval(timerInterval);
       let skor = 0;
       
@@ -175,6 +194,7 @@
       const persentase = Math.round((skor / soalPreTest.length) * 100);
       const container = document.getElementById('cbtPreBody');
       
+      // TAMPILKAN HASIL
       container.innerHTML = `
         <div class="hasil-box">
           <h3 style="border:none; text-align:center;">Hasil Ujian CBT</h3>
@@ -185,14 +205,32 @@
         </div>
       `;
 
+      // ==========================================
+      // 4. SIMPAN NILAI KE FIREBASE (OTOMATIS)
+      // ==========================================
+      if (namaSiswa) {
+        try {
+          await addDoc(collection(window.db, "HasilUjian"), {
+            nama: namaSiswa,
+            skor: skor,
+            totalSoal: soalPreTest.length,
+            persentase: persentase,
+            tanggal: new Date().toISOString().split('T')[0]
+          });
+          console.log("✅ Nilai berhasil disimpan ke Database!");
+        } catch (error) {
+          console.error("❌ Gagal menyimpan nilai:", error);
+        }
+      }
+
+      // Hapus Sesi CBT
       localStorage.removeItem("cbtNamaSiswa");
       localStorage.removeItem("cbtNisSiswa");
     }
 
     // ==========================================
-    // 3. CEK LOGIN & JALANKAN (PALING BAWAH)
+    // 5. CEK LOGIN & JALANKAN (PALING BAWAH)
     // ==========================================
-    const namaSiswa = localStorage.getItem("cbtNamaSiswa");
     if (!namaSiswa) {
       alert("Anda belum login. Silakan login terlebih dahulu.");
       window.location.href = "login-cbt.html";
