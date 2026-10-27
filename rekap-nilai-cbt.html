@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rekap Nilai CBT - SIPADAK</title>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    window.fbFunc = { collection, getDocs, query, orderBy };
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    .card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
+    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    th { background: #f8fafc; }
+    .skor-tinggi { color: #27ae60; font-weight: bold; }
+    .skor-rendah { color: #e74c3c; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>📊 Rekap Nilai Ujian CBT</h1>
+    <span>SIPADAK XI-6</span>
+  </div>
+
+  <div class="container">
+    <a href="javascript:void(0)" onclick="kembali()" class="btn-back">⬅ Kembali ke Dashboard</a>
+
+    <div class="card">
+      <h3 style="margin-top: 0; color: var(--hijau);">Daftar Nilai Siswa</h3>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Siswa</th>
+              <th>Tanggal</th>
+              <th>Benar</th>
+              <th>Total Soal</th>
+              <th>Nilai Akhir</th>
+            </tr>
+          </thead>
+          <tbody id="listNilai">
+            <tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+
+    function kembali() {
+      if (window.parent && window.parent.tutupHalaman) {
+        window.parent.tutupHalaman();
+      } else {
+        window.location.href = "dashboard-induk.html";
+      }
+    }
+
+    window.addEventListener('firebaseReady', async () => {
+      const { collection, getDocs, query, orderBy } = window.fbFunc;
+      const db = window.db;
+      const tbody = document.getElementById("listNilai");
+
+      try {
+        // Ambil data nilai, urutkan berdasarkan tanggal terbaru
+        const q = query(collection(db, "HasilUjian"), orderBy("tanggal", "desc"));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada siswa yang mengikuti ujian.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = "";
+        let no = 1;
+        snap.forEach(doc => {
+          const data = doc.data();
+          const kelasSkor = data.persentase >= 70 ? "skor-tinggi" : "skor-rendah";
+
+          tbody.innerHTML += `
+            <tr>
+              <td>${no++}</td>
+              <td><b>${data.nama}</b></td>
+              <td>${data.tanggal}</td>
+              <td>${data.skor}</td>
+              <td>${data.totalSoal}</td>
+              <td class="${kelasSkor}">${data.persentase}</td>
+            </tr>
+          `;
+        });
+
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Gagal memuat data.</td></tr>';
+      }
+    });
+  </script>
+</body>
+</html>
