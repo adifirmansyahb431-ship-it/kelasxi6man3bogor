@@ -21,6 +21,22 @@
     .sambutan h2 { color: var(--hijau); font-size: 24px; margin-bottom: 10px; }
     .sambutan p { color: #64748b; font-size: 15px; }
 
+    /* TOMBOL CBT SISWA */
+    .cbt-button-container { text-align: center; margin-bottom: 30px; }
+    .btn-cbt { 
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); 
+      color: white; 
+      padding: 15px 30px; 
+      border-radius: 10px; 
+      text-decoration: none; 
+      font-weight: bold; 
+      font-size: 18px; 
+      box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4); 
+      display: inline-block;
+      transition: 0.3s;
+    }
+    .btn-cbt:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6); }
+
     /* GRID MATERI */
     .grid-materi { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
     
@@ -79,6 +95,11 @@
     <div class="sambutan">
       <h2>Pilih Materi Pembelajaran</h2>
       <p>Silakan pilih salah satu kartu di bawah ini untuk mulai belajar. Setiap materi dilengkapi Pre-Test, Materi Interaktif, dan Post-Test.</p>
+    </div>
+
+    <!-- TOMBOL CBT SISWA -->
+    <div class="cbt-button-container">
+      <a href="login-cbt.html" class="btn-cbt">🚀 MULAI UJIAN CBT (SISWA)</a>
     </div>
 
     <div class="grid-materi">
