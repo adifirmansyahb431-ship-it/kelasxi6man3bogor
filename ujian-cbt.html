@@ -61,9 +61,6 @@
   </div>
 
   <script type="module">
-    // ==========================================
-    // 1. IMPORT FIREBASE (WAJIB UNTUK SIMPAN NILAI)
-    // ==========================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
@@ -79,9 +76,6 @@
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
 
-    // ==========================================
-    // 2. BANK SOAL (10 SOAL)
-    // ==========================================
     const soalPreTest = [
       { q: "Keseluruhan tindakan produsen dalam mengombinasikan input untuk menghasilkan output secara efisien disebut...", opsi: ["A. Perilaku Konsumen", "B. Perilaku Produsen", "C. Distribusi", "D. Konsumsi", "E. Produksi"], jawaban: 1 },
       { q: "Kurva yang menunjukkan berbagai kombinasi dua faktor produksi yang menghasilkan jumlah output yang sama disebut...", opsi: ["A. Isocost", "B. Isoquant", "C. Kurva Permintaan", "D. Kurva Penawaran", "E. Garis Anggaran"], jawaban: 1 },
@@ -95,16 +89,13 @@
       { q: "Jika upah tenaga kerja (w) naik, sementara anggaran dan sewa modal tetap, bagaimana pengaruhnya terhadap garis Isocost?", opsi: ["A. Garis Isocost bergeser sejajar ke kanan", "B. Garis Isocost menjadi lebih landai (berputar pada sumbu K)", "C. Garis Isocost menjadi lebih curam (berputar pada sumbu K)", "D. Garis Isocost tidak berubah", "E. Garis Isocost bergeser ke kiri bawah"], jawaban: 2 }
     ];
 
-    // ==========================================
-    // 3. VARIABEL & FUNGSI-FUNGSI CBT
-    // ==========================================
     let soalAktif = 0;
     let timerInterval;
     const namaSiswa = localStorage.getItem("cbtNamaSiswa");
 
     function mulaiUjian() {
       renderSoal(soalPreTest);
-      mulaiTimer(900); // 15 menit
+      mulaiTimer(900); 
     }
 
     function renderSoal(bankSoal) {
@@ -194,20 +185,18 @@
       const persentase = Math.round((skor / soalPreTest.length) * 100);
       const container = document.getElementById('cbtPreBody');
       
-      // TAMPILKAN HASIL
       container.innerHTML = `
         <div class="hasil-box">
           <h3 style="border:none; text-align:center;">Hasil Ujian CBT</h3>
           <p class="skor-angka">${persentase}</p>
           <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
           <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${soalPreTest.length}</strong> soal.</p>
-          <button class="btn-nav primary" style="margin-top:20px;" onclick="window.location.href='media-belajar.html'">🏠 Kembali ke Media Belajar</button>
+          <!-- TOMBOL KEMBALI KE BERANDA (LOGIN) -->
+          <button class="btn-nav primary" style="margin-top:20px;" onclick="window.location.href='index.html'">🏠 Kembali ke Beranda</button>
         </div>
       `;
 
-      // ==========================================
-      // 4. SIMPAN NILAI KE FIREBASE (OTOMATIS)
-      // ==========================================
+      // SIMPAN NILAI
       if (namaSiswa) {
         try {
           await addDoc(collection(window.db, "HasilUjian"), {
@@ -217,20 +206,15 @@
             persentase: persentase,
             tanggal: new Date().toISOString().split('T')[0]
           });
-          console.log("✅ Nilai berhasil disimpan ke Database!");
         } catch (error) {
-          console.error("❌ Gagal menyimpan nilai:", error);
+          console.error("Gagal simpan nilai:", error);
         }
       }
 
-      // Hapus Sesi CBT
       localStorage.removeItem("cbtNamaSiswa");
       localStorage.removeItem("cbtNisSiswa");
     }
 
-    // ==========================================
-    // 5. CEK LOGIN & JALANKAN (PALING BAWAH)
-    // ==========================================
     if (!namaSiswa) {
       alert("Anda belum login. Silakan login terlebih dahulu.");
       window.location.href = "login-cbt.html";
