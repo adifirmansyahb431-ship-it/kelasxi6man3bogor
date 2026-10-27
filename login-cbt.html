@@ -98,6 +98,12 @@
         pesan.textContent = "❌ Gagal terhubung ke database.";
       }
     }
+        // Jika siswa berhasil login, arahkan ke halaman ujian
+    if (loginBerhasil && dataSiswa) {
+      localStorage.setItem("cbtNamaSiswa", dataSiswa.nama);
+      localStorage.setItem("cbtNisSiswa", nis);
+      window.location.href = "ujian-cbt.html"; 
+    }
   </script>
 </body>
 </html>
