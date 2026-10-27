@@ -235,6 +235,19 @@
       localStorage.removeItem("cbtNamaSiswa");
       localStorage.removeItem("cbtNisSiswa");
     }
+        const soalPreTest = [
+      { 
+        q: "Keseluruhan tindakan produsen dalam mengombinasikan input untuk menghasilkan output secara efisien disebut...", 
+        opsi: ["A. Perilaku Konsumen", "B. Perilaku Produsen", "C. Distribusi", "D. Konsumsi", "E. Produksi"], 
+        jawaban: 1 
+      },
+      // ... (soal lainnya) ...
+    ];
+
+    function mulaiUjian() {
+      renderSoal(soalPreTest);
+      mulaiTimer(900); // 15 menit
+    }
   </script>
 </body>
 </html>
