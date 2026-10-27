@@ -10,7 +10,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, query, where, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, query, where, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
@@ -23,7 +23,7 @@
 
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    window.fbFunc = { collection, getDocs, addDoc, query, where, doc, setDoc };
+    window.fbFunc = { collection, getDocs, addDoc, query, where, doc, setDoc, deleteDoc };
     window.dispatchEvent(new Event('firebaseReady'));
   </script>
 
@@ -40,8 +40,9 @@
     input[type="date"] { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-weight: bold; }
     .btn { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; }
     .btn-save { background: #16a085; }
-    .btn-upload { background: #e67e22; margin-left: auto; text-align: center;}
+    .btn-upload { background: #e67e22; margin-left: auto; text-align: center; display: inline-block;}
     .btn-tambah { background: #2980b9; }
+    .btn-reset { background: #e74c3c; }
 
     /* Tabel Absensi */
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -79,23 +80,27 @@
         </label>
 
         <button class="btn btn-tambah" onclick="tambahSiswa()">➕ Tambah Manual</button>
+        <button class="btn btn-reset" onclick="hapusSemuaSiswa()">🗑️ Hapus Semua</button>
         <button class="btn btn-save" onclick="simpanAbsensi()">💾 SIMPAN ABSENSI</button>
       </div>
 
-      <p style="font-size:13px; color:#666; margin-bottom:15px;">Format Excel: Kolom pertama <b>Nama</b>, kolom kedua <b>NIS</b> (opsional).</p>
+      <p style="font-size:13px; color:#666; margin-bottom:15px;">
+        Format Excel: <b>No | NISN | Nama Lengkap Siswa | L/P</b>. Baris pertama (judul) akan dilewati.
+      </p>
 
       <div style="overflow-x: auto;">
         <table>
           <thead>
             <tr>
               <th style="width: 40px;">No</th>
+              <th>NISN</th>
               <th>Nama Siswa</th>
               <th style="width: 150px;">Status</th>
               <th style="width: 200px;">Keterangan</th>
             </tr>
           </thead>
           <tbody id="listAbsensi">
-            <tr><td colspan="4" style="text-align:center;">Belum ada data siswa. Silakan upload Excel atau Tambah Manual.</td></tr>
+            <tr><td colspan="5" style="text-align:center;">Belum ada data siswa. Silakan upload Excel atau Tambah Manual.</td></tr>
           </tbody>
         </table>
       </div>
@@ -119,7 +124,7 @@
     }
 
     // ==========================================
-    // FITUR UPLOAD EXCEL
+    // FITUR UPLOAD EXCEL (DIPERBAIKI)
     // ==========================================
     function importDariExcel(event) {
       const file = event.target.files[0];
@@ -132,43 +137,42 @@
           const workbook = XLSX.read(data, { type: 'array' });
           const worksheet = workbook.Sheets[workbook.SheetNames[0]];
           
-          // Baca Excel menjadi JSON
           const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
           
           if (json.length < 2) {
-            alert("File Excel kosong atau format tidak sesuai.");
+            alert("File Excel kosong atau tidak ada data.");
             return;
           }
 
-          // Cari baris header (Nama)
-          let idxNama = 0;
-          let idxNis = 1;
-          let startRow = 0;
-
+          // Cari indeks kolom berdasarkan header
           const headerRow = json[0].map(c => String(c).toUpperCase().trim());
-          if (headerRow.includes("NAMA")) {
-            idxNama = headerRow.indexOf("NAMA");
-            idxNis = headerRow.indexOf("NIS") > -1 ? headerRow.indexOf("NIS") : -1;
-            startRow = 1; // Mulai dari baris kedua jika ada header
-          }
+          
+          let idxNama = headerRow.findIndex(h => h.includes("NAMA LENGKAP") || h === "NAMA");
+          let idxNisn = headerRow.findIndex(h => h.includes("NISN") || h === "NIS");
+
+          // Jika header tidak ditemukan, gunakan asumsi default (kolom 2 = NISN, kolom 3 = Nama)
+          if (idxNama === -1) idxNama = 2; 
+          if (idxNisn === -1) idxNisn = 1;
 
           let siswaBaru = [];
-          for (let i = startRow; i < json.length; i++) {
+          for (let i = 1; i < json.length; i++) { // Mulai dari baris ke-2 (indeks 1)
             const row = json[i];
-            if (row[idxNama] && String(row[idxNama]).trim() !== "") {
+            const nama = row[idxNama] ? String(row[idxNama]).trim() : "";
+            
+            // Abaikan baris kosong atau baris yang bukan nama (misal nomor)
+            if (nama !== "" && nama !== "undefined" && nama.toUpperCase() !== "KELAS : X-7") {
               siswaBaru.push({
-                nama: String(row[idxNama]).trim(),
-                nis: idxNis > -1 && row[idxNis] ? String(row[idxNis]).trim() : "-"
+                nama: nama,
+                nisn: row[idxNisn] ? String(row[idxNisn]).trim() : "-"
               });
             }
           }
 
           if (siswaBaru.length === 0) {
-            alert("Tidak ada data nama siswa yang ditemukan di Excel.");
+            alert("Tidak ada data nama siswa yang valid di Excel.");
             return;
           }
 
-          // Simpan ke Firebase (Koleksi SiswaX7)
           simpanSiswaKeFirebase(siswaBaru);
 
         } catch (err) {
@@ -187,7 +191,7 @@
         let promises = siswaBaru.map(siswa => {
           return addDoc(collection(db, "SiswaX7"), {
             nama: siswa.nama,
-            nis: siswa.nis,
+            nisn: siswa.nisn,
             kelas: "X-7"
           });
         });
@@ -214,10 +218,29 @@
       try {
         await addDoc(collection(db, "SiswaX7"), {
           nama: nama,
-          kelas: "X-7",
-          nis: "-"
+          nisn: "-",
+          kelas: "X-7"
         });
         alert("Siswa berhasil ditambahkan!");
+        muatDataAbsensi();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    async function hapusSemuaSiswa() {
+      if(!confirm("Yakin ingin menghapus SEMUA data siswa X-7? (Data absensi juga akan terhapus)")) return;
+      
+      const { collection, getDocs, deleteDoc, doc } = window.fbFunc;
+      const db = window.db;
+      
+      try {
+        const snap = await getDocs(collection(db, "SiswaX7"));
+        let promises = [];
+        snap.forEach(d => promises.push(deleteDoc(doc(db, "SiswaX7", d.id))));
+        await Promise.all(promises);
+        
+        alert("Semua data siswa X-7 berhasil dihapus.");
         muatDataAbsensi();
       } catch (error) {
         console.error(error);
@@ -237,16 +260,19 @@
       const db = window.db;
       const tbody = document.getElementById("listAbsensi");
 
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
 
       try {
         // 1. Ambil data siswa X-7
         const snapSiswa = await getDocs(collection(db, "SiswaX7"));
         listSiswaX7 = [];
-        snapSiswa.forEach(doc => listSiswaX7.push(doc.data().nama));
+        snapSiswa.forEach(doc => {
+          const data = doc.data();
+          listSiswaX7.push({ nama: data.nama, nisn: data.nisn || "-" });
+        });
 
         if (listSiswaX7.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data siswa X-7. Silakan upload Excel atau Tambah Manual.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data siswa X-7. Silakan upload Excel atau Tambah Manual.</td></tr>';
           return;
         }
 
@@ -260,13 +286,14 @@
 
         // 3. Render Tabel
         tbody.innerHTML = "";
-        listSiswaX7.forEach((nama, index) => {
-          const record = dataAbsensiHariIni[nama] || { status: "Hadir", keterangan: "" };
+        listSiswaX7.forEach((siswa, index) => {
+          const record = dataAbsensiHariIni[siswa.nama] || { status: "Hadir", keterangan: "" };
           
           tbody.innerHTML += `
             <tr>
               <td style="text-align:center;">${index + 1}</td>
-              <td><b>${nama}</b></td>
+              <td>${siswa.nisn}</td>
+              <td><b>${siswa.nama}</b></td>
               <td>
                 <select class="status-select ${record.status}" onchange="ubahWarna(this)">
                   <option value="Hadir" ${record.status === 'Hadir' ? 'selected' : ''}>Hadir</option>
@@ -282,7 +309,7 @@
 
       } catch (error) {
         console.error(error);
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat data.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat data.</td></tr>';
       }
     }
 
@@ -309,7 +336,7 @@
         rows.forEach((tr, i) => {
           if (i >= listSiswaX7.length) return;
           
-          const nama = listSiswaX7[i];
+          const nama = listSiswaX7[i].nama;
           const status = tr.querySelector('.status-select').value;
           const ket = tr.querySelector('.input-ket').value;
           
