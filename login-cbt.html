@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login CBT - SIPADAK XI-6</title>
+  <title>Login CBT - SIPADAK</title>
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -25,7 +25,7 @@
   </script>
 
   <style>
-    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1e293b; }
+    :root { --hijau: #0a3622; --gold: #d4af37; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, var(--hijau) 0%, #1a5c3a 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
     .login-box { background: white; width: min(400px, 90%); padding: 30px 24px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
@@ -33,7 +33,7 @@
     .login-box p { text-align: center; font-size: 13px; color: #666; margin: 0 0 20px; }
     input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
     .btn-login { width: 100%; padding: 12px; background: var(--hijau); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-    #loginMessage { color: #e74c3c; text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; height: 18px; }
+    #loginMessage { color: #e74c3c; text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; min-height: 18px; }
   </style>
 </head>
 <body>
@@ -69,15 +69,14 @@
         const { collection, getDocs } = window.fbFunc;
         const db = window.db;
 
-        // Cari siswa berdasarkan NIS
-        const querySnapshot = await getDocs(collection(db, "Siswa"));
         let loginBerhasil = false;
         let dataSiswa = null;
 
-        querySnapshot.forEach((doc) => {
+        // 1. Cek di koleksi "Siswa" (Kelas XI-6)
+        const snapSiswa = await getDocs(collection(db, "Siswa"));
+        snapSiswa.forEach((doc) => {
           const data = doc.data();
           if(data.nis === nis) {
-             // Cek password (default 123456 atau password dari DB)
              if(pass === data.password || (data.password === undefined && pass === "123456")) { 
                loginBerhasil = true;
                dataSiswa = data;
@@ -85,10 +84,27 @@
           }
         });
 
+        // 2. Jika tidak ketemu, cek di koleksi "SiswaX7" (Kelas X-7)
+        if (!loginBerhasil) {
+          const snapX7 = await getDocs(collection(db, "SiswaX7"));
+          snapX7.forEach((doc) => {
+            const data = doc.data();
+            const nisSiswa = data.nisn || data.nis;
+            
+            if(nisSiswa === nis) {
+               if(pass === data.password || (data.password === undefined && pass === "123456")) { 
+                 loginBerhasil = true;
+                 dataSiswa = data;
+               }
+            }
+          });
+        }
+
         if (loginBerhasil && dataSiswa) {
-          // Simpan sesi siswa untuk ujian
+          // Simpan sesi siswa
           localStorage.setItem("cbtNamaSiswa", dataSiswa.nama);
-          localStorage.setItem("cbtNisSiswa", dataSiswa.nis);
+          localStorage.setItem("cbtNisSiswa", nis);
+          // Arahkan ke halaman ujian
           window.location.href = "ujian-cbt.html"; 
         } else {
            pesan.textContent = "❌ NIS tidak ditemukan atau Password salah!";
@@ -97,12 +113,6 @@
         console.error(error);
         pesan.textContent = "❌ Gagal terhubung ke database.";
       }
-    }
-        // Jika siswa berhasil login, arahkan ke halaman ujian
-    if (loginBerhasil && dataSiswa) {
-      localStorage.setItem("cbtNamaSiswa", dataSiswa.nama);
-      localStorage.setItem("cbtNisSiswa", nis);
-      window.location.href = "ujian-cbt.html"; 
     }
   </script>
 </body>
