@@ -61,72 +61,25 @@
   </div>
 
   <script>
-    // Cek apakah siswa sudah login CBT
-    const namaSiswa = localStorage.getItem("cbtNamaSiswa");
-    if (!namaSiswa) {
-      alert("Anda belum login. Silakan login terlebih dahulu.");
-      window.location.href = "login-cbt.html";
-    } else {
-      document.getElementById("infoSiswa").textContent = `Peserta: ${namaSiswa}`;
-      mulaiUjian();
-    }
-
     // ==========================================
-    // BANK SOAL (10 SOAL PERILAKU PRODUSEN - OPSI A-E LENGKAP)
+    // 1. BANK SOAL (HARUS DI ATAS)
     // ==========================================
     const soalPreTest = [
-      { 
-        q: "Keseluruhan tindakan produsen dalam mengombinasikan input untuk menghasilkan output secara efisien disebut...", 
-        opsi: ["A. Perilaku Konsumen", "B. Perilaku Produsen", "C. Distribusi", "D. Konsumsi", "E. Produksi"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Kurva yang menunjukkan berbagai kombinasi dua faktor produksi yang menghasilkan jumlah output yang sama disebut...", 
-        opsi: ["A. Isocost", "B. Isoquant", "C. Kurva Permintaan", "D. Kurva Penawaran", "E. Garis Anggaran"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Garis yang menunjukkan kombinasi faktor produksi yang dapat dibeli dengan anggaran tertentu disebut...", 
-        opsi: ["A. Isoquant", "B. Isocost", "C. Kurva Indiferen", "D. Garis Anggaran", "E. Kurva Biaya"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Manakah yang BUKAN termasuk faktor yang mempengaruhi perilaku produsen?", 
-        opsi: ["A. Harga faktor produksi", "B. Tingkat teknologi", "C. Selera konsumen", "D. Kebijakan pemerintah", "E. Tujuan perusahaan"], 
-        jawaban: 2 
-      },
-      { 
-        q: "Jika total biaya (C) Rp 10.000.000, upah tenaga kerja (w) Rp 2.000.000, dan sewa modal (r) Rp 2.000.000. Jika produsen menggunakan 3 tenaga kerja, berapa unit modal yang bisa disewa?", 
-        opsi: ["A. 1 unit", "B. 2 unit", "C. 3 unit", "D. 4 unit", "E. 5 unit"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Pada tabel Isoquant, kombinasi A (1L, 12K) dan B (2L, 8K) menghasilkan output 100 unit. Berapakah MRTS dari A ke B?", 
-        opsi: ["A. -2", "B. -3", "C. -4", "D. -5", "E. -6"], 
-        jawaban: 2 
-      },
-      { 
-        q: "Jika anggaran produsen naik dari Rp 12.000.000 menjadi Rp 15.000.000, apa yang terjadi pada garis Isocost?", 
-        opsi: ["A. Bergerak ke kiri bawah", "B. Bergeser sejajar ke kanan atas", "C. Berputar pada sumbu L", "D. Tetap di posisi semula", "E. Berputar pada sumbu K"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Seorang produsen memiliki anggaran Rp 12.000.000. Kombinasi (3L, 2K) menghabiskan Rp 12.000.000 dan menghasilkan 100 unit. Kombinasi (1L, 3K) menghabiskan Rp 11.000.000 dan menghasilkan 80 unit. Analisis yang tepat adalah...", 
-        opsi: ["A. Kombinasi (1,3) lebih efisien karena lebih murah", "B. Kombinasi (3,2) adalah keseimbangan produsen karena anggaran terpakai optimal untuk output maksimal", "C. Kombinasi (1,3) sebaiknya dipilih karena menyisakan uang", "D. Kedua kombinasi sama efisiennya", "E. Produsen sebaiknya menambah anggaran"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Mengapa kurva Isoquant berbentuk cembung ke arah titik asal (origin)?", 
-        opsi: ["A. Karena harga input selalu naik", "B. Karena berlakunya hukum Diminishing MRTS (tingkat substitusi semakin menurun)", "C. Karena anggaran produsen terbatas", "D. Karena teknologi tidak berubah", "E. Karena output terus bertambah"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Jika upah tenaga kerja (w) naik, sementara anggaran dan sewa modal tetap, bagaimana pengaruhnya terhadap garis Isocost?", 
-        opsi: ["A. Garis Isocost bergeser sejajar ke kanan", "B. Garis Isocost menjadi lebih landai (berputar pada sumbu K)", "C. Garis Isocost menjadi lebih curam (berputar pada sumbu K)", "D. Garis Isocost tidak berubah", "E. Garis Isocost bergeser ke kiri bawah"], 
-        jawaban: 2 
-      }
+      { q: "Keseluruhan tindakan produsen dalam mengombinasikan input untuk menghasilkan output secara efisien disebut...", opsi: ["A. Perilaku Konsumen", "B. Perilaku Produsen", "C. Distribusi", "D. Konsumsi", "E. Produksi"], jawaban: 1 },
+      { q: "Kurva yang menunjukkan berbagai kombinasi dua faktor produksi yang menghasilkan jumlah output yang sama disebut...", opsi: ["A. Isocost", "B. Isoquant", "C. Kurva Permintaan", "D. Kurva Penawaran", "E. Garis Anggaran"], jawaban: 1 },
+      { q: "Garis yang menunjukkan kombinasi faktor produksi yang dapat dibeli dengan anggaran tertentu disebut...", opsi: ["A. Isoquant", "B. Isocost", "C. Kurva Indiferen", "D. Garis Anggaran", "E. Kurva Biaya"], jawaban: 1 },
+      { q: "Manakah yang BUKAN termasuk faktor yang mempengaruhi perilaku produsen?", opsi: ["A. Harga faktor produksi", "B. Tingkat teknologi", "C. Selera konsumen", "D. Kebijakan pemerintah", "E. Tujuan perusahaan"], jawaban: 2 },
+      { q: "Jika total biaya (C) Rp 10.000.000, upah tenaga kerja (w) Rp 2.000.000, dan sewa modal (r) Rp 2.000.000. Jika produsen menggunakan 3 tenaga kerja, berapa unit modal yang bisa disewa?", opsi: ["A. 1 unit", "B. 2 unit", "C. 3 unit", "D. 4 unit", "E. 5 unit"], jawaban: 1 },
+      { q: "Pada tabel Isoquant, kombinasi A (1L, 12K) dan B (2L, 8K) menghasilkan output 100 unit. Berapakah MRTS dari A ke B?", opsi: ["A. -2", "B. -3", "C. -4", "D. -5", "E. -6"], jawaban: 2 },
+      { q: "Jika anggaran produsen naik dari Rp 12.000.000 menjadi Rp 15.000.000, apa yang terjadi pada garis Isocost?", opsi: ["A. Bergerak ke kiri bawah", "B. Bergeser sejajar ke kanan atas", "C. Berputar pada sumbu L", "D. Tetap di posisi semula", "E. Berputar pada sumbu K"], jawaban: 1 },
+      { q: "Seorang produsen memiliki anggaran Rp 12.000.000. Kombinasi (3L, 2K) menghabiskan Rp 12.000.000 dan menghasilkan 100 unit. Kombinasi (1L, 3K) menghabiskan Rp 11.000.000 dan menghasilkan 80 unit. Analisis yang tepat adalah...", opsi: ["A. Kombinasi (1,3) lebih efisien karena lebih murah", "B. Kombinasi (3,2) adalah keseimbangan produsen karena anggaran terpakai optimal untuk output maksimal", "C. Kombinasi (1,3) sebaiknya dipilih karena menyisakan uang", "D. Kedua kombinasi sama efisiennya", "E. Produsen sebaiknya menambah anggaran"], jawaban: 1 },
+      { q: "Mengapa kurva Isoquant berbentuk cembung ke arah titik asal (origin)?", opsi: ["A. Karena harga input selalu naik", "B. Karena berlakunya hukum Diminishing MRTS (tingkat substitusi semakin menurun)", "C. Karena anggaran produsen terbatas", "D. Karena teknologi tidak berubah", "E. Karena output terus bertambah"], jawaban: 1 },
+      { q: "Jika upah tenaga kerja (w) naik, sementara anggaran dan sewa modal tetap, bagaimana pengaruhnya terhadap garis Isocost?", opsi: ["A. Garis Isocost bergeser sejajar ke kanan", "B. Garis Isocost menjadi lebih landai (berputar pada sumbu K)", "C. Garis Isocost menjadi lebih curam (berputar pada sumbu K)", "D. Garis Isocost tidak berubah", "E. Garis Isocost bergeser ke kiri bawah"], jawaban: 2 }
     ];
 
+    // ==========================================
+    // 2. VARIABEL & FUNGSI-FUNGSI CBT
+    // ==========================================
     let soalAktif = 0;
     let timerInterval;
 
@@ -234,6 +187,18 @@
 
       localStorage.removeItem("cbtNamaSiswa");
       localStorage.removeItem("cbtNisSiswa");
+    }
+
+    // ==========================================
+    // 3. CEK LOGIN & JALANKAN (PALING BAWAH)
+    // ==========================================
+    const namaSiswa = localStorage.getItem("cbtNamaSiswa");
+    if (!namaSiswa) {
+      alert("Anda belum login. Silakan login terlebih dahulu.");
+      window.location.href = "login-cbt.html";
+    } else {
+      document.getElementById("infoSiswa").textContent = `Peserta: ${namaSiswa}`;
+      mulaiUjian(); 
     }
   </script>
 </body>
