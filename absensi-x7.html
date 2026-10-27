@@ -315,6 +315,11 @@
           listSiswaX7.push({ nama: data.nama, nisn: data.nisn || "-" });
         });
 
+        // ==========================================
+        // TAMBAHAN: URUTKAN NAMA SISWA A-Z
+        // ==========================================
+        listSiswaX7.sort((a, b) => a.nama.localeCompare(b.nama));
+
         if (listSiswaX7.length === 0) {
           tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data siswa X-7.</td></tr>';
           return;
