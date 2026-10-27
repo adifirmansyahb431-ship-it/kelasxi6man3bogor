@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Absensi Kelas X-7 - SIPADAK</title>
   
+  <!-- Library Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, getDocs, addDoc, query, where, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -37,7 +40,8 @@
     input[type="date"] { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-weight: bold; }
     .btn { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; }
     .btn-save { background: #16a085; }
-    .btn-tambah { background: #2980b9; margin-left: auto; }
+    .btn-upload { background: #e67e22; margin-left: auto; text-align: center;}
+    .btn-tambah { background: #2980b9; }
 
     /* Tabel Absensi */
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -68,9 +72,17 @@
         <label><b>Tanggal:</b></label>
         <input type="date" id="absensiTanggal" onchange="muatDataAbsensi()">
         
-        <button class="btn btn-tambah" onclick="tambahSiswa()">➕ Tambah Siswa X-7</button>
-        <button class="btn btn-save" onclick="simpanAbsensi()">💾 SIMPAN</button>
+        <!-- Tombol Upload Excel -->
+        <label class="btn btn-upload">
+          📥 Upload Data Siswa (Excel)
+          <input type="file" id="uploadExcel" accept=".xlsx,.xls" style="display: none;" onchange="importDariExcel(event)">
+        </label>
+
+        <button class="btn btn-tambah" onclick="tambahSiswa()">➕ Tambah Manual</button>
+        <button class="btn btn-save" onclick="simpanAbsensi()">💾 SIMPAN ABSENSI</button>
       </div>
+
+      <p style="font-size:13px; color:#666; margin-bottom:15px;">Format Excel: Kolom pertama <b>Nama</b>, kolom kedua <b>NIS</b> (opsional).</p>
 
       <div style="overflow-x: auto;">
         <table>
@@ -83,7 +95,7 @@
             </tr>
           </thead>
           <tbody id="listAbsensi">
-            <tr><td colspan="4" style="text-align:center;">Belum ada data siswa. Silakan klik "Tambah Siswa X-7" atau upload via Excel (jika ada).</td></tr>
+            <tr><td colspan="4" style="text-align:center;">Belum ada data siswa. Silakan upload Excel atau Tambah Manual.</td></tr>
           </tbody>
         </table>
       </div>
@@ -106,7 +118,92 @@
       }
     }
 
-    // Fungsi Tambah Siswa Manual (Sementara)
+    // ==========================================
+    // FITUR UPLOAD EXCEL
+    // ==========================================
+    function importDariExcel(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+          
+          // Baca Excel menjadi JSON
+          const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          
+          if (json.length < 2) {
+            alert("File Excel kosong atau format tidak sesuai.");
+            return;
+          }
+
+          // Cari baris header (Nama)
+          let idxNama = 0;
+          let idxNis = 1;
+          let startRow = 0;
+
+          const headerRow = json[0].map(c => String(c).toUpperCase().trim());
+          if (headerRow.includes("NAMA")) {
+            idxNama = headerRow.indexOf("NAMA");
+            idxNis = headerRow.indexOf("NIS") > -1 ? headerRow.indexOf("NIS") : -1;
+            startRow = 1; // Mulai dari baris kedua jika ada header
+          }
+
+          let siswaBaru = [];
+          for (let i = startRow; i < json.length; i++) {
+            const row = json[i];
+            if (row[idxNama] && String(row[idxNama]).trim() !== "") {
+              siswaBaru.push({
+                nama: String(row[idxNama]).trim(),
+                nis: idxNis > -1 && row[idxNis] ? String(row[idxNis]).trim() : "-"
+              });
+            }
+          }
+
+          if (siswaBaru.length === 0) {
+            alert("Tidak ada data nama siswa yang ditemukan di Excel.");
+            return;
+          }
+
+          // Simpan ke Firebase (Koleksi SiswaX7)
+          simpanSiswaKeFirebase(siswaBaru);
+
+        } catch (err) {
+          console.error(err);
+          alert("Gagal membaca file Excel: " + err.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    async function simpanSiswaKeFirebase(siswaBaru) {
+      const { collection, addDoc } = window.fbFunc;
+      const db = window.db;
+      
+      try {
+        let promises = siswaBaru.map(siswa => {
+          return addDoc(collection(db, "SiswaX7"), {
+            nama: siswa.nama,
+            nis: siswa.nis,
+            kelas: "X-7"
+          });
+        });
+
+        await Promise.all(promises);
+        alert(`✅ Berhasil mengimpor ${siswaBaru.length} siswa X-7!`);
+        muatDataAbsensi();
+      } catch (error) {
+        console.error(error);
+        alert("Gagal menyimpan data ke database.");
+      }
+    }
+
+    // ==========================================
+    // FUNGSI MANUAL & TAMPILAN
+    // ==========================================
     async function tambahSiswa() {
       const nama = prompt("Masukkan Nama Siswa X-7:");
       if (!nama) return;
@@ -118,17 +215,15 @@
         await addDoc(collection(db, "SiswaX7"), {
           nama: nama,
           kelas: "X-7",
-          nis: "-" // Bisa diubah nanti
+          nis: "-"
         });
         alert("Siswa berhasil ditambahkan!");
         muatDataAbsensi();
       } catch (error) {
         console.error(error);
-        alert("Gagal menambah siswa.");
       }
     }
 
-    // Muat Data Absensi
     window.addEventListener('firebaseReady', () => {
       document.getElementById('absensiTanggal').valueAsDate = new Date();
       muatDataAbsensi();
@@ -151,7 +246,7 @@
         snapSiswa.forEach(doc => listSiswaX7.push(doc.data().nama));
 
         if (listSiswaX7.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data siswa X-7. Silakan klik "Tambah Siswa X-7".</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data siswa X-7. Silakan upload Excel atau Tambah Manual.</td></tr>';
           return;
         }
 
@@ -195,7 +290,6 @@
       select.className = "status-select " + select.value;
     }
 
-    // Simpan Absensi
     async function simpanAbsensi() {
       const tgl = document.getElementById('absensiTanggal').value;
       const rows = document.querySelectorAll('#listAbsensi tr');
