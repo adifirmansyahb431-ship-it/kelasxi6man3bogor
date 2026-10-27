@@ -119,8 +119,13 @@
               `).join('')}
             </div>
             <div class="cbt-nav">
-              <button class="btn-nav" onclick="pindahSoal(${index - 1})" ${index === 0 ? 'disabled' : ''}>⬅ Sebelumnya</button>
+              <!-- TOMBOL SEBELUMNYA (Hanya muncul jika bukan soal pertama) -->
+              <button class="btn-nav" onclick="pindahSoal(${index - 1})" ${index === 0 ? 'style="visibility:hidden"' : ''}>⬅ Sebelumnya</button>
+              
+              <!-- TOMBOL SELANJUTNYA (Hanya muncul jika bukan soal terakhir) -->
               <button class="btn-nav primary" onclick="pindahSoal(${index + 1})" ${index === bankSoal.length - 1 ? 'style="display:none"' : ''}>Selanjutnya ➡</button>
+              
+              <!-- TOMBOL SELESAI (Hanya muncul di soal terakhir) -->
               <button class="btn-nav primary" onclick="selesaiUjian()" ${index === bankSoal.length - 1 ? 'style="display:block"' : 'style="display:none"'}>Selesai & Lihat Skor</button>
             </div>
           </div>
@@ -136,14 +141,22 @@
       container.innerHTML = html;
     }
 
+    // FUNGSI NAVIGASI SOAL (DIPERBAIKI)
     function pindahSoal(indexTujuan) {
+      // Cek batas minimal dan maksimal soal
       if (indexTujuan < 0 || indexTujuan >= soalPreTest.length) return;
 
-      document.querySelectorAll('[id^="soal-"]').forEach(el => el.style.display = 'none');
-      document.getElementById(`soal-${indexTujuan}`).style.display = 'block';
+      // Sembunyikan semua soal
+      document.querySelectorAll('.soal-item').forEach(el => el.style.display = 'none');
+      
+      // Tampilkan soal yang dituju
+      const soalTarget = document.getElementById(`soal-${indexTujuan}`);
+      if (soalTarget) soalTarget.style.display = 'block';
 
-      document.querySelectorAll('[id^="btn-nomor-"]').forEach(el => el.classList.remove('active'));
-      document.getElementById(`btn-nomor-${indexTujuan}`).classList.add('active');
+      // Update warna tombol nomor
+      document.querySelectorAll('.nomor-btn').forEach(el => el.classList.remove('active'));
+      const btnNomor = document.getElementById(`btn-nomor-${indexTujuan}`);
+      if (btnNomor) btnNomor.classList.add('active');
 
       soalAktif = indexTujuan;
     }
@@ -191,12 +204,10 @@
           <p class="skor-angka">${persentase}</p>
           <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
           <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${soalPreTest.length}</strong> soal.</p>
-          <!-- TOMBOL KEMBALI KE BERANDA (LOGIN) -->
           <button class="btn-nav primary" style="margin-top:20px;" onclick="window.location.href='index.html'">🏠 Kembali ke Beranda</button>
         </div>
       `;
 
-      // SIMPAN NILAI
       if (namaSiswa) {
         try {
           await addDoc(collection(window.db, "HasilUjian"), {
