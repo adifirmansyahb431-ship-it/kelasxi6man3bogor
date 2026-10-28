@@ -367,4 +367,33 @@
           callbackSelesai();
         }
         sisa--;
-      },
+      }, 1000);
+    }
+
+    function selesaiCBT(bankSoal, tipe) {
+      clearInterval(timerInterval);
+      let skor = 0;
+      
+      bankSoal.forEach((soal, index) => {
+        const jawabanUser = document.querySelector(`input[name="${tipe}_soal_${index}"]:checked`);
+        if (jawabanUser && parseInt(jawabanUser.value) === soal.jawaban) {
+          skor++;
+        }
+      });
+
+      const persentase = Math.round((skor / bankSoal.length) * 100);
+      const container = document.getElementById(tipe === 'pre' ? 'cbtPreBody' : 'cbtPostBody');
+      
+      container.innerHTML = `
+        <div class="hasil-box">
+          <h3 style="border:none; text-align:center;">Hasil ${tipe === 'pre' ? 'Pre-Test' : 'Post-Test'}</h3>
+          <p class="skor-angka">${persentase}</p>
+          <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
+          <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${bankSoal.length}</strong> soal.</p>
+          <button class="btn-nav primary" style="margin-top:20px;" onclick="location.reload()">🔄 Ulangi Tes</button>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
