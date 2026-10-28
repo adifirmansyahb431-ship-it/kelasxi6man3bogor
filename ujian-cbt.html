@@ -16,9 +16,9 @@
     .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
     .header h1 { margin: 0; font-size: 20px; }
     
-    /* TOMBOL KELUAR */
+    /* TOMBOL KELUAR DI HEADER */
     .header-right { display: flex; align-items: center; gap: 15px; }
-    .btn-keluar { 
+    .btn-keluar-header { 
       background: #e74c3c; 
       color: white; 
       border: none; 
@@ -26,11 +26,10 @@
       border-radius: 8px; 
       font-weight: bold; 
       cursor: pointer; 
-      text-decoration: none; 
       font-size: 14px;
       transition: 0.3s;
     }
-    .btn-keluar:hover { background: #c0392b; }
+    .btn-keluar-header:hover { background: #c0392b; }
 
     /* TATA LETAK UTAMA */
     .container { 
@@ -106,7 +105,7 @@
     <div class="header-right">
       <span id="infoSiswa">Memuat...</span>
       <!-- TOMBOL KELUAR -->
-      <button class="btn-keluar" onclick="konfirmasiKeluar()">🚪 Keluar Ujian</button>
+      <button class="btn-keluar-header" onclick="konfirmasiKeluar()">🚪 Keluar Ujian</button>
     </div>
   </div>
 
@@ -169,7 +168,7 @@
         clearInterval(timerInterval);
         localStorage.removeItem("cbtNamaSiswa");
         localStorage.removeItem("cbtNisSiswa");
-        window.location.href = "index.html"; // Kembali ke halaman login utama
+        window.location.href = "index.html"; 
       }
     }
 
@@ -278,8 +277,7 @@
           <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
           <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${soalPreTest.length}</strong> soal.</p>
           
-          <!-- TOMBOL KELUAR DI HALAMAN HASIL -->
-          <button class="btn-keluar" style="margin-top:30px; padding: 15px 40px; font-size: 16px;" onclick="window.location.href='index.html'">🚪 Keluar ke Beranda</button>
+          <button class="btn-keluar-header" style="margin-top:30px; padding: 15px 40px; font-size: 16px;" onclick="window.location.href='index.html'">🚪 Keluar ke Beranda</button>
         </div>
       `;
 
