@@ -40,8 +40,42 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23d4af37' stroke-width='1.5' stroke-opacity='0.15'%3E%3Cpath d='M10 60 Q 30 40 50 60 T 90 60 T 130 60'/%3E%3Cpath d='M-10 80 Q 10 60 30 80 T 70 80 T 110 80'/%3E%3Cpath d='M30 40 Q 50 20 70 40 T 110 40'/%3E%3Cpath d='M-10 40 Q 10 20 30 40 T 70 40'/%3E%3Cpath d='M10 100 Q 30 80 50 100 T 90 100 T 130 100'/%3E%3Cpath d='M50 20 Q 70 0 90 20 T 130 20'/%3E%3Cpath d='M-10 20 Q 10 0 30 20 T 70 20'/%3E%3Cpath d='M40 60 Q 60 40 80 60 T 120 60'/%3E%3Cpath d='M0 60 Q 20 40 40 60'/%3E%3C/g%3E%3C/svg%3E");
       min-height: 100vh; 
       display: flex; 
-      align-items: center; 
-      justify-content: center; 
+      flex-direction: column; /* Agar running text di atas */
+    }
+
+    /* CSS RUNNING TEXT */
+    .ticker-wrapper {
+      overflow: hidden;
+      background: var(--hijau);
+      border-bottom: 3px solid var(--gold);
+      padding: 10px 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+    }
+
+    .ticker-text {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%; 
+      animation: jalanTerus 20s linear infinite; 
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: 2px;
+    }
+
+    @keyframes jalanTerus {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* AREA TENGAH UNTUK KOTAK LOGIN */
+    .main-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
     
     .login-box { 
@@ -67,56 +101,60 @@
     
     .btn-pilihan { display: block; width: 100%; padding: 15px; margin-bottom: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; transition: 0.3s; }
     
-    /* WARNA TOMBOL PRE-TEST (CREAM) */
     .btn-pre { background: #d8c3a5; color: #0a3622; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #c2ad8f;}
     .btn-pre:hover { background: #c2ad8f; transform: translateY(-2px); }
     
-    /* WARNA TOMBOL POST-TEST (CREAM) */
     .btn-post { background: #e8d5b7; color: #0a3622; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #d1be9f;}
     .btn-post:hover { background: #d1be9f; transform: translateY(-2px); }
     
-    /* WARNA TOMBOL LKPD (HIJAU) */
     .btn-lkpd { background: #16a085; color: white; box-shadow: 0 4px 10px rgba(22, 160, 133, 0.3); }
     .btn-lkpd:hover { background: #12876f; transform: translateY(-2px); }
 
-    /* WARNA TOMBOL KELUAR (MERAH) */
     .btn-keluar { background: #e74c3c; color: white; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3); }
     .btn-keluar:hover { background: #c0392b; transform: translateY(-2px); }
   </style>
 </head>
 <body>
 
-  <div class="login-box">
-    
-    <!-- FORM LOGIN -->
-    <div id="formLogin">
-      <h2>Sistem CBT</h2>
-      <p>Masukkan NIS dan Password untuk memulai ujian.</p>
-
-      <label>NIS (Nomor Induk Siswa)</label>
-      <input id="loginNis" type="text" placeholder="Masukkan NIS" />
-      
-      <label>Password</label>
-      <input id="loginPass" type="password" placeholder="Password" />
-      
-      <button class="btn-login" onclick="prosesLogin()">🚀 MASUK</button>
-      <div id="loginMessage"></div>
+  <!-- RUNNING TEXT -->
+  <div class="ticker-wrapper">
+    <div class="ticker-text">
+      ★ AYO BELAJAR EKONOMI DENGAN PAK ADI FIRMANSYAH ★ AYO BELAJAR EKONOMI DENGAN PAK ADI FIRMANSYAH ★
     </div>
+  </div>
 
-    <!-- MENU PILIHAN UJIAN -->
-    <div id="menuPilihan" class="menu-ujian">
-      <h3>Pilih Jenis Ujian</h3>
-      <p>Halo, <b id="namaSiswaPilihan" style="color: var(--hijau);"></b>!</p>
+  <!-- AREA KONTEN (LOGIN / MENU) -->
+  <div class="main-content">
+    <div class="login-box">
       
-      <a href="ujian-cbt.html" class="btn-pilihan btn-pre">📝 Mulai Pre-Test</a>
-      <a href="post-test-produsen.html" class="btn-pilihan btn-post">🎯 Mulai Post-Test</a>
-      
-      <!-- TOMBOL LKPD BARU -->
-      <a href="lkpd-produsen.html" class="btn-pilihan btn-lkpd">📁 Buka LKPD</a>
-      
-      <button onclick="logoutCBT()" class="btn-pilihan btn-keluar" style="margin-top: 10px;">🚪 Keluar</button>
+      <!-- FORM LOGIN -->
+      <div id="formLogin">
+        <h2>Sistem CBT</h2>
+        <p>Masukkan NIS dan Password untuk memulai ujian.</p>
+
+        <label>NIS (Nomor Induk Siswa)</label>
+        <input id="loginNis" type="text" placeholder="Masukkan NIS" />
+        
+        <label>Password</label>
+        <input id="loginPass" type="password" placeholder="Password" />
+        
+        <button class="btn-login" onclick="prosesLogin()">🚀 MASUK</button>
+        <div id="loginMessage"></div>
+      </div>
+
+      <!-- MENU PILIHAN UJIAN -->
+      <div id="menuPilihan" class="menu-ujian">
+        <h3>Pilih Jenis Ujian</h3>
+        <p>Halo, <b id="namaSiswaPilihan" style="color: var(--hijau);"></b>!</p>
+        
+        <a href="ujian-cbt.html" class="btn-pilihan btn-pre">📝 Mulai Pre-Test</a>
+        <a href="post-test-produsen.html" class="btn-pilihan btn-post">🎯 Mulai Post-Test</a>
+        <a href="lkpd-produsen.html" class="btn-pilihan btn-lkpd">📁 Buka LKPD</a>
+        
+        <button onclick="logoutCBT()" class="btn-pilihan btn-keluar" style="margin-top: 10px;">🚪 Keluar</button>
+      </div>
+
     </div>
-
   </div>
 
   <script>
