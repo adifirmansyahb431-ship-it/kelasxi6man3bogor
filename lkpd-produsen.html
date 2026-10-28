@@ -88,7 +88,7 @@
 
   <div class="header">
     <h1>📝 LKPD - Perilaku Produsen</h1>
-    <a href="login-cbt.html" class="btn-back">⬅ Kembali ke Pilihan Ujian</a>
+    <a href="javascript:void(0)" onclick="kembali()" class="btn-back">⬅ Kembali ke Beranda</a>
   </div>
 
   <div class="container">
@@ -150,7 +150,7 @@
         <div class="ttd-flex">
           <div class="ttd-box">
             <p>Mengetahui,<br>Kepala Madrasah,</p>
-            <div class="ttd-nama">Dr. H. Rizalah Luqman A., S.Pd.I., M.Pd.</div>
+            <div class="ttd-nama">Dr. H. Rizalah Luqman Al Farabi, S.Pd.I., M.Pd.</div>
             <p>NIP. 198404012009011006</p>
           </div>
           <div class="ttd-box">
@@ -176,18 +176,14 @@
     if (namaSiswa && nisSiswa) {
       document.getElementById('infoNama').textContent = namaSiswa;
       document.getElementById('infoNis').textContent = nisSiswa;
-      // (Kelas di-hardcode X/XI karena sistem login belum menyimpan kelas secara spesifik)
     } else {
       document.getElementById('infoNama').textContent = "Siswa Tamu (Belum Login)";
       document.getElementById('infoNis').textContent = "-";
     }
 
+    // FUNGSI KEMBALI (SUDAH DIPERBAIKI)
     function kembali() {
-      if (window.parent && window.parent.tutupHalaman) {
-        window.parent.tutupHalaman();
-      } else {
-        window.location.href = "login-cbt.html";
-      }
+      window.location.href = "login-cbt.html";
     }
 
     async function simpanDanCetak() {
