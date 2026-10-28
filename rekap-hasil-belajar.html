@@ -130,9 +130,12 @@
           snapCBT.forEach(doc => {
             const d = doc.data();
             
-            // Siapkan data untuk dicetak (diubah ke string agar aman saat dilempar ke fungsi)
-            const detailStr = JSON.stringify(d.detailJawaban || {}).replace(/'/g, "\\'");
-            
+            // Simpan detail jawaban ke dalam atribut data-* pada tombol
+            // Ini lebih aman daripada melempar string JSON panjang
+            let detailJson = JSON.stringify(d.detailJawaban || {});
+            // Escape kutip ganda agar tidak merusak atribut HTML
+            detailJson = detailJson.replace(/"/g, '&quot;');
+
             htmlCBT += `<tr>
               <td style="text-align:center;">${noCBT++}</td>
               <td><b>${d.nama}</b></td>
@@ -141,7 +144,12 @@
               <td style="text-align:center;">${d.skor} / ${d.totalSoal}</td>
               <td style="text-align:center; font-weight:bold; color:${d.persentase >= 70 ? 'green' : 'red'};">${d.persentase}</td>
               <td style="text-align:center;">
-                <button class="btn-print" onclick="cetakCBT('${d.nama}', '${d.jenisUjian || "Pre-Test"}', '${d.tanggal}', '${detailStr}')">🖨️ Cetak Detail</button>
+                <button class="btn-print" 
+                        data-nama="${d.nama}" 
+                        data-jenis="${d.jenisUjian || "Pre-Test"}" 
+                        data-tanggal="${d.tanggal}" 
+                        data-detail="${detailJson}"
+                        onclick="cetakCBT(this)">🖨️ Cetak Detail</button>
               </td>
             </tr>`;
           });
@@ -163,15 +171,20 @@
           snapLKPD.forEach(doc => {
             const d = doc.data();
             const jawabanRingkas = d.jawaban.substring(0, 50) + "...";
-            const jawabanStr = d.jawaban.replace(/'/g, "\\'").replace(/`/g, '');
             
+            let jawabanJson = d.jawaban.replace(/"/g, '&quot;');
+
             htmlLKPD += `<tr>
               <td style="text-align:center;">${noLKPD++}</td>
               <td><b>${d.nama}</b></td>
               <td>${d.tanggal}</td>
               <td>${jawabanRingkas}</td>
               <td style="text-align:center;">
-                <button class="btn-print" onclick="cetakLKPD('${d.nama}', '${d.tanggal}', '${jawabanStr}')">🖨️ Cetak</button>
+                <button class="btn-print" 
+                        data-nama="${d.nama}" 
+                        data-tanggal="${d.tanggal}" 
+                        data-jawaban="${jawabanJson}"
+                        onclick="cetakLKPD(this)">🖨️ Cetak</button>
               </td>
             </tr>`;
           });
@@ -180,20 +193,34 @@
       } catch (e) { console.error(e); }
     });
 
-    // Fungsi Cetak Detail CBT (Soal, Jawaban Siswa, Kunci)
-    function cetakCBT(nama, jenis, tanggal, detailStr) {
-      const detail = JSON.parse(detailStr);
+    // Fungsi Cetak Detail CBT
+    function cetakCBT(btn) {
+      const nama = btn.getAttribute('data-nama');
+      const jenis = btn.getAttribute('data-jenis');
+      const tanggal = btn.getAttribute('data-tanggal');
+      let detailStr = btn.getAttribute('data-detail');
+      
+      // Kembalikan format kutip ganda
+      detailStr = detailStr.replace(/&quot;/g, '"');
+      
+      let detail = {};
+      try {
+        detail = JSON.parse(detailStr);
+      } catch (e) {
+        console.error("Gagal parse JSON:", e);
+      }
+
       const win = window.open('', '_blank');
-      
       let soalHtml = "";
-      // Kita ambil data soal dari variabel global yang ada di file ujian (jika ada)
-      // Karena file ini terpisah, kita hanya bisa menampilkan jawaban siswanya saja.
-      // Jika ingin kunci jawaban, kita harus menyimpan kunci jawaban di database juga.
       
-      // Sementara, kita tampilkan apa yang tersimpan di database
-      Object.keys(detail).forEach(key => {
-        soalHtml += `<p><b>${key}:</b> ${detail[key]}</p>`;
-      });
+      // Cek apakah data detail ada isinya
+      if (Object.keys(detail).length === 0) {
+        soalHtml = `<p style="color:red; font-style:italic;">Data detail jawaban tidak ditemukan. Siswa mungkin mengerjakan ujian sebelum fitur ini ditambahkan.</p>`;
+      } else {
+        Object.keys(detail).forEach(key => {
+          soalHtml += `<p><b>${key}:</b> ${detail[key]}</p>`;
+        });
+      }
 
       win.document.write(`
         <html><head><title>Hasil ${jenis} - ${nama}</title>
@@ -214,7 +241,11 @@
     }
 
     // Fungsi Cetak LKPD
-    function cetakLKPD(nama, tanggal, jawaban) {
+    function cetakLKPD(btn) {
+      const nama = btn.getAttribute('data-nama');
+      const tanggal = btn.getAttribute('data-tanggal');
+      let jawaban = btn.getAttribute('data-jawaban').replace(/&quot;/g, '"');
+
       const win = window.open('', '_blank');
       win.document.write(`
         <html><head><title>LKPD - ${nama}</title>
