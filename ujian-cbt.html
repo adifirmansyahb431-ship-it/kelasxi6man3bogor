@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ujian CBT - SIPADAK XI-6</title>
   
-  <!-- Library Confetti untuk efek kertas berterbangan -->
+  <!-- Library Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
@@ -16,7 +16,23 @@
     .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
     .header h1 { margin: 0; font-size: 20px; }
     
-    /* TATA LETAK UTAMA (KIRI SOAL, KANAN NOMOR) */
+    /* TOMBOL KELUAR */
+    .header-right { display: flex; align-items: center; gap: 15px; }
+    .btn-keluar { 
+      background: #e74c3c; 
+      color: white; 
+      border: none; 
+      padding: 8px 15px; 
+      border-radius: 8px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      text-decoration: none; 
+      font-size: 14px;
+      transition: 0.3s;
+    }
+    .btn-keluar:hover { background: #c0392b; }
+
+    /* TATA LETAK UTAMA */
     .container { 
       max-width: 1100px; 
       margin: 20px auto; 
@@ -65,47 +81,13 @@
     .nomor-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); }
     .nomor-btn.sudah-dijawab { background: var(--gold); color: white; border-color: var(--gold); }
 
-    /* =========================================
-       DESAIN HASIL UJIAN (PERAYAAN)
-       ========================================= */
+    /* DESAIN HASIL UJIAN */
     .hasil-box { text-align: center; padding: 40px 20px; position: relative; overflow: hidden; }
-    
-    /* Animasi Piala */
-    .piala {
-      font-size: 100px;
-      display: inline-block;
-      animation: bounceIn 1s ease-out, float 3s ease-in-out infinite 1s;
-      filter: drop-shadow(0 10px 15px rgba(212, 175, 55, 0.4));
-    }
-
-    @keyframes bounceIn {
-      0% { transform: scale(0); opacity: 0; }
-      60% { transform: scale(1.2); opacity: 1; }
-      100% { transform: scale(1); }
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
-    }
-
-    /* Teks Ucapan */
-    .ucapan {
-      font-size: 32px;
-      font-weight: 800;
-      color: var(--gold);
-      margin: 10px 0;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-      animation: fadeInDown 1s ease-out 0.5s both;
-    }
-
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
+    .piala { font-size: 100px; display: inline-block; animation: bounceIn 1s ease-out, float 3s ease-in-out infinite 1s; filter: drop-shadow(0 10px 15px rgba(212, 175, 55, 0.4)); }
+    @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    .ucapan { font-size: 32px; font-weight: 800; color: var(--gold); margin: 10px 0; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); animation: fadeInDown 1s ease-out 0.5s both; }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     .skor-angka { font-size: 70px; font-weight: 800; color: var(--hijau); margin: 10px 0; }
     .predikat { font-size: 20px; color: #64748b; font-weight: bold; margin-top: 5px; }
 
@@ -121,7 +103,11 @@
 
   <div class="header">
     <h1>📝 Ujian CBT</h1>
-    <span id="infoSiswa">Memuat...</span>
+    <div class="header-right">
+      <span id="infoSiswa">Memuat...</span>
+      <!-- TOMBOL KELUAR -->
+      <button class="btn-keluar" onclick="konfirmasiKeluar()">🚪 Keluar Ujian</button>
+    </div>
   </div>
 
   <div class="container">
@@ -176,6 +162,16 @@
     let soalAktif = 0;
     let timerInterval;
     const namaSiswa = localStorage.getItem("cbtNamaSiswa");
+
+    // FUNGSI KELUAR UJIAN
+    window.konfirmasiKeluar = function() {
+      if (confirm("Yakin ingin keluar dari ujian? Jawaban yang belum disimpan akan hilang.")) {
+        clearInterval(timerInterval);
+        localStorage.removeItem("cbtNamaSiswa");
+        localStorage.removeItem("cbtNisSiswa");
+        window.location.href = "index.html"; // Kembali ke halaman login utama
+      }
+    }
 
     function mulaiUjian() {
       renderSoal(soalPreTest);
@@ -282,7 +278,8 @@
           <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
           <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${soalPreTest.length}</strong> soal.</p>
           
-          <button class="btn-nav primary" style="margin-top:30px; padding: 15px 40px; font-size: 16px;" onclick="window.location.href='index.html'">🏠 Kembali ke Beranda</button>
+          <!-- TOMBOL KELUAR DI HALAMAN HASIL -->
+          <button class="btn-keluar" style="margin-top:30px; padding: 15px 40px; font-size: 16px;" onclick="window.location.href='index.html'">🚪 Keluar ke Beranda</button>
         </div>
       `;
 
