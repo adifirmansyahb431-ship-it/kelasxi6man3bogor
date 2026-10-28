@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ujian CBT - SIPADAK XI-6</title>
   
+  <!-- Library Confetti untuk efek kertas berterbangan -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; }
     * { box-sizing: border-box; }
@@ -62,13 +65,55 @@
     .nomor-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); }
     .nomor-btn.sudah-dijawab { background: var(--gold); color: white; border-color: var(--gold); }
 
-    .hasil-box { text-align: center; padding: 40px 20px; }
-    .skor-angka { font-size: 60px; font-weight: 800; color: var(--hijau); margin: 0; }
-    .predikat { font-size: 20px; color: var(--gold); font-weight: bold; margin-top: 10px; }
+    /* =========================================
+       DESAIN HASIL UJIAN (PERAYAAN)
+       ========================================= */
+    .hasil-box { text-align: center; padding: 40px 20px; position: relative; overflow: hidden; }
+    
+    /* Animasi Piala */
+    .piala {
+      font-size: 100px;
+      display: inline-block;
+      animation: bounceIn 1s ease-out, float 3s ease-in-out infinite 1s;
+      filter: drop-shadow(0 10px 15px rgba(212, 175, 55, 0.4));
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    /* Teks Ucapan */
+    .ucapan {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--gold);
+      margin: 10px 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      animation: fadeInDown 1s ease-out 0.5s both;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .skor-angka { font-size: 70px; font-weight: 800; color: var(--hijau); margin: 10px 0; }
+    .predikat { font-size: 20px; color: #64748b; font-weight: bold; margin-top: 5px; }
 
     @media (max-width: 768px) {
       .container { grid-template-columns: 1fr; } 
       .sidebar-nomor { position: relative; top: 0; }
+      .ucapan { font-size: 24px; }
+      .piala { font-size: 80px; }
     }
   </style>
 </head>
@@ -115,60 +160,17 @@
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
 
-    // ==========================================
-    // BANK SOAL TEORI (BUKAN HITUNGAN)
-    // ==========================================
     const soalPreTest = [
-      { 
-        q: "Keseluruhan tindakan produsen dalam mengombinasikan input untuk menghasilkan output secara efisien disebut...", 
-        opsi: ["A. Perilaku Konsumen", "B. Perilaku Produsen", "C. Distribusi", "D. Konsumsi", "E. Produksi"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Kurva yang menunjukkan berbagai kombinasi dua faktor produksi yang menghasilkan jumlah output yang sama disebut...", 
-        opsi: ["A. Isocost", "B. Isoquant", "C. Kurva Permintaan", "D. Kurva Penawaran", "E. Garis Anggaran"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Garis yang menunjukkan kombinasi faktor produksi yang dapat dibeli dengan anggaran tertentu disebut...", 
-        opsi: ["A. Isoquant", "B. Isocost", "C. Kurva Indiferen", "D. Garis Anggaran", "E. Kurva Biaya"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Manakah yang BUKAN termasuk faktor yang mempengaruhi perilaku produsen?", 
-        opsi: ["A. Harga faktor produksi", "B. Tingkat teknologi", "C. Selera konsumen", "D. Kebijakan pemerintah", "E. Tujuan perusahaan"], 
-        jawaban: 2 
-      },
-      { 
-        q: "Kemampuan produsen untuk menggantikan satu faktor produksi dengan faktor produksi lain tanpa mengubah jumlah output disebut...", 
-        opsi: ["A. Isocost", "B. MRTS (Marginal Rate of Technical Substitution)", "C. Produk Marjinal", "D. Skala Ekonomis", "E. Biaya Marjinal"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Jika anggaran produsen naik, maka garis Isocost akan...", 
-        opsi: ["A. Bergerak ke kiri bawah", "B. Bergeser sejajar ke kanan atas", "C. Berputar pada sumbu L", "D. Tetap di posisi semula", "E. Berputar pada sumbu K"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Titik keseimbangan produsen (efisiensi biaya) tercapai ketika...", 
-        opsi: ["A. Garis Isocost memotong sumbu L", "B. Kurva Isoquant bersinggungan dengan garis Isocost", "C. Kurva Isoquant berada di atas garis Isocost", "D. Anggaran produsen habis", "E. Kurva Isoquant memotong sumbu K"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Mengapa kurva Isoquant berbentuk cembung ke arah titik asal (origin)?", 
-        opsi: ["A. Karena harga input selalu naik", "B. Karena berlakunya hukum Diminishing MRTS (tingkat substitusi semakin menurun)", "C. Karena anggaran produsen terbatas", "D. Karena teknologi tidak berubah", "E. Karena output terus bertambah"], 
-        jawaban: 1 
-      },
-      { 
-        q: "Faktor produksi yang berupa mesin, bangunan, dan peralatan disebut...", 
-        opsi: ["A. Tenaga Kerja", "B. Sumber Daya Alam", "C. Modal (Capital)", "D. Kewirausahaan", "E. Teknologi"], 
-        jawaban: 2 
-      },
-      { 
-        q: "Jika harga tenaga kerja (w) naik, sementara anggaran dan harga modal tetap, bagaimana pengaruhnya terhadap garis Isocost?", 
-        opsi: ["A. Garis Isocost bergeser sejajar ke kanan", "B. Garis Isocost menjadi lebih landai (berputar pada sumbu K)", "C. Garis Isocost menjadi lebih curam (berputar pada sumbu K)", "D. Garis Isocost tidak berubah", "E. Garis Isocost bergeser ke kiri bawah"], 
-        jawaban: 2 
-      }
+      { q: "Keseluruhan tindakan produsen dalam mengombinasikan input untuk menghasilkan output secara efisien disebut...", opsi: ["A. Perilaku Konsumen", "B. Perilaku Produsen", "C. Distribusi", "D. Konsumsi", "E. Produksi"], jawaban: 1 },
+      { q: "Kurva yang menunjukkan berbagai kombinasi dua faktor produksi yang menghasilkan jumlah output yang sama disebut...", opsi: ["A. Isocost", "B. Isoquant", "C. Kurva Permintaan", "D. Kurva Penawaran", "E. Garis Anggaran"], jawaban: 1 },
+      { q: "Garis yang menunjukkan kombinasi faktor produksi yang dapat dibeli dengan anggaran tertentu disebut...", opsi: ["A. Isoquant", "B. Isocost", "C. Kurva Indiferen", "D. Garis Anggaran", "E. Kurva Biaya"], jawaban: 1 },
+      { q: "Manakah yang BUKAN termasuk faktor yang mempengaruhi perilaku produsen?", opsi: ["A. Harga faktor produksi", "B. Tingkat teknologi", "C. Selera konsumen", "D. Kebijakan pemerintah", "E. Tujuan perusahaan"], jawaban: 2 },
+      { q: "Kemampuan produsen untuk menggantikan satu faktor produksi dengan faktor produksi lain tanpa mengubah jumlah output disebut...", opsi: ["A. Isocost", "B. MRTS (Marginal Rate of Technical Substitution)", "C. Produk Marjinal", "D. Skala Ekonomis", "E. Biaya Marjinal"], jawaban: 1 },
+      { q: "Jika anggaran produsen naik, maka garis Isocost akan...", opsi: ["A. Bergerak ke kiri bawah", "B. Bergeser sejajar ke kanan atas", "C. Berputar pada sumbu L", "D. Tetap di posisi semula", "E. Berputar pada sumbu K"], jawaban: 1 },
+      { q: "Titik keseimbangan produsen (efisiensi biaya) tercapai ketika...", opsi: ["A. Garis Isocost memotong sumbu L", "B. Kurva Isoquant bersinggungan dengan garis Isocost", "C. Kurva Isoquant berada di atas garis Isocost", "D. Anggaran produsen habis", "E. Kurva Isoquant memotong sumbu K"], jawaban: 1 },
+      { q: "Mengapa kurva Isoquant berbentuk cembung ke arah titik asal (origin)?", opsi: ["A. Karena harga input selalu naik", "B. Karena berlakunya hukum Diminishing MRTS (tingkat substitusi semakin menurun)", "C. Karena anggaran produsen terbatas", "D. Karena teknologi tidak berubah", "E. Karena output terus bertambah"], jawaban: 1 },
+      { q: "Faktor produksi yang berupa mesin, bangunan, dan peralatan disebut...", opsi: ["A. Tenaga Kerja", "B. Sumber Daya Alam", "C. Modal (Capital)", "D. Kewirausahaan", "E. Teknologi"], jawaban: 2 },
+      { q: "Jika harga tenaga kerja (w) naik, sementara anggaran dan harga modal tetap, bagaimana pengaruhnya terhadap garis Isocost?", opsi: ["A. Garis Isocost bergeser sejajar ke kanan", "B. Garis Isocost menjadi lebih landai (berputar pada sumbu K)", "C. Garis Isocost menjadi lebih curam (berputar pada sumbu K)", "D. Garis Isocost tidak berubah", "E. Garis Isocost bergeser ke kiri bawah"], jawaban: 2 }
     ];
 
     let soalAktif = 0;
@@ -270,18 +272,44 @@
       const persentase = Math.round((skor / soalPreTest.length) * 100);
       const container = document.getElementById('cbtPreBody');
       
+      // TAMPILKAN HASIL DENGAN UCAPAN, PIALA, DAN CONFETTI
       container.innerHTML = `
         <div class="hasil-box">
-          <h3 style="border:none; text-align:center;">Hasil Ujian CBT</h3>
+          <div class="piala">🏆</div>
+          <h2 class="ucapan">CONGRATULATIONS!</h2>
+          <p style="color: #64748b; margin-bottom: 20px;">Kamu telah menyelesaikan ujian dengan baik.</p>
+          
           <p class="skor-angka">${persentase}</p>
           <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
           <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${soalPreTest.length}</strong> soal.</p>
-          <button class="btn-nav primary" style="margin-top:20px;" onclick="window.location.href='index.html'">🏠 Kembali ke Beranda</button>
+          
+          <button class="btn-nav primary" style="margin-top:30px; padding: 15px 40px; font-size: 16px;" onclick="window.location.href='index.html'">🏠 Kembali ke Beranda</button>
         </div>
       `;
 
+      // SEMBUNYIKAN SIDEBAR NOMOR
       document.querySelector('.sidebar-nomor').style.display = 'none';
 
+      // EFEK CONFETTI (KERTAS BERTERBANGAN)
+      // Confetti pertama dari kiri
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6, x: 0.1 },
+        colors: ['#d4af37', '#0a3622', '#ffffff', '#f1c40f']
+      });
+      
+      // Confetti kedua dari kanan
+      setTimeout(() => {
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6, x: 0.9 },
+          colors: ['#d4af37', '#0a3622', '#ffffff', '#f1c40f']
+        });
+      }, 300);
+
+      // SIMPAN NILAI KE FIREBASE
       if (namaSiswa) {
         try {
           await addDoc(collection(window.db, "HasilUjian"), {
