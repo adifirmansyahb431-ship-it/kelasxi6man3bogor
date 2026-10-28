@@ -120,8 +120,8 @@
       <div class="materi-card">
         <h3>🎥 Video Pembelajaran: Teori Produksi</h3>
           <div class="video-container">
-                <div class="video-container">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/Qx4KG95v11c" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <!-- VIDEO SUDAH DIGANTI DENGAN ID BARU: TC6b6PPbcJs -->
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/TC6b6PPbcJs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           </div>
         <h3>📖 A. Definisi Perilaku Produsen</h3>
         <p><strong>Perilaku Produsen</strong> adalah keseluruhan tindakan dan keputusan yang diambil oleh produsen dalam mengombinasikan faktor-faktor produksi (input) untuk menghasilkan barang atau jasa (output) secara efisien demi mencapai keuntungan optimal dan menjaga keberlangsungan usaha.</p>
@@ -367,33 +367,4 @@
           callbackSelesai();
         }
         sisa--;
-      }, 1000);
-    }
-
-    function selesaiCBT(bankSoal, tipe) {
-      clearInterval(timerInterval);
-      let skor = 0;
-      
-      bankSoal.forEach((soal, index) => {
-        const jawabanUser = document.querySelector(`input[name="${tipe}_soal_${index}"]:checked`);
-        if (jawabanUser && parseInt(jawabanUser.value) === soal.jawaban) {
-          skor++;
-        }
-      });
-
-      const persentase = Math.round((skor / bankSoal.length) * 100);
-      const container = document.getElementById(tipe === 'pre' ? 'cbtPreBody' : 'cbtPostBody');
-      
-      container.innerHTML = `
-        <div class="hasil-box">
-          <h3 style="border:none; text-align:center;">Hasil ${tipe === 'pre' ? 'Pre-Test' : 'Post-Test'}</h3>
-          <p class="skor-angka">${persentase}</p>
-          <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
-          <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${bankSoal.length}</strong> soal.</p>
-          <button class="btn-nav primary" style="margin-top:20px;" onclick="location.reload()">🔄 Ulangi Tes</button>
-        </div>
-      `;
-    }
-  </script>
-</body>
-</html>
+      },
