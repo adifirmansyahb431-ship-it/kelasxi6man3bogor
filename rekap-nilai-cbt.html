@@ -141,19 +141,24 @@
 
         tbody.innerHTML = htmlTabel;
 
-        // RENDER GRAFIK DENGAN CHART.JS
+        // RENDER GRAFIK GARIS (LINE CHART)
         const ctx = document.getElementById('grafikNilai').getContext('2d');
         new Chart(ctx, {
-          type: 'bar',
+          type: 'line', // <--- DIUBAH MENJADI GARIS
           data: {
             labels: namaSiswaArr,
             datasets: [{
               label: 'Nilai Ujian',
               data: nilaiSiswaArr,
-              backgroundColor: 'rgba(10, 54, 34, 0.7)',
-              borderColor: 'rgba(10, 54, 34, 1)',
-              borderWidth: 1,
-              borderRadius: 5
+              backgroundColor: 'rgba(10, 54, 34, 0.2)', // Warna area di bawah garis
+              borderColor: 'rgba(10, 54, 34, 1)',      // Warna garis utama
+              borderWidth: 3,
+              pointBackgroundColor: '#d4af37',         // Warna titik
+              pointBorderColor: '#fff',
+              pointRadius: 6,
+              pointHoverRadius: 8,
+              tension: 0.3, // Membuat garis melengkung halus
+              fill: true    // Mengisi area di bawah garis
             }]
           },
           options: {
