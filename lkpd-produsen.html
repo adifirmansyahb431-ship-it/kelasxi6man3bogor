@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LKPD Perilaku Produsen - SIPADAK</title>
+  
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .btn-back { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;}
+    
+    .container { max-width: 800px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; }
+    
+    .card { background: white; border-radius: 14px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+    
+    h2 { color: var(--hijau); text-align: center; margin-top: 0; border-bottom: 2px solid var(--gold); padding-bottom: 10px; }
+    h3 { color: var(--hijau); font-size: 18px; margin-top: 25px; }
+    
+    .info-box { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .info-box p { margin: 0; font-size: 14px; color: #1e3a8a; }
+    
+    .soal-lkpd { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed #ccc; }
+    .soal-lkpd p { margin: 0 0 10px 0; }
+    .soal-lkpd .pertanyaan { font-weight: bold; color: #333; }
+    
+    textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; resize: vertical; min-height: 80px; margin-top: 10px; }
+    
+    .btn-print { background: #16a085; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin-top: 20px; transition: 0.3s; }
+    .btn-print:hover { background: #12876f; }
+    
+    @media print {
+      .header, .btn-back, .btn-print { display: none !important; }
+      .card { box-shadow: none; border: none; padding: 0; }
+      body { background: white; }
+      textarea { border: 1px solid #000; background: transparent; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>📝 LKPD - Perilaku Produsen</h1>
+    <a href="javascript:void(0)" onclick="kembali()" class="btn-back">⬅ Kembali ke Beranda</a>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      
+      <h2>LEMBAR KERJA PESERTA DIDIK (LKPD)</h2>
+      <p style="text-align: center; font-size: 14px; color: #666; margin-bottom: 30px;">Mata Pelajaran: Ekonomi | Materi: Perilaku Produsen | Kelas: X/XI</p>
+
+      <div class="info-box">
+        <p><strong>Petunjuk Pengerjaan:</strong><br>
+        1. Bacalah materi tentang Perilaku Produsen, Isoquant, Isocost, dan Keseimbangan Produsen.<br>
+        2. Jawablah pertanyaan di bawah ini dengan bahasa Anda sendiri.<br>
+        3. Anda bisa mengerjakannya di buku tulis, atau mengetiknya langsung di kotak yang disediakan lalu klik "Cetak / Simpan PDF".</p>
+      </div>
+
+      <!-- DAFTAR SOAL LKPD -->
+      <div class="soal-lkpd">
+        <p class="pertanyaan">1. Jelaskan pengertian Perilaku Produsen dan mengapa produsen perlu berperilaku efisien?</p>
+        <textarea placeholder="Ketik jawaban Anda di sini..."></textarea>
+      </div>
+
+      <div class="soal-lkpd">
+        <p class="pertanyaan">2. Sebutkan dan jelaskan 4 faktor produksi yang Anda ketahui! Berikan contohnya masing-masing.</p>
+        <textarea placeholder="Ketik jawaban Anda di sini..."></textarea>
+      </div>
+
+      <div class="soal-lkpd">
+        <p class="pertanyaan">3. Apa perbedaan utama antara kurva Isoquant dan garis Isocost?</p>
+        <textarea placeholder="Ketik jawaban Anda di sini..."></textarea>
+      </div>
+
+      <div class="soal-lkpd">
+        <p class="pertanyaan">4. Jelaskan mengapa kurva Isoquant melengkung cembung ke arah titik asal (origin)! (Petunjuk: Hubungkan dengan Hukum Diminishing MRTS).</p>
+        <textarea placeholder="Ketik jawaban Anda di sini..."></textarea>
+      </div>
+
+      <div class="soal-lkpd">
+        <p class="pertanyaan">5. Kapan seorang produsen dikatakan telah mencapai keseimbangan (efisiensi biaya)?</p>
+        <textarea placeholder="Ketik jawaban Anda di sini..."></textarea>
+      </div>
+
+      <div class="soal-lkpd">
+        <p class="pertanyaan">6. <strong>Studi Kasus:</strong> Sebuah usaha kecil membuat kopi kekinian. Mereka memiliki anggaran Rp 10.000.000. Upah barista Rp 2.000.000/orang, dan sewa mesin kopi Rp 2.000.000/unit. Jika pemilik memutuskan menggunakan 3 barista dan 2 mesin, apakah seluruh anggaran terpakai? Jelaskan analisis Anda!</p>
+        <textarea placeholder="Ketik jawaban Anda di sini..."></textarea>
+      </div>
+
+      <button class="btn-print" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+
+    </div>
+  </div>
+
+  <script>
+    function kembali() {
+      if (window.parent && window.parent.tutupHalaman) {
+        window.parent.tutupHalaman();
+      } else {
+        window.location.href = "index.html";
+      }
+    }
+  </script>
+</body>
+</html>
