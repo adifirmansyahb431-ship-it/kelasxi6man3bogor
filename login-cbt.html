@@ -29,7 +29,6 @@
       --hijau: #0a3622; 
       --gold: #d4af37; 
       --cream: #fdf6e3; 
-      --cream-dark: #f4e8c1;
     }
     * { box-sizing: border-box; }
     
@@ -68,12 +67,19 @@
     
     .btn-pilihan { display: block; width: 100%; padding: 15px; margin-bottom: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; transition: 0.3s; }
     
+    /* WARNA TOMBOL PRE-TEST (CREAM) */
     .btn-pre { background: #d8c3a5; color: #0a3622; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #c2ad8f;}
     .btn-pre:hover { background: #c2ad8f; transform: translateY(-2px); }
     
+    /* WARNA TOMBOL POST-TEST (CREAM) */
     .btn-post { background: #e8d5b7; color: #0a3622; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #d1be9f;}
     .btn-post:hover { background: #d1be9f; transform: translateY(-2px); }
     
+    /* WARNA TOMBOL LKPD (HIJAU) */
+    .btn-lkpd { background: #16a085; color: white; box-shadow: 0 4px 10px rgba(22, 160, 133, 0.3); }
+    .btn-lkpd:hover { background: #12876f; transform: translateY(-2px); }
+
+    /* WARNA TOMBOL KELUAR (MERAH) */
     .btn-keluar { background: #e74c3c; color: white; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3); }
     .btn-keluar:hover { background: #c0392b; transform: translateY(-2px); }
   </style>
@@ -104,6 +110,9 @@
       
       <a href="ujian-cbt.html" class="btn-pilihan btn-pre">📝 Mulai Pre-Test</a>
       <a href="post-test-produsen.html" class="btn-pilihan btn-post">🎯 Mulai Post-Test</a>
+      
+      <!-- TOMBOL LKPD BARU -->
+      <a href="lkpd-produsen.html" class="btn-pilihan btn-lkpd">📁 Buka LKPD</a>
       
       <button onclick="logoutCBT()" class="btn-pilihan btn-keluar" style="margin-top: 10px;">🚪 Keluar</button>
     </div>
