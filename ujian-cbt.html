@@ -104,7 +104,6 @@
     <h1>📝 Ujian CBT</h1>
     <div class="header-right">
       <span id="infoSiswa">Memuat...</span>
-      <!-- TOMBOL KELUAR -->
       <button class="btn-keluar-header" onclick="konfirmasiKeluar()">🚪 Keluar Ujian</button>
     </div>
   </div>
@@ -162,7 +161,9 @@
     let timerInterval;
     const namaSiswa = localStorage.getItem("cbtNamaSiswa");
 
-    // FUNGSI KELUAR UJIAN
+    // ==========================================
+    // DAFTARKAN FUNGSI KE WINDOW (AGAR BISA DIPANGGIL HTML)
+    // ==========================================
     window.konfirmasiKeluar = function() {
       if (confirm("Yakin ingin keluar dari ujian? Jawaban yang belum disimpan akan hilang.")) {
         clearInterval(timerInterval);
@@ -172,12 +173,12 @@
       }
     }
 
-    function mulaiUjian() {
+    window.mulaiUjian = function() {
       renderSoal(soalPreTest);
       mulaiTimer(900); 
     }
 
-    function renderSoal(bankSoal) {
+    window.renderSoal = function(bankSoal) {
       const container = document.getElementById('cbtPreBody');
       let html = '';
 
@@ -216,7 +217,7 @@
       gridNomor.innerHTML = htmlNomor;
     }
 
-    function pindahSoal(indexTujuan) {
+    window.pindahSoal = function(indexTujuan) {
       if (indexTujuan < 0 || indexTujuan >= soalPreTest.length) return;
 
       document.querySelectorAll('.soal-item').forEach(el => el.style.display = 'none');
@@ -230,12 +231,12 @@
       soalAktif = indexTujuan;
     }
 
-    function cekDijawab(indexSoal) {
+    window.cekDijawab = function(indexSoal) {
       const btnNomor = document.getElementById(`btn-nomor-${indexSoal}`);
       if (btnNomor) btnNomor.classList.add('sudah-dijawab');
     }
 
-    function mulaiTimer(durasiDetik) {
+    window.mulaiTimer = function(durasiDetik) {
       const timerEl = document.getElementById('timerPre');
       let sisa = durasiDetik;
       clearInterval(timerInterval);
@@ -253,7 +254,7 @@
       }, 1000);
     }
 
-    async function selesaiUjian() {
+    window.selesaiUjian = async function() {
       clearInterval(timerInterval);
       let skor = 0;
       
@@ -318,12 +319,13 @@
       localStorage.removeItem("cbtNisSiswa");
     }
 
+    // JALANKAN UJIAN
     if (!namaSiswa) {
       alert("Anda belum login. Silakan login terlebih dahulu.");
       window.location.href = "login-cbt.html";
     } else {
       document.getElementById("infoSiswa").textContent = `Peserta: ${namaSiswa}`;
-      mulaiUjian(); 
+      window.mulaiUjian(); 
     }
   </script>
 </body>
