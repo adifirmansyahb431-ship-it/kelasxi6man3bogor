@@ -7,7 +7,6 @@
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    // PERBAIKAN: Tambahkan doc dan deleteDoc untuk fitur hapus
     import { getFirestore, collection, getDocs, query, orderBy, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -20,7 +19,6 @@
     };
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    // PERBAIKAN: Masukkan doc dan deleteDoc ke window.fbFunc
     window.fbFunc = { collection, getDocs, query, orderBy, doc, deleteDoc };
     window.dispatchEvent(new Event('firebaseReady'));
   </script>
@@ -46,6 +44,16 @@
     .btn-delete { background: #e74c3c; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; white-space: nowrap; }
     .btn-delete:hover { background: #c0392b; }
     
+    /* CSS UNTUK MENYATUKAN TAMPILAN DI DALAM IFRAME DASHBOARD */
+    body.di-dalam-iframe .header,
+    body.di-dalam-iframe .btn-back {
+      display: none !important; /* Sembunyikan header dan tombol kembali */
+    }
+    body.di-dalam-iframe .container {
+      margin-top: 20px;
+      max-width: 100%; /* Lebarkan tabel agar penuh */
+    }
+
     @media print {
       .no-print { display: none !important; }
       body { background: white; }
@@ -111,6 +119,11 @@
   <script>
     if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
 
+    // DETEKSI IFRAME: Jika dibuka dari Dashboard Induk, sembunyikan header
+    if (window.self !== window.top) {
+      document.body.classList.add('di-dalam-iframe');
+    }
+
     function kembali() {
       if (window.parent && window.parent.tutupHalaman) {
         window.parent.tutupHalaman();
@@ -120,7 +133,6 @@
     }
 
     window.addEventListener('firebaseReady', async () => {
-      // Panggil fungsi load data
       loadDataCBT();
       loadDataLKPD();
     });
@@ -143,7 +155,7 @@
         } else {
           snapCBT.forEach(docSnap => {
             const d = docSnap.data();
-            const docId = docSnap.id; // Ambil ID dokumen untuk hapus
+            const docId = docSnap.id;
             
             let detailJson = JSON.stringify(d.detailJawaban || {});
             detailJson = detailJson.replace(/"/g, '&quot;');
@@ -191,7 +203,7 @@
         } else {
           snapLKPD.forEach(docSnap => {
             const d = docSnap.data();
-            const docId = docSnap.id; // Ambil ID dokumen untuk hapus
+            const docId = docSnap.id;
             const jawabanRingkas = d.jawaban.substring(0, 50) + "...";
             let jawabanJson = d.jawaban.replace(/"/g, '&quot;');
 
@@ -217,24 +229,20 @@
       } catch (e) { console.error(e); tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat data.</td></tr>'; }
     }
 
-    // ==========================================
-    // FUNGSI HAPUS DATA DARI FIREBASE
-    // ==========================================
+    // Fungsi Hapus Data
     window.hapusData = async function(namaKoleksi, docId) {
       if (!confirm("Apakah Anda yakin ingin menghapus data ini secara permanen?")) {
-        return; // Batal jika user klik 'Cancel'
+        return;
       }
 
       try {
         const { doc, deleteDoc } = window.fbFunc;
         const db = window.db;
         
-        // Hapus dari Firestore
         await deleteDoc(doc(db, namaKoleksi, docId));
         
         alert("Data berhasil dihapus!");
         
-        // Refresh tabel yang sesuai
         if (namaKoleksi === 'HasilUjian') {
           loadDataCBT();
         } else if (namaKoleksi === 'HasilLKPD') {
