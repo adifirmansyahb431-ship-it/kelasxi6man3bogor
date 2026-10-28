@@ -7,7 +7,8 @@
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    // PERBAIKAN: Tambahkan doc dan deleteDoc untuk fitur hapus
+    import { getFirestore, collection, getDocs, query, orderBy, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
@@ -19,7 +20,8 @@
     };
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    window.fbFunc = { collection, getDocs, query, orderBy };
+    // PERBAIKAN: Masukkan doc dan deleteDoc ke window.fbFunc
+    window.fbFunc = { collection, getDocs, query, orderBy, doc, deleteDoc };
     window.dispatchEvent(new Event('firebaseReady'));
   </script>
 
@@ -37,7 +39,12 @@
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
     th { background: #f8fafc; text-align: center; }
-    .btn-print { background: #e67e22; color: white; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; }
+    
+    /* Style untuk Tombol Aksi (Cetak & Hapus) */
+    .btn-action-group { display: flex; gap: 5px; justify-content: center; }
+    .btn-print { background: #e67e22; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; white-space: nowrap; }
+    .btn-delete { background: #e74c3c; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; white-space: nowrap; }
+    .btn-delete:hover { background: #c0392b; }
     
     @media print {
       .no-print { display: none !important; }
@@ -113,11 +120,18 @@
     }
 
     window.addEventListener('firebaseReady', async () => {
+      // Panggil fungsi load data
+      loadDataCBT();
+      loadDataLKPD();
+    });
+
+    // Fungsi untuk memuat data CBT
+    async function loadDataCBT() {
       const { collection, getDocs, query, orderBy } = window.fbFunc;
       const db = window.db;
-
-      // 1. LOAD HASIL CBT
       const tbodyCBT = document.getElementById("listHasilCBT");
+      
+      tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>';
       let htmlCBT = ""; let noCBT = 1;
 
       try {
@@ -127,13 +141,11 @@
         if(snapCBT.empty) {
           tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data ujian.</td></tr>';
         } else {
-          snapCBT.forEach(doc => {
-            const d = doc.data();
+          snapCBT.forEach(docSnap => {
+            const d = docSnap.data();
+            const docId = docSnap.id; // Ambil ID dokumen untuk hapus
             
-            // Simpan detail jawaban ke dalam atribut data-* pada tombol
-            // Ini lebih aman daripada melempar string JSON panjang
             let detailJson = JSON.stringify(d.detailJawaban || {});
-            // Escape kutip ganda agar tidak merusak atribut HTML
             detailJson = detailJson.replace(/"/g, '&quot;');
 
             htmlCBT += `<tr>
@@ -144,21 +156,30 @@
               <td style="text-align:center;">${d.skor} / ${d.totalSoal}</td>
               <td style="text-align:center; font-weight:bold; color:${d.persentase >= 70 ? 'green' : 'red'};">${d.persentase}</td>
               <td style="text-align:center;">
-                <button class="btn-print" 
-                        data-nama="${d.nama}" 
-                        data-jenis="${d.jenisUjian || "Pre-Test"}" 
-                        data-tanggal="${d.tanggal}" 
-                        data-detail="${detailJson}"
-                        onclick="cetakCBT(this)">🖨️ Cetak Detail</button>
+                <div class="btn-action-group">
+                  <button class="btn-print" 
+                          data-nama="${d.nama}" 
+                          data-jenis="${d.jenisUjian || "Pre-Test"}" 
+                          data-tanggal="${d.tanggal}" 
+                          data-detail="${detailJson}"
+                          onclick="cetakCBT(this)">🖨️ Cetak</button>
+                  <button class="btn-delete" onclick="hapusData('HasilUjian', '${docId}')">🗑️ Hapus</button>
+                </div>
               </td>
             </tr>`;
           });
           tbodyCBT.innerHTML = htmlCBT;
         }
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error(e); tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data.</td></tr>'; }
+    }
 
-      // 2. LOAD HASIL LKPD
+    // Fungsi untuk memuat data LKPD
+    async function loadDataLKPD() {
+      const { collection, getDocs, query, orderBy } = window.fbFunc;
+      const db = window.db;
       const tbodyLKPD = document.getElementById("listHasilLKPD");
+      
+      tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
       let htmlLKPD = ""; let noLKPD = 1;
 
       try {
@@ -168,10 +189,10 @@
         if(snapLKPD.empty) {
           tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada jawaban LKPD.</td></tr>';
         } else {
-          snapLKPD.forEach(doc => {
-            const d = doc.data();
+          snapLKPD.forEach(docSnap => {
+            const d = docSnap.data();
+            const docId = docSnap.id; // Ambil ID dokumen untuk hapus
             const jawabanRingkas = d.jawaban.substring(0, 50) + "...";
-            
             let jawabanJson = d.jawaban.replace(/"/g, '&quot;');
 
             htmlLKPD += `<tr>
@@ -180,18 +201,51 @@
               <td>${d.tanggal}</td>
               <td>${jawabanRingkas}</td>
               <td style="text-align:center;">
-                <button class="btn-print" 
-                        data-nama="${d.nama}" 
-                        data-tanggal="${d.tanggal}" 
-                        data-jawaban="${jawabanJson}"
-                        onclick="cetakLKPD(this)">🖨️ Cetak</button>
+                <div class="btn-action-group">
+                  <button class="btn-print" 
+                          data-nama="${d.nama}" 
+                          data-tanggal="${d.tanggal}" 
+                          data-jawaban="${jawabanJson}"
+                          onclick="cetakLKPD(this)">🖨️ Cetak</button>
+                  <button class="btn-delete" onclick="hapusData('HasilLKPD', '${docId}')">🗑️ Hapus</button>
+                </div>
               </td>
             </tr>`;
           });
           tbodyLKPD.innerHTML = htmlLKPD;
         }
-      } catch (e) { console.error(e); }
-    });
+      } catch (e) { console.error(e); tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat data.</td></tr>'; }
+    }
+
+    // ==========================================
+    // FUNGSI HAPUS DATA DARI FIREBASE
+    // ==========================================
+    window.hapusData = async function(namaKoleksi, docId) {
+      if (!confirm("Apakah Anda yakin ingin menghapus data ini secara permanen?")) {
+        return; // Batal jika user klik 'Cancel'
+      }
+
+      try {
+        const { doc, deleteDoc } = window.fbFunc;
+        const db = window.db;
+        
+        // Hapus dari Firestore
+        await deleteDoc(doc(db, namaKoleksi, docId));
+        
+        alert("Data berhasil dihapus!");
+        
+        // Refresh tabel yang sesuai
+        if (namaKoleksi === 'HasilUjian') {
+          loadDataCBT();
+        } else if (namaKoleksi === 'HasilLKPD') {
+          loadDataLKPD();
+        }
+        
+      } catch (error) {
+        console.error("Gagal menghapus data:", error);
+        alert("Gagal menghapus data. Silakan coba lagi.");
+      }
+    };
 
     // Fungsi Cetak Detail CBT
     function cetakCBT(btn) {
@@ -200,7 +254,6 @@
       const tanggal = btn.getAttribute('data-tanggal');
       let detailStr = btn.getAttribute('data-detail');
       
-      // Kembalikan format kutip ganda
       detailStr = detailStr.replace(/&quot;/g, '"');
       
       let detail = {};
@@ -213,7 +266,6 @@
       const win = window.open('', '_blank');
       let soalHtml = "";
       
-      // Cek apakah data detail ada isinya
       if (Object.keys(detail).length === 0) {
         soalHtml = `<p style="color:red; font-style:italic;">Data detail jawaban tidak ditemukan. Siswa mungkin mengerjakan ujian sebelum fitur ini ditambahkan.</p>`;
       } else {
