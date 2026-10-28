@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard Induk - SIPADAK XI-6</title>
   
+  <!-- Library Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <style>
     :root { 
       --dark-bg: #070b19; 
@@ -12,6 +15,7 @@
       --neon-cyan: #00f3ff; 
       --text: #e2e8f0; 
       --hover-bg: rgba(0, 243, 255, 0.1);
+      --gold: #d4af37;
     }
     * { box-sizing: border-box; }
     
@@ -47,7 +51,7 @@
 
     /* TOMBOL MENU (Hanya muncul di HP) */
     .menu-toggle {
-      display: none; /* Sembunyikan di layar besar */
+      display: none; 
       background: transparent;
       border: none;
       color: var(--neon-cyan);
@@ -76,7 +80,7 @@
       padding: 15px 0;
       box-shadow: 2px 0 10px rgba(0,0,0,0.5);
       flex-shrink: 0;
-      transition: transform 0.3s ease-in-out; /* Animasi geser */
+      transition: transform 0.3s ease-in-out; 
       z-index: 90;
     }
 
@@ -169,49 +173,78 @@
     }
 
     /* =========================================
+       EFEK CONGRATULATIONS OVERLAY
+       ========================================= */
+    #welcome-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(7, 11, 25, 0.95);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 1s ease;
+    }
+
+    .piala {
+      font-size: 120px;
+      animation: bounceIn 1s ease-out, float 3s ease-in-out infinite 1s;
+      filter: drop-shadow(0 10px 20px rgba(212, 175, 55, 0.6));
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .ucapan {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--gold);
+      margin: 10px 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+      animation: fadeInDown 1s ease-out 0.5s both;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =========================================
        TAMPILAN KHUSUS HP (RESPONSIF)
        ========================================= */
     @media (max-width: 768px) {
-      /* Tampilkan tombol menu */
-      .menu-toggle {
-        display: block;
-      }
-
-      /* Sembunyikan sidebar ke kiri (off-screen) */
-      .sidebar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        transform: translateX(-100%); /* Geser ke kiri */
-      }
-
-      /* Jika sidebar dibuka (class active) */
-      .sidebar.active {
-        transform: translateX(0); /* Kembali ke posisi normal */
-      }
-
-      /* Overlay gelap saat sidebar terbuka */
-      .sidebar-overlay {
-        display: none;
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.6);
-        z-index: 80;
-      }
-      .sidebar-overlay.active {
-        display: block;
-      }
+      .menu-toggle { display: block; }
+      .sidebar { position: absolute; top: 0; left: 0; height: 100%; transform: translateX(-100%); }
+      .sidebar.active { transform: translateX(0); }
+      .sidebar-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 80; }
+      .sidebar-overlay.active { display: block; }
+      .ucapan { font-size: 24px; text-align: center; padding: 0 20px;}
+      .piala { font-size: 80px; }
     }
   </style>
 </head>
 <body>
 
+  <!-- OVERLAY CONGRATULATIONS -->
+  <div id="welcome-overlay">
+    <div class="piala">🏆</div>
+    <h2 class="ucapan">CONGRATULATIONS!</h2>
+    <p style="color: #fff; font-size: 18px; margin-top: 10px;">Selamat datang kembali di Dashboard Induk SIPADAK.</p>
+  </div>
+
   <div class="header">
-    <!-- Tombol Menu untuk HP -->
     <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-    
     <img src="fotogroupxi-6.png" alt="logo" />
     <div class="brand">
       SIPADAK XI-6
@@ -221,17 +254,10 @@
   </div>
 
   <div class="main-wrapper">
-    
-    <!-- Overlay (Latar Gelap saat menu terbuka di HP) -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
-    <!-- SIDEBAR KIRI -->
     <div class="sidebar" id="sidebar"></div>
 
-    <!-- KONTEN KANAN -->
     <div class="content-area">
-      
-      <!-- RUNNING TEXT -->
       <div class="ticker-wrapper">
         <div class="ticker-text">
           SISTEM INFORMASI PANGKALAN DATA KELAS XI-6 ★ SIPADAK ★ MAN 3 BOGOR ★ SISTEM INFORMASI PANGKALAN DATA KELAS XI-6 ★ SIPADAK ★ MAN 3 BOGOR ★
@@ -252,6 +278,44 @@
     if (window.top !== window.self) {
       window.top.location.href = "dashboard-induk.html";
     }
+
+    // LOGIKA EFEK CONGRATULATIONS
+    window.addEventListener('load', () => {
+      // 1. Tembakkan Confetti
+      confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: ['#d4af37', '#00f3ff', '#ffffff']
+      });
+
+      // Confetti kedua dari samping
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ['#d4af37', '#00f3ff']
+        });
+        confetti({
+          particleCount: 100,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ['#d4af37', '#00f3ff']
+        });
+      }, 400);
+
+      // 2. Hilangkan Overlay setelah 3 detik
+      setTimeout(() => {
+        const overlay = document.getElementById('welcome-overlay');
+        if(overlay) {
+          overlay.style.opacity = '0';
+          setTimeout(() => overlay.style.display = 'none', 1000); // Tunggu transisi selesai
+        }
+      }, 3000); // 3000ms = 3 detik
+    });
 
     const sudahLogin = localStorage.getItem("siTatibLogin");
     const role = localStorage.getItem("siTatibRole");
@@ -277,7 +341,7 @@
         { id: "menuMedia", href: "media-belajar.html", icon: "📚", title: "Media Belajar" },
         { id: "menuAbsensiX7", href: "absensi-x7.html", icon: "📋", title: "Absensi X-7" },
         { id: "menuRekapNilaiCBT", href: "rekap-nilai-cbt.html", icon: "📊", title: "Rekap Nilai CBT" }
-        ];
+      ];
 
       let menuTampil = [];
       
