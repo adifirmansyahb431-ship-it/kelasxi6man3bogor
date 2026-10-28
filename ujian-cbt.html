@@ -272,7 +272,6 @@
       const persentase = Math.round((skor / soalPreTest.length) * 100);
       const container = document.getElementById('cbtPreBody');
       
-      // TAMPILKAN HASIL DENGAN UCAPAN, PIALA, DAN CONFETTI
       container.innerHTML = `
         <div class="hasil-box">
           <div class="piala">🏆</div>
@@ -287,11 +286,9 @@
         </div>
       `;
 
-      // SEMBUNYIKAN SIDEBAR NOMOR
       document.querySelector('.sidebar-nomor').style.display = 'none';
 
-      // EFEK CONFETTI (KERTAS BERTERBANGAN)
-      // Confetti pertama dari kiri
+      // EFEK CONFETTI
       confetti({
         particleCount: 150,
         spread: 70,
@@ -299,7 +296,6 @@
         colors: ['#d4af37', '#0a3622', '#ffffff', '#f1c40f']
       });
       
-      // Confetti kedua dari kanan
       setTimeout(() => {
         confetti({
           particleCount: 150,
@@ -309,7 +305,6 @@
         });
       }, 300);
 
-      // SIMPAN NILAI KE FIREBASE
       if (namaSiswa) {
         try {
           await addDoc(collection(window.db, "HasilUjian"), {
