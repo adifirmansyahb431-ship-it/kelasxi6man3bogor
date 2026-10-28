@@ -258,11 +258,20 @@
       clearInterval(timerInterval);
       let skor = 0;
       
+      // Kumpulkan detail jawaban siswa
+      let detailJawaban = {};
+
       soalPreTest.forEach((soal, index) => {
         const jawabanUser = document.querySelector(`input[name="soal_${index}"]:checked`);
+        const opsiDipilih = jawabanUser ? soal.opsi[parseInt(jawabanUser.value)] : "Tidak dijawab";
+        const kunciJawaban = soal.opsi[soal.jawaban];
+        
         if (jawabanUser && parseInt(jawabanUser.value) === soal.jawaban) {
           skor++;
         }
+
+        // Format data untuk dicetak
+        detailJawaban[`Soal ${index + 1}: ${soal.q.substring(0, 40)}...`] = `Jawaban Siswa: ${opsiDipilih} | Kunci: ${kunciJawaban}`;
       });
 
       const persentase = Math.round((skor / soalPreTest.length) * 100);
@@ -308,7 +317,8 @@
             skor: skor,
             totalSoal: soalPreTest.length,
             persentase: persentase,
-            tanggal: new Date().toISOString().split('T')[0]
+            tanggal: new Date().toISOString().split('T')[0],
+            detailJawaban: detailJawaban // <--- DATA JAWABAN DISIMPAN DI SINI
           });
         } catch (error) {
           console.error("Gagal simpan nilai:", error);
