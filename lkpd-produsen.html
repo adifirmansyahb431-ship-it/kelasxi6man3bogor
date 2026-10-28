@@ -33,11 +33,27 @@
     .btn-print { background: #16a085; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin-top: 20px; transition: 0.3s; }
     .btn-print:hover { background: #12876f; }
     
+    /* =========================================
+       BAGIAN TANDA TANGAN (Titimangsa & Guru)
+       ========================================= */
+    .ttd-section { margin-top: 50px; page-break-inside: avoid; display: none; }
+    
+    .ttd-tanggal { text-align: right; margin-bottom: 30px; font-size: 14px; }
+    
+    .ttd-flex { display: flex; justify-content: space-between; text-align: center; font-size: 14px; }
+    
+    .ttd-box { width: 45%; }
+    
+    .ttd-nama { margin-top: 70px; font-weight: bold; text-decoration: underline; display: inline-block; }
+    
+    /* CSS KHUSUS CETAK */
     @media print {
+      body { background: white; }
       .header, .btn-back, .btn-print { display: none !important; }
       .card { box-shadow: none; border: none; padding: 0; }
-      body { background: white; }
       textarea { border: 1px solid #000; background: transparent; }
+      /* Tampilkan bagian tanda tangan saat dicetak */
+      .ttd-section { display: block !important; } 
     }
   </style>
 </head>
@@ -94,10 +110,33 @@
 
       <button class="btn-print" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
 
+      <!-- BAGIAN TANDA TANGAN (MUNCUL SAAT CETAK) -->
+      <div class="ttd-section">
+        <div class="ttd-tanggal" id="titimangsa">Jonggol, 27 Oktober 2026</div>
+        
+        <div class="ttd-flex">
+          <div class="ttd-box">
+            <p>Mengetahui,<br>Kepala Madrasah,</p>
+            <div class="ttd-nama">Dr. H. Rizalah Luqman Al Farabi, S.Pd.I., M.Pd.</div>
+            <p>NIP. 198404012009011006</p>
+          </div>
+          
+          <div class="ttd-box">
+            <p>Guru Mata Pelajaran Ekonomi,</p>
+            <div class="ttd-nama">ADI FIRMANSYAH, S.E.</div>
+            <p>NIP. 198301112025211003</p>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <script>
+    // Format tanggal otomatis (Titimangsa)
+    const dateObj = new Date();
+    document.getElementById('titimangsa').textContent = `Jonggol, ${dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+
     function kembali() {
       if (window.parent && window.parent.tutupHalaman) {
         window.parent.tutupHalaman();
