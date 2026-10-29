@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Media Belajar - Perilaku Produsen</title>
   
-  <!-- Library untuk Download Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   
   <style>
@@ -13,72 +12,56 @@
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
     
-    /* HEADER & NAVIGASI */
     .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100; }
     .header h1 { margin: 0; font-size: 20px; }
     .btn-back { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;}
     
     .container { max-width: 900px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; }
     
-    /* TAB MENU */
     .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
     .tab-btn { flex: 1; padding: 15px; text-align: center; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-weight: bold; font-size: 16px; color: #64748b; cursor: pointer; transition: 0.3s; }
     .tab-btn:hover { background: #f1f5f9; }
     .tab-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); box-shadow: 0 4px 10px rgba(10, 54, 34, 0.3); }
 
-    /* KONTEN */
     .content-section { display: none; }
     .content-section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* CARD MATERI */
     .materi-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 25px; }
     
-    /* TEKS & VISUAL MATERI */
     h3 { color: var(--hijau); margin-top: 25px; margin-bottom: 10px; font-size: 18px; border-left: 4px solid var(--gold); padding-left: 10px; }
     h4 { color: var(--hijau); font-size: 16px; margin-bottom: 5px; }
     p { line-height: 1.7; font-size: 15px; color: #475569; margin-bottom: 15px; }
     ul, ol { line-height: 1.7; font-size: 15px; color: #475569; margin-bottom: 15px; padding-left: 20px; }
-    
-    /* KOTAK INFO */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    th, td { padding: 12px 15px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f8fafc; color: var(--hijau); font-weight: bold; }
+    .highlight { background: #fef3c7; font-weight: bold; }
     .kotak-info { background: #eff6ff; border-left: 4px solid var(--biru); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .kotak-info h4 { margin: 0 0 5px 0; color: var(--biru); font-size: 16px; }
     .kotak-info p { margin: 0; font-size: 14px; color: #1e3a8a; }
 
-    /* VIDEO YOUTUBE */
     .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-    /* =========================================
-       DESAIN CBT (COMPUTER BASED TEST)
-       ========================================= */
     .cbt-header { display: flex; justify-content: space-between; align-items: center; background: var(--hijau); color: white; padding: 15px 20px; border-radius: 12px 12px 0 0; font-weight: bold; }
     .timer { background: #ef4444; padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-size: 16px; }
-    
     .cbt-body { background: white; padding: 25px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px; }
-    
     .soal-header { display: flex; justify-content: space-between; margin-bottom: 15px; color: #64748b; font-size: 14px; font-weight: bold; }
     .soal-text { font-size: 16px; line-height: 1.6; margin-bottom: 20px; color: #1e293b; }
-    
-    /* Opsi Jawaban */
     .opsi-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
     .opsi-label { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 15px; }
     .opsi-label:hover { background: #f8fafc; border-color: #cbd5e1; }
     .opsi-label input[type="radio"] { width: 18px; height: 18px; accent-color: var(--hijau); }
-    
-    /* Navigasi Bawah */
     .cbt-nav { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
     .btn-nav { background: #e2e8f0; color: #333; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
     .btn-nav:hover { background: #cbd5e1; }
     .btn-nav.primary { background: var(--hijau); color: white; }
     .btn-nav.primary:hover { background: #1a5c3a; }
-    
     .nomor-grid { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px; }
     .nomor-btn { width: 35px; height: 35px; border-radius: 6px; border: 2px solid #e2e8f0; background: white; font-weight: bold; cursor: pointer; color: #64748b; }
     .nomor-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); }
     .nomor-btn.sudah-dijawab { background: var(--gold); color: white; border-color: var(--gold); }
-
-    /* Hasil CBT */
     .hasil-box { text-align: center; padding: 40px 20px; }
     .skor-angka { font-size: 60px; font-weight: 800; color: var(--hijau); margin: 0; }
     .predikat { font-size: 20px; color: var(--gold); font-weight: bold; margin-top: 10px; }
@@ -93,30 +76,26 @@
 
   <div class="container">
     
-    <!-- TAB MENU -->
     <div class="tabs">
       <button class="tab-btn active" onclick="bukaTab('pretest', this)">📝 Pre-Test</button>
       <button class="tab-btn" onclick="bukaTab('materi', this)">📖 Materi</button>
       <button class="tab-btn" onclick="bukaTab('posttest', this)">🎯 Post-Test</button>
     </div>
 
-    <!-- TOMBOL DOWNLOAD SOAL -->
     <div style="text-align: right; margin-bottom: 15px;">
       <button onclick="downloadSemuaSoal()" style="background: #e67e22; color: white; padding: 10px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">📥 Download Semua Soal (Excel)</button>
     </div>
 
-    <!-- ==================== SECTION 1: PRE-TEST (CBT) ==================== -->
+    <!-- PRE-TEST -->
     <div id="pretest" class="content-section active">
       <div class="cbt-header">
         <span>PRE-TEST PERILAKU PRODUSEN</span>
         <div class="timer" id="timerPre">⏱️ 15:00</div>
       </div>
-      <div class="cbt-body" id="cbtPreBody">
-        <!-- Soal akan di-render oleh JavaScript -->
-      </div>
+      <div class="cbt-body" id="cbtPreBody"></div>
     </div>
 
-    <!-- ==================== SECTION 2: MATERI (VIDEO & ULASAN) ==================== -->
+    <!-- MATERI -->
     <div id="materi" class="content-section">
       <div class="materi-card">
         <h3>🎥 Video Pembelajaran: Teori Produksi</h3>
@@ -124,93 +103,137 @@
             <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/TC6b6PPbcJs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </div>
 
-        <h3>📖 A. Ulasan Materi: Perilaku Produsen</h3>
-        <p><strong>Perilaku Produsen</strong> adalah keseluruhan tindakan dan keputusan yang diambil oleh produsen dalam mengombinasikan faktor-faktor produksi (input) seperti tenaga kerja dan modal untuk menghasilkan barang atau jasa (output) secara efisien demi mencapai keuntungan optimal.</p>
-
-        <h3>📖 B. Kurva Isoquant (Kurva Produksi Sama)</h3>
-        <p><strong>Isoquant</strong> adalah kurva yang menunjukkan berbagai kombinasi penggunaan dua faktor produksi variabel (Tenaga Kerja / L dan Modal / K) yang menghasilkan jumlah total output (Q) yang sama. Kurva ini cembung ke arah titik asal (origin) karena berlakunya hukum <em>Diminishing MRTS</em>.</p>
+        <h3>📖 1. Isoquant (Kurva Produksi Sama)</h3>
+        <p><strong>Definisi:</strong> Isoquant (iso = sama, quant = jumlah) adalah kurva yang menunjukkan berbagai kombinasi penggunaan dua faktor produksi variabel—biasanya Tenaga Kerja (L) dan Modal (K)—yang menghasilkan jumlah total output (Q) yang sama.</p>
         
-        <!-- GAMBAR KURVA ISOQUANT -->
+        <h4>Tabel Kombinasi Isoquant (Target Output Q = 100 unit)</h4>
+        <table>
+          <thead>
+            <tr><th>Kombinasi</th><th>Tenaga Kerja (L)</th><th>Modal (K)</th><th>Total Output (Q)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>A</td><td>1</td><td>12</td><td>100 unit</td></tr>
+            <tr><td>B</td><td>2</td><td>8</td><td>100 unit</td></tr>
+            <tr><td>C</td><td>3</td><td>5</td><td>100 unit</td></tr>
+            <tr><td>D</td><td>4</td><td>3</td><td>100 unit</td></tr>
+            <tr><td>E</td><td>5</td><td>2</td><td>100 unit</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Karakteristik Kurva Isoquant</h4>
+        <ul>
+          <li>Kurva berbentuk cembung ke arah titik asal (origin).</li>
+          <li>Bergerak dari kiri atas ke kanan bawah (downward sloping).</li>
+          <li>Berlakunya hukum Diminishing Marginal Rate of Technical Substitution (MRTS), sehingga kurva semakin ke kanan bawah semakin landai.</li>
+        </ul>
+
         <div style="text-align: center; margin-bottom: 20px;">
           <svg width="300" height="250" viewBox="0 0 300 250" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
             <line x1="40" y1="210" x2="280" y2="210" stroke="#333" stroke-width="2" />
             <line x1="40" y1="210" x2="40" y2="20" stroke="#333" stroke-width="2" />
             <text x="270" y="235" font-size="14" font-weight="bold" fill="#333">Tenaga Kerja (L)</text>
             <text x="10" y="30" font-size="14" font-weight="bold" fill="#333" transform="rotate(-90 10,30)">Modal (K)</text>
-            <path d="M 70 40 Q 130 150 250 180" fill="none" stroke="#3b82f6" stroke-width="3" />
-            <path d="M 60 90 Q 120 170 230 200" fill="none" stroke="#10b981" stroke-width="3" />
-            <path d="M 50 140 Q 100 190 200 205" fill="none" stroke="#f59e0b" stroke-width="3" />
-            <text x="180" y="170" font-size="12" fill="#3b82f6" font-weight="bold">Q3</text>
-            <text x="160" y="190" font-size="12" fill="#10b981" font-weight="bold">Q2</text>
-            <text x="140" y="210" font-size="12" fill="#f59e0b" font-weight="bold">Q1</text>
+            <path d="M 50 40 Q 130 150 250 190" fill="none" stroke="#3b82f6" stroke-width="3" />
+            <text x="180" y="180" font-size="12" fill="#3b82f6" font-weight="bold">Isoquant (Q=100)</text>
+            <!-- Titik A sampai E -->
+            <circle cx="60" cy="50" r="4" fill="#f59e0b" /><text x="50" y="45" font-size="10" fill="#f59e0b">A</text>
+            <circle cx="90" cy="80" r="4" fill="#f59e0b" /><text x="80" y="75" font-size="10" fill="#f59e0b">B</text>
+            <circle cx="120" cy="115" r="4" fill="#f59e0b" /><text x="110" y="110" font-size="10" fill="#f59e0b">C</text>
+            <circle cx="160" cy="145" r="4" fill="#f59e0b" /><text x="150" y="140" font-size="10" fill="#f59e0b">D</text>
+            <circle cx="210" cy="170" r="4" fill="#f59e0b" /><text x="200" y="165" font-size="10" fill="#f59e0b">E</text>
           </svg>
         </div>
 
-        <h3>📖 C. Garis Isocost (Garis Biaya Sama)</h3>
-        <p><strong>Isocost</strong> adalah garis yang menunjukkan seluruh kombinasi dua faktor produksi (L dan K) yang dapat dibeli oleh produsen dengan total anggaran/biaya produksi (C) yang sama. Persamaannya: <strong>C = (w × L) + (r × K)</strong>.</p>
+        <h3>📖 2. Isocost (Garis Biaya Sama)</h3>
+        <p><strong>Definisi:</strong> Isocost adalah garis yang menunjukkan seluruh kombinasi dua faktor produksi (L dan K) yang dapat dibeli oleh produsen dengan total anggaran biaya (C) yang sama.</p>
+        <p><strong>Persamaan:</strong> C = (w × L) + (r × K)</p>
         
-        <!-- GAMBAR GARIS ISOCOST -->
+        <h4>Tabel Kombinasi Isocost</h4>
+        <p>Asumsi: C = Rp 12.000.000 | w = Rp 2.000.000/orang | r = Rp 3.000.000/unit</p>
+        <table>
+          <thead>
+            <tr><th>Kombinasi</th><th>Tenaga Kerja (L)</th><th>Modal (K)</th><th>Total Biaya (C)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>P</td><td>0</td><td>4</td><td>Rp 12.000.000</td></tr>
+            <tr><td>Q</td><td>3</td><td>2</td><td>Rp 12.000.000</td></tr>
+            <tr><td>R</td><td>6</td><td>0</td><td>Rp 12.000.000</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Karakteristik Garis Isocost</h4>
+        <ul>
+          <li>Berupa garis lurus linier yang menghubungkan titik potong maksimum pada sumbu K dan sumbu L.</li>
+          <li>Kemiringan (Slope): Ditentukan oleh rasio harga kedua faktor produksi yaitu (-w/r).</li>
+          <li>Jika anggaran bertambah, garis Isocost akan bergeser sejajar ke kanan atas.</li>
+        </ul>
+
         <div style="text-align: center; margin-bottom: 20px;">
           <svg width="300" height="250" viewBox="0 0 300 250" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
             <line x1="40" y1="210" x2="280" y2="210" stroke="#333" stroke-width="2" />
             <line x1="40" y1="210" x2="40" y2="20" stroke="#333" stroke-width="2" />
             <text x="270" y="235" font-size="14" font-weight="bold" fill="#333">Tenaga Kerja (L)</text>
             <text x="10" y="30" font-size="14" font-weight="bold" fill="#333" transform="rotate(-90 10,30)">Modal (K)</text>
-            <line x1="40" y1="60" x2="240" y2="210" stroke="#e74c3c" stroke-width="3" />
-            <circle cx="40" cy="60" r="4" fill="#e74c3c" />
-            <text x="15" y="55" font-size="12" fill="#e74c3c" font-weight="bold">C/r</text>
-            <circle cx="240" cy="210" r="4" fill="#e74c3c" />
-            <text x="245" y="225" font-size="12" fill="#e74c3c" font-weight="bold">C/w</text>
-            <text x="150" y="120" font-size="12" fill="#e74c3c" font-weight="bold" transform="rotate(-30 150,120)">Isocost (C)</text>
+            <line x1="40" y1="50" x2="240" y2="210" stroke="#e74c3c" stroke-width="3" />
+            <circle cx="40" cy="50" r="4" fill="#e74c3c" /><text x="15" y="45" font-size="12" fill="#e74c3c">P (0,4)</text>
+            <circle cx="140" cy="130" r="4" fill="#e74c3c" /><text x="145" y="125" font-size="12" fill="#e74c3c">Q (3,2)</text>
+            <circle cx="240" cy="210" r="4" fill="#e74c3c" /><text x="245" y="225" font-size="12" fill="#e74c3c">R (6,0)</text>
+            <text x="150" y="100" font-size="12" fill="#e74c3c" font-weight="bold" transform="rotate(-30 150,100)">Isocost (C)</text>
           </svg>
         </div>
 
-        <h3>📖 D. Keseimbangan Produsen (Producer Equilibrium)</h3>
-        <p><strong>Keseimbangan Produsen</strong> tercapai ketika produsen dapat memaksimalkan output dengan anggaran tertentu, atau meminimalkan biaya untuk target output tertentu. Secara grafis, ini terjadi pada titik di mana <strong>kurva Isoquant bersinggungan (tangent) dengan garis Isocost</strong>.</p>
-        
-        <!-- GAMBAR KESEIMBANGAN PRODUSEN -->
-        <div style="text-align: center; margin-bottom: 20px;">
-          <svg width="300" height="250" viewBox="0 0 300 250" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
-            <line x1="40" y1="210" x2="280" y2="210" stroke="#333" stroke-width="2" />
-            <line x1="40" y1="210" x2="40" y2="20" stroke="#333" stroke-width="2" />
-            <text x="270" y="235" font-size="14" font-weight="bold" fill="#333">Tenaga Kerja (L)</text>
-            <text x="10" y="30" font-size="14" font-weight="bold" fill="#333" transform="rotate(-90 10,30)">Modal (K)</text>
-            <path d="M 100 40 Q 140 150 250 180" fill="none" stroke="#3b82f6" stroke-width="3" />
-            <text x="200" y="160" font-size="12" fill="#3b82f6" font-weight="bold">Isoquant (Q)</text>
-            <line x1="60" y1="60" x2="240" y2="200" stroke="#e74c3c" stroke-width="3" />
-            <text x="150" y="105" font-size="12" fill="#e74c3c" font-weight="bold" transform="rotate(-30 150,105)">Isocost (C)</text>
-            <circle cx="165" cy="142" r="6" fill="#10b981" />
-            <text x="175" y="140" font-size="14" fill="#10b981" font-weight="bold">Titik E</text>
-            <line x1="165" y1="142" x2="165" y2="210" stroke="#999" stroke-width="1" stroke-dasharray="4" />
-            <line x1="165" y1="142" x2="40" y2="142" stroke="#999" stroke-width="1" stroke-dasharray="4" />
-            <text x="155" y="225" font-size="12" fill="#666">L*</text>
-            <text x="20" y="146" font-size="12" fill="#666">K*</text>
-          </svg>
-        </div>
-        
+        <h3>📖 3. Keseimbangan Produsen (Producer Equilibrium)</h3>
+        <p><strong>Definisi:</strong> Kondisi di mana produsen mencapai output maksimal dengan anggaran biaya tertentu (least cost combination), atau mencapai biaya minimal untuk target output tertentu. Secara grafis, tercapai pada titik persinggungan antara kurva Isoquant dan garis Isocost.</p>
+        <p><strong>Syarat Matematis:</strong> MRTS = w/r atau MPL/w = MPK/r</p>
+
+        <h4>Tabel Analisis Keseimbangan Produsen</h4>
+        <p>Berdasarkan Anggaran C = Rp 12.000.000, w = Rp 2.000.000, r = Rp 3.000.000</p>
+        <table>
+          <thead>
+            <tr><th>Kombinasi (L, K)</th><th>Biaya Terpakai</th><th>Output Dihasilkan</th><th>Status Keseimbangan</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>(1, 3)</td><td>Rp 11.000.000</td><td>Q = 80 unit</td><td>Tidak Efisien (Sisa anggaran)</td></tr>
+            <tr class="highlight"><td>(3, 2)</td><td>Rp 12.000.000</td><td>Q = 100 unit</td><td>Keseimbangan Produsen (Optimal)</td></tr>
+            <tr><td>(4, 3)</td><td>Rp 17.000.000</td><td>Q = 140 unit</td><td>Tidak Terjangkau (Melebihi anggaran)</td></tr>
+          </tbody>
+        </table>
+
         <div class="kotak-info">
-          <h4>💡 Kesimpulan Keseimbangan</h4>
-          <p>Pada titik singgung (Titik E), produsen telah mencapai efisiensi biaya tertinggi. Ia tidak bisa menambah output lagi tanpa menambah anggaran, dan tidak bisa mengurangi biaya lagi tanpa mengurangi output.</p>
+          <h4>💡 Interpretasi Titik Keseimbangan</h4>
+          <p><strong>Titik Optimal (E):</strong> Tercapai pada kombinasi penggunaan 3 tenaga kerja (L) dan 2 unit mesin (K). Pada titik ini, dana perusahaan sebesar Rp 12.000.000 terserap habis secara optimal untuk menghasilkan output maksimal sebanyak 100 unit. Produsen tidak memilih kombinasi lain karena kombinasi (1,3) menghasilkan output lebih sedikit, sedangkan kombinasi (4,3) membutuhkan biaya Rp 17.000.000 yang melampaui batas anggaran.</p>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+          <svg width="300" height="250" viewBox="0 0 300 250" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <line x1="40" y1="210" x2="280" y2="210" stroke="#333" stroke-width="2" />
+            <line x1="40" y1="210" x2="40" y2="20" stroke="#333" stroke-width="2" />
+            <text x="270" y="235" font-size="14" font-weight="bold" fill="#333">Tenaga Kerja (L)</text>
+            <text x="10" y="30" font-size="14" font-weight="bold" fill="#333" transform="rotate(-90 10,30)">Modal (K)</text>
+            <path d="M 50 40 Q 130 150 250 190" fill="none" stroke="#3b82f6" stroke-width="3" />
+            <text x="180" y="180" font-size="12" fill="#3b82f6" font-weight="bold">Isoquant (Q=100)</text>
+            <line x1="40" y1="50" x2="240" y2="210" stroke="#e74c3c" stroke-width="3" />
+            <text x="150" y="100" font-size="12" fill="#e74c3c" font-weight="bold" transform="rotate(-30 150,100)">Isocost (C)</text>
+            <circle cx="140" cy="130" r="6" fill="#10b981" />
+            <text x="150" y="125" font-size="14" fill="#10b981" font-weight="bold">E (3,2)</text>
+          </svg>
         </div>
 
       </div>
     </div>
 
-    <!-- ==================== SECTION 3: POST-TEST (CBT) ==================== -->
+    <!-- POST-TEST -->
     <div id="posttest" class="content-section">
       <div class="cbt-header">
         <span>POST-TEST PERILAKU PRODUSEN</span>
         <div class="timer" id="timerPost">⏱️ 20:00</div>
       </div>
-      <div class="cbt-body" id="cbtPostBody">
-        <!-- Soal akan di-render oleh JavaScript -->
-      </div>
+      <div class="cbt-body" id="cbtPostBody"></div>
     </div>
 
   </div>
 
   <script>
-    // Cek Login Khusus Siswa CBT
     if(!localStorage.getItem("cbtNamaSiswa")) window.location.href = "login-cbt.html";
 
     function kembali() {
@@ -221,9 +244,6 @@
       }
     }
 
-    // ==========================================
-    // LOGIKA TAB NAVIGASI
-    // ==========================================
     function bukaTab(tabId, btnElement) {
       document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -272,9 +292,6 @@
       { q: "Diketahui MRTS = 2, w = Rp 4.000.000, r = Rp 2.000.000. Apakah produsen sudah dalam keseimbangan?", opsi: ["A. Ya, karena MRTS = w/r", "B. Belum, karena MRTS (2) tidak sama dengan w/r (2)", "C. Belum, karena MRTS (2) lebih kecil dari w/r (2)", "D. Tidak dapat ditentukan", "E. Ya, karena MRTS lebih besar dari w/r"], jawaban: 0 }
     ];
 
-    // ==========================================
-    // ENGINE CBT
-    // ==========================================
     let preTestDimulai = false;
     let postTestDimulai = false;
     let waktuPre = 900; 
@@ -316,4 +333,113 @@
             <div class="cbt-nav">
               <button class="btn-nav" onclick="pindahSoal('${tipe}', ${index - 1})" ${index === 0 ? 'disabled' : ''}>⬅ Sebelumnya</button>
               <button class="btn-nav primary" onclick="pindahSoal('${tipe}', ${index + 1})" ${index === bankSoal.length - 1 ? 'style="display:none"' : ''}>Selanjutnya ➡</button>
-              <button class="btn-nav
+              <button class="btn-nav primary" onclick="selesaiCBT(JSON.stringify(${JSON.stringify(bankSoal)}), '${tipe}')" ${index === bankSoal.length - 1 ? 'style="display:block"' : 'style="display:none"'}>Selesai & Lihat Skor</button>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `<div class="nomor-grid" id="grid-${tipe}">`;
+      bankSoal.forEach((_, i) => {
+        html += `<button class="nomor-btn ${i === 0 ? 'active' : ''}" id="btn-nomor-${tipe}-${i}" onclick="pindahSoal('${tipe}', ${i})">${i + 1}</button>`;
+      });
+      html += `</div>`;
+
+      container.innerHTML = html;
+    }
+
+    let soalAktif = { pre: 0, post: 0 };
+
+    function pindahSoal(tipe, indexTujuan) {
+      if (indexTujuan < 0) return;
+      const totalSoal = tipe === 'pre' ? soalPreTest.length : soalPostTest.length;
+      if (indexTujuan >= totalSoal) return;
+
+      document.querySelectorAll(`[id^="soal-${tipe}-"]`).forEach(el => el.style.display = 'none');
+      document.getElementById(`soal-${tipe}-${indexTujuan}`).style.display = 'block';
+
+      document.querySelectorAll(`[id^="btn-nomor-${tipe}-"]`).forEach(el => el.classList.remove('active'));
+      document.getElementById(`btn-nomor-${tipe}-${indexTujuan}`).classList.add('active');
+
+      soalAktif[tipe] = indexTujuan;
+    }
+
+    function cekDijawab(tipe, indexSoal) {
+      const btnNomor = document.getElementById(`btn-nomor-${tipe}-${indexSoal}`);
+      if (btnNomor) btnNomor.classList.add('sudah-dijawab');
+    }
+
+    function mulaiTimer(elementId, durasiDetik, callbackSelesai) {
+      const timerEl = document.getElementById(elementId);
+      let sisa = durasiDetik;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const menit = Math.floor(sisa / 60).toString().padStart(2, '0');
+        const detik = (sisa % 60).toString().padStart(2, '0');
+        timerEl.innerHTML = `⏱️ ${menit}:${detik}`;
+
+        if (sisa <= 0) {
+          clearInterval(timerInterval);
+          alert("Waktu habis! Jawaban akan otomatis dikumpulkan.");
+          callbackSelesai();
+        }
+        sisa--;
+      }, 1000);
+    }
+
+    function selesaiCBT(bankSoal, tipe) {
+      clearInterval(timerInterval);
+      let skor = 0;
+      
+      bankSoal.forEach((soal, index) => {
+        const jawabanUser = document.querySelector(`input[name="${tipe}_soal_${index}"]:checked`);
+        if (jawabanUser && parseInt(jawabanUser.value) === soal.jawaban) {
+          skor++;
+        }
+      });
+
+      const persentase = Math.round((skor / bankSoal.length) * 100);
+      const container = document.getElementById(tipe === 'pre' ? 'cbtPreBody' : 'cbtPostBody');
+      
+      container.innerHTML = `
+        <div class="hasil-box">
+          <h3 style="border:none; text-align:center;">Hasil ${tipe === 'pre' ? 'Pre-Test' : 'Post-Test'}</h3>
+          <p class="skor-angka">${persentase}</p>
+          <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
+          <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${bankSoal.length}</strong> soal.</p>
+          <button class="btn-nav primary" style="margin-top:20px;" onclick="location.reload()">🔄 Ulangi Tes</button>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // FITUR DOWNLOAD SOAL KE EXCEL
+    // ==========================================
+    function downloadSemuaSoal() {
+      let dataSoal = [];
+      dataSoal.push(["Jenis Ujian", "No", "Pertanyaan", "Opsi A", "Opsi B", "Opsi C", "Opsi D", "Opsi E", "Kunci Jawaban"]);
+
+      soalPreTest.forEach((soal, index) => {
+        dataSoal.push([
+          "Pre-Test", index + 1, soal.q, 
+          soal.opsi[0] || "-", soal.opsi[1] || "-", soal.opsi[2] || "-", soal.opsi[3] || "-", soal.opsi[4] || "-", 
+          soal.opsi[soal.jawaban]
+        ]);
+      });
+
+      soalPostTest.forEach((soal, index) => {
+        dataSoal.push([
+          "Post-Test", index + 1, soal.q, 
+          soal.opsi[0] || "-", soal.opsi[1] || "-", soal.opsi[2] || "-", soal.opsi[3] || "-", soal.opsi[4] || "-", 
+          soal.opsi[soal.jawaban]
+        ]);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(dataSoal);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Bank Soal");
+      XLSX.writeFile(wb, "Bank_Soal_Perilaku_Produsen.xlsx");
+    }
+  </script>
+</body>
+</html>
