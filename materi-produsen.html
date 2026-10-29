@@ -10,14 +10,31 @@
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; --biru: #3b82f6; }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); transition: background 0.3s; }
     
-    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100; }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100; transition: all 0.3s; }
     .header h1 { margin: 0; font-size: 20px; }
-    .btn-back { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer;}
+    .btn-back { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; border: none;}
     
-    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; }
+    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; transition: max-width 0.3s; }
     
+    /* STYLE MODE FULL LAYAR (PPT) */
+    body.fullscreen-mode { background: #ffffff; }
+    body.fullscreen-mode .header, 
+    body.fullscreen-mode .tabs, 
+    body.fullscreen-mode .btn-download-area,
+    body.fullscreen-mode .cbt-header,
+    body.fullscreen-mode .cbt-body { display: none !important; }
+    
+    body.fullscreen-mode .container { max-width: 100%; margin: 0; padding: 40px; padding-bottom: 100px; }
+    body.fullscreen-mode .materi-card { border: none; box-shadow: none; padding: 0; display: block !important;}
+    
+    /* Tombol PPT */
+    .btn-ppt-toggle { position: fixed; bottom: 30px; right: 30px; background: var(--hijau); color: white; padding: 15px 25px; border: 2px solid var(--gold); border-radius: 30px; font-weight: bold; font-size: 16px; cursor: pointer; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none; align-items: center; gap: 8px; transition: 0.3s; }
+    .btn-ppt-toggle:hover { transform: scale(1.05); background: #1a5c3a; }
+    .btn-back-float { position: fixed; bottom: 30px; left: 30px; background: #e74c3c; color: white; padding: 15px 25px; border: none; border-radius: 30px; font-weight: bold; font-size: 16px; cursor: pointer; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none; align-items: center; gap: 8px; transition: 0.3s; }
+    body.fullscreen-mode .btn-back-float { display: flex; }
+
     .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
     .tab-btn { flex: 1; padding: 15px; text-align: center; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-weight: bold; font-size: 16px; color: #64748b; cursor: pointer; transition: 0.3s; }
     .tab-btn:hover { background: #f1f5f9; }
@@ -27,7 +44,7 @@
     .content-section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .materi-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 25px; }
+    .materi-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 25px; transition: all 0.3s; display: none; }
     
     h3 { color: var(--hijau); margin-top: 25px; margin-bottom: 10px; font-size: 18px; border-left: 4px solid var(--gold); padding-left: 10px; }
     h4 { color: var(--hijau); font-size: 16px; margin-bottom: 5px; }
@@ -40,14 +57,19 @@
     .kotak-info { background: #eff6ff; border-left: 4px solid var(--biru); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .kotak-info h4 { margin: 0 0 5px 0; color: var(--biru); font-size: 16px; }
     .kotak-info p { margin: 0; font-size: 14px; color: #1e3a8a; }
-    
-    /* Rumus Box */
     .rumus-box { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-size: 18px; font-family: 'Times New Roman', Times, serif; }
     .rumus-box i { font-size: 16px; color: #64748b; display: block; margin-top: 5px; font-family: 'Segoe UI', sans-serif;}
-
     .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
+    /* STYLE FULLSCREEN TEKS */
+    body.fullscreen-mode h3 { font-size: 32px; margin-top: 40px; border-left: 6px solid var(--gold); padding-left: 15px;}
+    body.fullscreen-mode h4 { font-size: 24px; margin-top: 20px;}
+    body.fullscreen-mode p, body.fullscreen-mode li, body.fullscreen-mode td, body.fullscreen-mode th { font-size: 22px; line-height: 1.8; }
+    body.fullscreen-mode table { margin: 30px 0; }
+    body.fullscreen-mode th, body.fullscreen-mode td { padding: 20px 25px; }
+
+    /* CBT STYLES */
     .cbt-header { display: flex; justify-content: space-between; align-items: center; background: var(--hijau); color: white; padding: 15px 20px; border-radius: 12px 12px 0 0; font-weight: bold; }
     .timer { background: #ef4444; padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-size: 16px; }
     .cbt-body { background: white; padding: 25px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px; }
@@ -86,7 +108,7 @@
       <button class="tab-btn" onclick="bukaTab('posttest', this)">🎯 Post-Test</button>
     </div>
 
-    <div style="text-align: right; margin-bottom: 15px;">
+    <div style="text-align: right; margin-bottom: 15px;" class="btn-download-area">
       <button onclick="downloadSemuaSoal()" style="background: #e67e22; color: white; padding: 10px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">📥 Download Semua Soal (Excel)</button>
     </div>
 
@@ -101,7 +123,12 @@
 
     <!-- MATERI -->
     <div id="materi" class="content-section">
-      <div class="materi-card">
+      <!-- TOMBOL PPT DIPINDAHKAN KE DALAM MATERI AGAR PASTI MUNCUL -->
+      <div style="text-align: right; margin-bottom: 15px;">
+        <button onclick="togglePPT()" style="background: var(--hijau); color: white; padding: 10px 20px; border: 2px solid var(--gold); border-radius: 25px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">🖥️ Tampilkan Mode PPT</button>
+      </div>
+
+      <div class="materi-card" style="display: block;">
         <h3>🎥 Video Pembelajaran: Teori Produksi</h3>
         <div class="video-container">
             <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/TC6b6PPbcJs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -124,7 +151,6 @@
           </tbody>
         </table>
 
-        <!-- SISIPAN MATERI MRTS -->
         <h3>📖 1.b. Marginal Rate of Technical Substitution (MRTS)</h3>
         <p><strong>MRTS</strong> menunjukkan berapa banyak unit Modal (K) yang harus dikorbankan untuk mendapatkan tambahan 1 unit Tenaga Kerja (L) demi mempertahankan jumlah output yang sama (tetap berada di kurva Isoquant yang sama).</p>
         
@@ -156,13 +182,6 @@
           <h4>💡 Interpretasi MRTS</h4>
           <p>Nilai MRTS semakin menurun dari 4, 3, 2, hingga 1. Hal ini membuktikan berlakunya <strong>Hukum Diminishing MRTS</strong>. Semakin banyak tenaga kerja yang digunakan, semakin sedikit modal yang perlu dikorbankan untuk menambah satu tenaga kerja lagi, karena tenaga kerja tersebut menjadi kurang produktif dalam menggantikan modal.</p>
         </div>
-
-        <h4>Karakteristik Kurva Isoquant</h4>
-        <ul>
-          <li>Kurva berbentuk cembung ke arah titik asal (origin).</li>
-          <li>Bergerak dari kiri atas ke kanan bawah (downward sloping).</li>
-          <li>Berlakunya hukum Diminishing Marginal Rate of Technical Substitution (MRTS), sehingga kurva semakin ke kanan bawah semakin landai.</li>
-        </ul>
 
         <div style="text-align: center; margin-bottom: 20px;">
           <svg width="300" height="250" viewBox="0 0 300 250" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -197,13 +216,6 @@
           </tbody>
         </table>
 
-        <h4>Karakteristik Garis Isocost</h4>
-        <ul>
-          <li>Berupa garis lurus linier yang menghubungkan titik potong maksimum pada sumbu K dan sumbu L.</li>
-          <li>Kemiringan (Slope): Ditentukan oleh rasio harga kedua faktor produksi yaitu (-w/r).</li>
-          <li>Jika anggaran bertambah, garis Isocost akan bergeser sejajar ke kanan atas.</li>
-        </ul>
-
         <div style="text-align: center; margin-bottom: 20px;">
           <svg width="300" height="250" viewBox="0 0 300 250" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
             <line x1="40" y1="210" x2="280" y2="210" stroke="#333" stroke-width="2" />
@@ -220,21 +232,7 @@
 
         <h3>📖 3. Keseimbangan Produsen (Producer Equilibrium)</h3>
         <p><strong>Definisi:</strong> Kondisi di mana produsen mencapai output maksimal dengan anggaran biaya tertentu (least cost combination), atau mencapai biaya minimal untuk target output tertentu. Secara grafis, tercapai pada titik persinggungan antara kurva Isoquant dan garis Isocost.</p>
-        <p><strong>Syarat Matematis:</strong> MRTS = w/r atau MPL/w = MPK/r</p>
-
-        <h4>Tabel Analisis Keseimbangan Produsen</h4>
-        <p>Berdasarkan Anggaran C = Rp 12.000.000, w = Rp 2.000.000, r = Rp 3.000.000</p>
-        <table>
-          <thead>
-            <tr><th>Kombinasi (L, K)</th><th>Biaya Terpakai</th><th>Output Dihasilkan</th><th>Status Keseimbangan</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>(1, 3)</td><td>Rp 11.000.000</td><td>Q = 80 unit</td><td>Tidak Efisien (Sisa anggaran)</td></tr>
-            <tr class="highlight"><td>(3, 2)</td><td>Rp 12.000.000</td><td>Q = 100 unit</td><td>Keseimbangan Produsen (Optimal)</td></tr>
-            <tr><td>(4, 3)</td><td>Rp 17.000.000</td><td>Q = 140 unit</td><td>Tidak Terjangkau (Melebihi anggaran)</td></tr>
-          </tbody>
-        </table>
-
+        
         <div class="kotak-info">
           <h4>💡 Interpretasi Titik Keseimbangan</h4>
           <p><strong>Titik Optimal (E):</strong> Tercapai pada kombinasi penggunaan 3 tenaga kerja (L) dan 2 unit mesin (K). Pada titik ini, dana perusahaan sebesar Rp 12.000.000 terserap habis secara optimal untuk menghasilkan output maksimal sebanyak 100 unit. Produsen tidak memilih kombinasi lain karena kombinasi (1,3) menghasilkan output lebih sedikit, sedangkan kombinasi (4,3) membutuhkan biaya Rp 17.000.000 yang melampaui batas anggaran.</p>
@@ -269,12 +267,20 @@
 
   </div>
 
+  <!-- Tombol Keluar Presentasi (Melayang di kiri bawah) -->
+  <button class="btn-back-float" onclick="togglePPT()">❌ Keluar Presentasi</button>
+
   <script>
-    // Cek login hanya jika halaman dibuka langsung oleh siswa (bukan di dalam iframe Dashboard)
+    // Cek login hanya jika halaman dibuka langsung oleh siswa
     if (window.self === window.top) {
         if (!localStorage.getItem("cbtNamaSiswa")) {
             window.location.href = "login-cbt.html";
         }
+    }
+
+    // FITUR MODE PRESENTASI (PPT)
+    function togglePPT() {
+        document.body.classList.toggle('fullscreen-mode');
     }
 
     function kembali() {
@@ -291,6 +297,14 @@
       
       document.getElementById(tabId).classList.add('active');
       btnElement.classList.add('active');
+
+      // Sembunyikan tombol download di tab selain Pretest/Posttest
+      const btnDownload = document.querySelector('.btn-download-area');
+      if (tabId === 'materi') {
+          btnDownload.style.display = 'none';
+      } else {
+          btnDownload.style.display = 'block';
+      }
 
       if (tabId === 'pretest' && !preTestDimulai) { mulaiPreTest(); }
       if (tabId === 'posttest' && !postTestDimulai) { mulaiPostTest(); }
@@ -453,29 +467,11 @@
       `;
     }
 
-    // ==========================================
-    // FITUR DOWNLOAD SOAL KE EXCEL
-    // ==========================================
     function downloadSemuaSoal() {
       let dataSoal = [];
       dataSoal.push(["Jenis Ujian", "No", "Pertanyaan", "Opsi A", "Opsi B", "Opsi C", "Opsi D", "Opsi E", "Kunci Jawaban"]);
-
-      soalPreTest.forEach((soal, index) => {
-        dataSoal.push([
-          "Pre-Test", index + 1, soal.q, 
-          soal.opsi[0] || "-", soal.opsi[1] || "-", soal.opsi[2] || "-", soal.opsi[3] || "-", soal.opsi[4] || "-", 
-          soal.opsi[soal.jawaban]
-        ]);
-      });
-
-      soalPostTest.forEach((soal, index) => {
-        dataSoal.push([
-          "Post-Test", index + 1, soal.q, 
-          soal.opsi[0] || "-", soal.opsi[1] || "-", soal.opsi[2] || "-", soal.opsi[3] || "-", soal.opsi[4] || "-", 
-          soal.opsi[soal.jawaban]
-        ]);
-      });
-
+      soalPreTest.forEach((soal, index) => { dataSoal.push(["Pre-Test", index + 1, soal.q, soal.opsi[0] || "-", soal.opsi[1] || "-", soal.opsi[2] || "-", soal.opsi[3] || "-", soal.opsi[4] || "-", soal.opsi[soal.jawaban]]); });
+      soalPostTest.forEach((soal, index) => { dataSoal.push(["Post-Test", index + 1, soal.q, soal.opsi[0] || "-", soal.opsi[1] || "-", soal.opsi[2] || "-", soal.opsi[3] || "-", soal.opsi[4] || "-", soal.opsi[soal.jawaban]]); });
       const ws = XLSX.utils.aoa_to_sheet(dataSoal);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Bank Soal");
