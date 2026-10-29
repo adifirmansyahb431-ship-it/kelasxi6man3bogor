@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rekap Hasil Belajar - SIPADAK</title>
+  <title>Post-Test Perilaku Produsen - SIPADAK</title>
   
+  <!-- Library Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
@@ -17,303 +19,259 @@
       messagingSenderId: "981787419124",
       appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
     };
+
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    // Tambahkan deleteDoc dan doc ke window.fbFunc
-    window.fbFunc = { collection, getDocs, query, orderBy, doc, deleteDoc };
-    window.dispatchEvent(new Event('firebaseReady'));
   </script>
 
   <style>
-    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
-    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
     .header h1 { margin: 0; font-size: 20px; }
-    .container { max-width: 1000px; margin: 20px auto; padding: 0 16px; }
-    .card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); margin-bottom: 20px; }
-    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
-    h3 { margin-top: 0; color: var(--hijau); }
+    .btn-keluar-header { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
     
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
-    th { background: #f8fafc; text-align: center; }
+    .container { max-width: 1100px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; display: grid; grid-template-columns: 1fr 250px; gap: 20px; align-items: start; }
+    .main-content { display: flex; flex-direction: column; }
+    .sidebar-nomor { display: flex; flex-direction: column; position: sticky; top: 20px; }
     
-    /* Tombol Aksi */
-    .btn-action-group { display: flex; gap: 5px; justify-content: center; }
-    .btn-print { background: #e67e22; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; white-space: nowrap; }
-    .btn-delete { background: #e74c3c; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; white-space: nowrap; }
-    .btn-delete:hover { background: #c0392b; }
+    .cbt-header { display: flex; justify-content: space-between; align-items: center; background: var(--hijau); color: white; padding: 15px 20px; border-radius: 12px 12px 0 0; font-weight: bold; }
+    .timer { background: #ef4444; padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-size: 16px; }
     
-    @media print {
-      .no-print { display: none !important; }
-      body { background: white; }
-      .card { box-shadow: none; border: none; padding: 0; }
-    }
+    .cbt-body { background: white; padding: 25px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px; min-height: 400px;}
+    .soal-header { display: flex; justify-content: space-between; margin-bottom: 15px; color: #64748b; font-size: 14px; font-weight: bold; }
+    .soal-text { font-size: 16px; line-height: 1.6; margin-bottom: 20px; color: #1e293b; }
+    
+    .opsi-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+    .opsi-label { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 15px; }
+    .opsi-label:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .opsi-label input[type="radio"] { width: 18px; height: 18px; accent-color: var(--hijau); }
+    
+    .cbt-nav { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+    .btn-nav { background: #e2e8f0; color: #333; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .btn-nav:hover { background: #cbd5e1; }
+    .btn-nav.primary { background: var(--hijau); color: white; }
+    
+    .nomor-grid { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; box-shadow: 0 2px 9px rgba(0,0,0,0.05); }
+    .nomor-grid h4 { width: 100%; text-align: center; margin: 0 0 10px 0; color: var(--hijau); }
+    .nomor-btn { width: 35px; height: 35px; border-radius: 6px; border: 2px solid #e2e8f0; background: white; font-weight: bold; cursor: pointer; color: #64748b; }
+    .nomor-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); }
+    .nomor-btn.sudah-dijawab { background: var(--gold); color: white; border-color: var(--gold); }
+
+    .hasil-box { text-align: center; padding: 40px 20px; }
+    .piala { font-size: 100px; display: inline-block; animation: bounceIn 1s ease-out, float 3s ease-in-out infinite 1s; filter: drop-shadow(0 10px 15px rgba(212, 175, 55, 0.4)); }
+    @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    .ucapan { font-size: 32px; font-weight: 800; color: var(--gold); margin: 10px 0; text-transform: uppercase; letter-spacing: 2px; }
+    .skor-angka { font-size: 70px; font-weight: 800; color: var(--hijau); margin: 10px 0; }
+    .predikat { font-size: 20px; color: #64748b; font-weight: bold; margin-top: 5px; }
   </style>
 </head>
 <body>
 
-  <div class="header no-print">
-    <h1>📁 Rekap Hasil Belajar</h1>
-    <span>SIPADAK XI-6</span>
+  <div class="header">
+    <h1>🎯 POST-TEST PERILAKU PRODUSEN</h1>
+    <div class="header-right">
+      <span id="infoSiswa" style="font-weight:bold; margin-right:15px;">Memuat...</span>
+      <button class="btn-keluar-header" onclick="konfirmasiKeluar()">🚪 Keluar</button>
+    </div>
   </div>
 
-  <div class="container no-print">
-    <a href="javascript:void(0)" onclick="kembali()" class="btn-back">⬅ Kembali ke Dashboard</a>
-
-    <!-- CARD 1: HASIL CBT (SKOR) -->
-    <div class="card">
-      <h3>Daftar Nilai Pre-Test & Post-Test</h3>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama Siswa</th>
-              <th>Jenis Ujian</th>
-              <th>Tanggal</th>
-              <th>Skor</th>
-              <th>Nilai Akhir</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="listHasilCBT">
-            <tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>
-          </tbody>
-        </table>
+  <div class="container">
+    <div class="main-content">
+      <div class="cbt-header">
+        <span>POST-TEST</span>
+        <div class="timer" id="timerPost">⏱️ 20:00</div>
       </div>
+      <div class="cbt-body" id="cbtPostBody"></div>
     </div>
-
-    <!-- CARD 2: HASIL LKPD -->
-    <div class="card">
-      <h3>Jawaban LKPD Siswa</h3>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama Siswa</th>
-              <th>Tanggal</th>
-              <th>Jawaban Esai (Ringkas)</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="listHasilLKPD">
-            <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
-          </tbody>
-        </table>
+    <div class="sidebar-nomor">
+      <div class="nomor-grid" id="gridNomor">
+        <h4>Nomor Soal</h4>
       </div>
     </div>
   </div>
 
   <script>
-    if(!localStorage.getItem("cbtNamaSiswa")) window.location.href = "login-cbt.html";
+    // Cek Login Khusus CBT Siswa
+    if(!localStorage.getItem("cbtNamaSiswa")) {
+        window.location.href = "login-cbt.html";
+    }
 
-    function kembali() {
-      if (window.parent && window.parent.tutupHalaman) {
-        window.parent.tutupHalaman();
-      } else {
-        window.location.href = "dashboard-induk.html";
+    // 15 SOAL ASLI DARI MATERI-PRODUSEN.HTML
+    const soalPostTest = [
+      { q: "Tujuan utama produsen dalam melakukan kegiatan produksi adalah...", opsi: ["Meminimalkan kepuasan", "Memaksimalkan keuntungan (profit)", "Menghabiskan anggaran", "Menimbun barang"], jawaban: 1 },
+      { q: "Faktor produksi yang berupa mesin dan bangunan disebut...", opsi: ["Tenaga Kerja", "Sumber Daya Alam", "Modal (Capital)", "Kewirausahaan"], jawaban: 2 },
+      { q: "Kurva Isoquant menghubungkan titik-titik yang menunjukkan...", opsi: ["Biaya produksi yang sama", "Output yang sama dari kombinasi input berbeda", "Keuntungan yang sama", "Harga yang sama"], jawaban: 1 },
+      { q: "Persamaan garis Isocost adalah...", opsi: ["Q = f(L, K)", "C = (w × L) + (r × K)", "MRTS = -ΔK/ΔL", "TR = P × Q"], jawaban: 1 },
+      { q: "Titik keseimbangan produsen tercapai ketika...", opsi: ["Garis Isocost memotong sumbu L", "Kurva Isoquant bersinggungan dengan garis Isocost", "Kurva Isoquant berada di atas garis Isocost", "Anggaran produsen habis"], jawaban: 1 },
+      { q: "Diketahui C = Rp 20.000.000, w = Rp 4.000.000, r = Rp 2.000.000. Jika produsen memilih 2 tenaga kerja, berapa unit modal yang bisa disewa?", opsi: ["4 unit", "5 unit", "6 unit", "7 unit"], jawaban: 2 },
+      { q: "Pada tabel Isoquant, kombinasi C (3L, 5K) ke D (4L, 3K) menghasilkan output sama. Berapakah MRTS dari C ke D?", opsi: ["-1", "-2", "-3", "-4"], jawaban: 1 },
+      { q: "Jika sewa modal (r) turun, sementara upah dan anggaran tetap, maka garis Isocost akan...", opsi: ["Bergeser sejajar ke kanan", "Berputar pada sumbu L (menjadi lebih datar)", "Berputar pada sumbu K (menjadi lebih curam)", "Tidak berubah"], jawaban: 1 },
+      { q: "Seorang produsen memiliki anggaran Rp 15.000.000. Upah (w) = Rp 3.000.000, Sewa modal (r) = Rp 3.000.000. Berapa kombinasi maksimal tenaga kerja dan modal?", opsi: ["3L dan 2K", "2L dan 3K", "4L dan 1K", "5L dan 0K"], jawaban: 0 },
+      { q: "Jika produsen ingin memproduksi 100 unit dengan biaya minimal, maka ia harus berada pada...", opsi: ["Titik potong sumbu", "Titik singgung Isocost dan Isoquant terendah yang menyentuh target output", "Titik tertinggi kurva Isoquant", "Titik tengah garis Isocost"], jawaban: 1 },
+      { q: "Perhatikan data: Kombinasi X (2L, 4K) biaya Rp 14 jt, output 90 unit. Kombinasi Y (4L, 2K) biaya Rp 14 jt, output 90 unit. Analisis yang tepat adalah...", opsi: ["Kombinasi X lebih efisien", "Kombinasi Y lebih efisien", "Kedua kombinasi berada pada Isoquant yang sama dengan biaya sama (Isocost sama)", "Produsen sebaiknya menambah anggaran"], jawaban: 2 },
+      { q: "Mengapa produsen tidak memilih kombinasi yang berada di atas garis Isocost?", opsi: ["Karena outputnya terlalu kecil", "Karena biayanya melebihi anggaran yang dimiliki", "Karena teknologinya sudah usang", "Karena tenaga kerjanya kurang"], jawaban: 1 },
+      { q: "Apa yang terjadi pada keseimbangan produsen jika harga tenaga kerja (w) naik tajam?", opsi: ["Produsen akan beralih menggunakan lebih banyak modal (K) dan lebih sedikit tenaga kerja (L)", "Produsen akan menambah tenaga kerja", "Produsen akan berhenti produksi", "Kurva Isoquant akan bergeser ke atas"], jawaban: 0 },
+      { q: "Dalam jangka panjang, jika produsen ingin meningkatkan output dari 100 unit menjadi 200 unit, maka ia harus...", opsi: ["Tetap pada Isoquant yang sama", "Bergerak ke kurva Isoquant yang lebih tinggi (kanan atas) dengan anggaran yang mungkin lebih besar", "Mengurangi penggunaan modal", "Menurunkan harga jual"], jawaban: 1 },
+      { q: "Diketahui MRTS = 2, w = Rp 4.000.000, r = Rp 2.000.000. Apakah produsen sudah dalam keseimbangan?", opsi: ["Ya, karena MRTS = w/r", "Belum, karena MRTS (2) tidak sama dengan w/r (2)", "Belum, karena MRTS (2) lebih kecil dari w/r (2)", "Tidak dapat ditentukan"], jawaban: 0 }
+    ];
+
+    let soalAktif = 0;
+    let timerInterval;
+    const namaSiswa = localStorage.getItem("cbtNamaSiswa");
+
+    window.konfirmasiKeluar = function() {
+      if (confirm("Yakin ingin keluar dari ujian? Jawaban yang belum disimpan akan hilang.")) {
+        clearInterval(timerInterval);
+        localStorage.removeItem("cbtNamaSiswa");
+        localStorage.removeItem("cbtNisSiswa");
+        window.location.href = "login-cbt.html"; 
       }
     }
 
-    window.addEventListener('firebaseReady', async () => {
-      // Panggil fungsi load data
-      loadDataCBT();
-      loadDataLKPD();
-    });
-
-    // Fungsi untuk memuat data CBT
-    async function loadDataCBT() {
-      const { collection, getDocs, query, orderBy } = window.fbFunc;
-      const db = window.db;
-      const tbodyCBT = document.getElementById("listHasilCBT");
-      
-      tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>';
-      let htmlCBT = ""; let noCBT = 1;
-
-      try {
-        const qCBT = query(collection(db, "HasilUjian"), orderBy("tanggal", "desc"));
-        const snapCBT = await getDocs(qCBT);
-        
-        if(snapCBT.empty) {
-          tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data ujian.</td></tr>';
-        } else {
-          snapCBT.forEach(docSnap => {
-            const d = docSnap.data();
-            const docId = docSnap.id; // Ambil ID dokumen untuk hapus
-            
-            let detailJson = JSON.stringify(d.detailJawaban || {});
-            detailJson = detailJson.replace(/"/g, '&quot;');
-
-            htmlCBT += `<tr>
-              <td style="text-align:center;">${noCBT++}</td>
-              <td><b>${d.nama}</b></td>
-              <td>${d.jenisUjian || "Pre-Test"}</td>
-              <td>${d.tanggal}</td>
-              <td style="text-align:center;">${d.skor} / ${d.totalSoal}</td>
-              <td style="text-align:center; font-weight:bold; color:${d.persentase >= 70 ? 'green' : 'red'};">${d.persentase}</td>
-              <td style="text-align:center;">
-                <div class="btn-action-group">
-                  <button class="btn-print" 
-                          data-nama="${d.nama}" 
-                          data-jenis="${d.jenisUjian || "Pre-Test"}" 
-                          data-tanggal="${d.tanggal}" 
-                          data-detail="${detailJson}"
-                          onclick="cetakCBT(this)">🖨️ Cetak</button>
-                  <button class="btn-delete" onclick="hapusData('HasilUjian', '${docId}')">🗑️ Hapus</button>
-                </div>
-              </td>
-            </tr>`;
-          });
-          tbodyCBT.innerHTML = htmlCBT;
-        }
-      } catch (e) { console.error(e); tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data.</td></tr>'; }
+    window.mulaiUjian = function() {
+      renderSoal(soalPostTest);
+      mulaiTimer(1200); // 20 Menit
     }
 
-    // Fungsi untuk memuat data LKPD
-    async function loadDataLKPD() {
-      const { collection, getDocs, query, orderBy } = window.fbFunc;
-      const db = window.db;
-      const tbodyLKPD = document.getElementById("listHasilLKPD");
-      
-      tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
-      let htmlLKPD = ""; let noLKPD = 1;
+    window.renderSoal = function(bankSoal) {
+      const container = document.getElementById('cbtPostBody');
+      let html = '';
 
-      try {
-        const qLKPD = query(collection(db, "HasilLKPD"), orderBy("tanggal", "desc"));
-        const snapLKPD = await getDocs(qLKPD);
-        
-        if(snapLKPD.empty) {
-          tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada jawaban LKPD.</td></tr>';
-        } else {
-          snapLKPD.forEach(docSnap => {
-            const d = docSnap.data();
-            const docId = docSnap.id; // Ambil ID dokumen untuk hapus
-            const jawabanRingkas = d.jawaban.substring(0, 50) + "...";
-            let jawabanJson = d.jawaban.replace(/"/g, '&quot;');
-
-            htmlLKPD += `<tr>
-              <td style="text-align:center;">${noLKPD++}</td>
-              <td><b>${d.nama}</b></td>
-              <td>${d.tanggal}</td>
-              <td>${jawabanRingkas}</td>
-              <td style="text-align:center;">
-                <div class="btn-action-group">
-                  <button class="btn-print" 
-                          data-nama="${d.nama}" 
-                          data-tanggal="${d.tanggal}" 
-                          data-jawaban="${jawabanJson}"
-                          onclick="cetakLKPD(this)">🖨️ Cetak</button>
-                  <button class="btn-delete" onclick="hapusData('HasilLKPD', '${docId}')">🗑️ Hapus</button>
-                </div>
-              </td>
-            </tr>`;
-          });
-          tbodyLKPD.innerHTML = htmlLKPD;
-        }
-      } catch (e) { console.error(e); tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat data.</td></tr>'; }
-    }
-
-    // ==========================================
-    // FUNGSI HAPUS DATA DARI FIREBASE
-    // ==========================================
-    window.hapusData = async function(namaKoleksi, docId) {
-      if (!confirm("Apakah Anda yakin ingin menghapus data ini secara permanen?")) {
-        return; // Batal jika user klik 'Cancel'
-      }
-
-      try {
-        const { doc, deleteDoc } = window.fbFunc;
-        const db = window.db;
-        
-        // Hapus dari Firestore
-        await deleteDoc(doc(db, namaKoleksi, docId));
-        
-        alert("Data berhasil dihapus!");
-        
-        // Refresh tabel yang sesuai
-        if (namaKoleksi === 'HasilUjian') {
-          loadDataCBT();
-        } else if (namaKoleksi === 'HasilLKPD') {
-          loadDataLKPD();
-        }
-        
-      } catch (error) {
-        console.error("Gagal menghapus data:", error);
-        alert("Gagal menghapus data. Silakan coba lagi.");
-      }
-    };
-
-    // Fungsi Cetak Detail CBT (Tidak berubah)
-    function cetakCBT(btn) {
-      const nama = btn.getAttribute('data-nama');
-      const jenis = btn.getAttribute('data-jenis');
-      const tanggal = btn.getAttribute('data-tanggal');
-      let detailStr = btn.getAttribute('data-detail');
-      
-      detailStr = detailStr.replace(/&quot;/g, '"');
-      
-      let detail = {};
-      try {
-        detail = JSON.parse(detailStr);
-      } catch (e) {
-        console.error("Gagal parse JSON:", e);
-      }
-
-      const win = window.open('', '_blank');
-      let soalHtml = "";
-      
-      if (Object.keys(detail).length === 0) {
-        soalHtml = `<p style="color:red; font-style:italic;">Data detail jawaban tidak ditemukan. Siswa mungkin mengerjakan ujian sebelum fitur ini ditambahkan.</p>`;
-      } else {
-        Object.keys(detail).forEach(key => {
-          soalHtml += `<p><b>${key}:</b> ${detail[key]}</p>`;
-        });
-      }
-
-      win.document.write(`
-        <html><head><title>Hasil ${jenis} - ${nama}</title>
-        <style>body{font-family:sans-serif;padding:40px;} h2{text-align:center;}</style>
-        </head><body>
-          <h2>HASIL UJIAN ${jenis.toUpperCase()}</h2>
-          <p><b>Nama:</b> ${nama} <br><b>Tanggal:</b> ${tanggal}</p>
-          <hr>
-          <div>${soalHtml}</div>
-          <div style="margin-top:50px; text-align:right;">
-            <p>Guru Mata Pelajaran Ekonomi,</p><br><br><br>
-            <p><b>ADI FIRMANSYAH, S.E.</b><br>NIP. 198301112025211003</p>
+      bankSoal.forEach((soal, index) => {
+        html += `
+          <div class="soal-item" id="soal-${index}" style="display: ${index === 0 ? 'block' : 'none'};">
+            <div class="soal-header">
+              <span>Soal ${index + 1} dari ${bankSoal.length}</span>
+              <span>Pilih satu jawaban</span>
+            </div>
+            <div class="soal-text">${soal.q}</div>
+            <div class="opsi-container">
+              ${soal.opsi.map((opt, i) => `
+                <label class="opsi-label">
+                  <input type="radio" name="soal_${index}" value="${i}" onchange="cekDijawab(${index})">
+                  ${opt}
+                </label>
+              `).join('')}
+            </div>
+            <div class="cbt-nav">
+              <button class="btn-nav" onclick="pindahSoal(${index - 1})" ${index === 0 ? 'style="visibility:hidden"' : ''}>⬅ Sebelumnya</button>
+              <button class="btn-nav primary" onclick="pindahSoal(${index + 1})" ${index === bankSoal.length - 1 ? 'style="display:none"' : ''}>Selanjutnya ➡</button>
+              <button class="btn-nav primary" onclick="selesaiUjian()" ${index === bankSoal.length - 1 ? 'style="display:block"' : 'style="display:none"'}>Selesai & Lihat Skor</button>
+            </div>
           </div>
-        </body></html>
-      `);
-      win.document.close();
-      win.print();
+        `;
+      });
+
+      container.innerHTML = html;
+
+      const gridNomor = document.getElementById('gridNomor');
+      let htmlNomor = '<h4>Nomor Soal</h4>';
+      bankSoal.forEach((_, i) => {
+        htmlNomor += `<button class="nomor-btn ${i === 0 ? 'active' : ''}" id="btn-nomor-${i}" onclick="pindahSoal(${i})">${i + 1}</button>`;
+      });
+      gridNomor.innerHTML = htmlNomor;
     }
 
-    // Fungsi Cetak LKPD (Tidak berubah)
-    function cetakLKPD(btn) {
-      const nama = btn.getAttribute('data-nama');
-      const tanggal = btn.getAttribute('data-tanggal');
-      let jawaban = btn.getAttribute('data-jawaban').replace(/&quot;/g, '"');
+    window.pindahSoal = function(indexTujuan) {
+      if (indexTujuan < 0 || indexTujuan >= soalPostTest.length) return;
 
-      const win = window.open('', '_blank');
-      win.document.write(`
-        <html><head><title>LKPD - ${nama}</title>
-        <style>body{font-family:sans-serif;padding:40px;} h2{text-align:center;}</style>
-        </head><body>
-          <h2>LEMBAR KERJA PESERTA DIDIK</h2>
-          <p><b>Nama:</b> ${nama} <br><b>Tanggal:</b> ${tanggal}</p>
-          <hr>
-          <div style="white-space:pre-wrap; line-height:1.6;">${jawaban}</div>
-          <div style="margin-top:50px; text-align:right;">
-            <p>Guru Mata Pelajaran Ekonomi,</p><br><br><br>
-            <p><b>ADI FIRMANSYAH, S.E.</b><br>NIP. 198301112025211003</p>
-          </div>
-        </body></html>
-      `);
-      win.document.close();
-      win.print();
+      document.querySelectorAll('.soal-item').forEach(el => el.style.display = 'none');
+      const soalTarget = document.getElementById(`soal-${indexTujuan}`);
+      if (soalTarget) soalTarget.style.display = 'block';
+
+      document.querySelectorAll('.nomor-btn').forEach(el => el.classList.remove('active'));
+      const btnNomor = document.getElementById(`btn-nomor-${indexTujuan}`);
+      if (btnNomor) btnNomor.classList.add('active');
+
+      soalAktif = indexTujuan;
+    }
+
+    window.cekDijawab = function(indexSoal) {
+      const btnNomor = document.getElementById(`btn-nomor-${indexSoal}`);
+      if (btnNomor) btnNomor.classList.add('sudah-dijawab');
+    }
+
+    window.mulaiTimer = function(durasiDetik) {
+      const timerEl = document.getElementById('timerPost');
+      let sisa = durasiDetik;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const menit = Math.floor(sisa / 60).toString().padStart(2, '0');
+        const detik = (sisa % 60).toString().padStart(2, '0');
+        timerEl.innerHTML = `⏱️ ${menit}:${detik}`;
+
+        if (sisa <= 0) {
+          clearInterval(timerInterval);
+          alert("Waktu habis! Jawaban akan otomatis dikumpulkan.");
+          selesaiUjian();
+        }
+        sisa--;
+      }, 1000);
+    }
+
+    window.selesaiUjian = async function() {
+      clearInterval(timerInterval);
+      let skor = 0;
+      
+      let detailJawaban = {};
+      soalPostTest.forEach((soal, index) => {
+        const jawabanUser = document.querySelector(`input[name="soal_${index}"]:checked`);
+        const opsiDipilih = jawabanUser ? soal.opsi[parseInt(jawabanUser.value)] : "Tidak dijawab";
+        const kunciJawaban = soal.opsi[soal.jawaban];
+        
+        if (jawabanUser && parseInt(jawabanUser.value) === soal.jawaban) {
+          skor++;
+        }
+        detailJawaban[`Soal ${index + 1}: ${soal.q.substring(0, 30)}...`] = `Dijawab: ${opsiDipilih} | Kunci: ${kunciJawaban}`;
+      });
+
+      const persentase = Math.round((skor / soalPostTest.length) * 100);
+      const container = document.getElementById('cbtPostBody');
+      
+      container.innerHTML = `
+        <div class="hasil-box">
+          <div class="piala">🏆</div>
+          <h2 class="ucapan">CONGRATULATIONS!</h2>
+          <p class="skor-angka">${persentase}</p>
+          <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
+          <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${soalPostTest.length}</strong> soal.</p>
+          <button class="btn-keluar-header" style="margin-top:30px; padding: 15px 40px; font-size: 16px; background:var(--hijau);" onclick="window.location.href='login-cbt.html'">🚪 Keluar ke Menu</button>
+        </div>
+      `;
+
+      document.querySelector('.sidebar-nomor').style.display = 'none';
+
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6, x: 0.1 }, colors: ['#d4af37', '#0a3622', '#ffffff', '#f1c40f'] });
+      setTimeout(() => { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6, x: 0.9 }, colors: ['#d4af37', '#0a3622', '#ffffff', '#f1c40f'] }); }, 300);
+
+      if (namaSiswa) {
+        try {
+          await addDoc(collection(window.db, "HasilUjian"), {
+            nama: namaSiswa,
+            jenisUjian: "Post-Test",
+            skor: skor,
+            totalSoal: soalPostTest.length,
+            persentase: persentase,
+            tanggal: new Date().toISOString().split('T')[0],
+            detailJawaban: detailJawaban
+          });
+        } catch (error) { console.error("Gagal simpan nilai:", error); }
+      }
+
+      localStorage.removeItem("cbtNamaSiswa");
+      localStorage.removeItem("cbtNisSiswa");
+    }
+
+    if (!namaSiswa) {
+      alert("Anda belum login. Silakan login terlebih dahulu.");
+      window.location.href = "login-cbt.html";
+    } else {
+      document.getElementById("infoSiswa").textContent = `Peserta: ${namaSiswa}`;
+      window.mulaiUjian(); 
     }
   </script>
 </body>
