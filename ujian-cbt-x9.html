@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ujian CBT - SIPADAK XI-6</title>
+  <title>Ujian CBT X-9 - SIPADAK</title>
   
   <!-- Library Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -101,16 +101,16 @@
 <body>
 
   <div class="header">
-  <h1>📝 Ujian CBT</h1>
-  <div class="header-right">
-    <span id="infoSiswa">Memuat...</span>
-    
-    <!-- TOMBOL KEMBALI KE MENU -->
-    <button class="btn-keluar-header" style="background: #f39c12;" onclick="kembaliKeMenu()">🔙 Kembali ke Menu</button>
-    
-    <button class="btn-keluar-header" onclick="konfirmasiKeluar()">🚪 Keluar Ujian</button>
+    <h1>📝 Ujian CBT X-9</h1>
+    <div class="header-right">
+      <span id="infoSiswa">Memuat...</span>
+      
+      <!-- TOMBOL KEMBALI KE MENU -->
+      <button class="btn-keluar-header" style="background: #f39c12;" onclick="kembaliKeMenu()">🔙 Kembali ke Menu</button>
+      
+      <button class="btn-keluar-header" onclick="konfirmasiKeluar()">🚪 Keluar Ujian</button>
+    </div>
   </div>
-</div>
 
   <div class="container">
     
@@ -165,15 +165,21 @@
     let timerInterval;
     const namaSiswa = localStorage.getItem("cbtNamaSiswa");
 
-    // ==========================================
-    // DAFTARKAN FUNGSI KE WINDOW (AGAR BISA DIPANGGIL HTML)
-    // ==========================================
     window.konfirmasiKeluar = function() {
       if (confirm("Yakin ingin keluar dari ujian? Jawaban yang belum disimpan akan hilang.")) {
         clearInterval(timerInterval);
         localStorage.removeItem("cbtNamaSiswa");
         localStorage.removeItem("cbtNisSiswa");
-        window.location.href = "login-cbt.html"; 
+        window.location.href = "login-cbt-x9.html"; // Mengarah ke login X-9
+      }
+    }
+
+    // FUNGSI TOMBOL KEMBALI KE MENU
+    window.kembaliKeMenu = function() {
+      if (confirm("Yakin ingin kembali ke menu utama? Jawaban yang belum disimpan akan hilang.")) {
+        clearInterval(timerInterval);
+        // JANGAN HAPUS localStorage agar siswa tidak perlu login ulang
+        window.location.href = "login-cbt-x9.html"; 
       }
     }
 
@@ -262,7 +268,6 @@
       clearInterval(timerInterval);
       let skor = 0;
       
-      // Kumpulkan detail jawaban siswa
       let detailJawaban = {};
 
       soalPreTest.forEach((soal, index) => {
@@ -274,7 +279,6 @@
           skor++;
         }
 
-        // Format data untuk dicetak
         detailJawaban[`Soal ${index + 1}: ${soal.q.substring(0, 40)}...`] = `Jawaban Siswa: ${opsiDipilih} | Kunci: ${kunciJawaban}`;
       });
 
@@ -291,13 +295,13 @@
           <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
           <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${soalPreTest.length}</strong> soal.</p>
           
-          <button class="btn-keluar-header" style="margin-top:30px; padding: 15px 40px; font-size: 16px;" onclick="window.location.href='index.html'">🚪 Keluar ke Beranda</button>
+          <!-- TOMBOL DIUBAH MENGARAH KE MENU X-9 -->
+          <button class="btn-keluar-header" style="margin-top:30px; padding: 15px 40px; font-size: 16px; background: var(--hijau);" onclick="kembaliKeMenu()">🔙 Kembali ke Menu Ujian</button>
         </div>
       `;
 
       document.querySelector('.sidebar-nomor').style.display = 'none';
 
-      // EFEK CONFETTI
       confetti({
         particleCount: 150,
         spread: 70,
@@ -318,38 +322,32 @@
         try {
           await addDoc(collection(window.db, "HasilUjian"), {
             nama: namaSiswa,
+            jenisUjian: "Pre-Test", // Tambahan agar rekap membedakan
+            kelas: "X-9",           // Tambahan agar rekap membedakan
             skor: skor,
             totalSoal: soalPreTest.length,
             persentase: persentase,
             tanggal: new Date().toISOString().split('T')[0],
-            detailJawaban: detailJawaban // <--- DATA JAWABAN DISIMPAN DI SINI
+            detailJawaban: detailJawaban 
           });
         } catch (error) {
           console.error("Gagal simpan nilai:", error);
         }
       }
 
-      localStorage.removeItem("cbtNamaSiswa");
-      localStorage.removeItem("cbtNisSiswa");
+      // Saya menghapus localStorage.removeItem di sini agar siswa tetap login
+      // localStorage.removeItem("cbtNamaSiswa");
+      // localStorage.removeItem("cbtNisSiswa");
     }
 
     // JALANKAN UJIAN
     if (!namaSiswa) {
       alert("Anda belum login. Silakan login terlebih dahulu.");
-      window.location.href = "login-cbt.html";
+      window.location.href = "login-cbt-x9.html";
     } else {
       document.getElementById("infoSiswa").textContent = `Peserta: ${namaSiswa}`;
       window.mulaiUjian(); 
     }
-        function kembaliKeMenu() {
-      if (confirm("Yakin ingin kembali ke menu utama? Jawaban yang belum disimpan akan hilang.")) {
-        clearInterval(timerInterval); // Hentikan timer
-        localStorage.removeItem("cbtNamaSiswa");
-        localStorage.removeItem("cbtNisSiswa");
-        window.location.href = "login-cbt-x9.html"; // Kembali ke menu pilihan X-9
-      }
-    }
   </script>
 </body>
 </html>
-
