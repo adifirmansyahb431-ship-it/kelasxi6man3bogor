@@ -108,7 +108,7 @@
   </div>
 
   <script>
-    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+    if(!localStorage.getItem("cbtNamaSiswa")) window.location.href = "login-cbt.html";
 
     function kembali() {
       if (window.parent && window.parent.tutupHalaman) {
