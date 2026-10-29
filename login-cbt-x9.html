@@ -52,9 +52,29 @@
     .btn-lkpd:hover { background: #12876f; }
     .btn-keluar { background: #e74c3c; color: white; }
     .btn-keluar:hover { background: #c0392b; }
+
+    /* TOMBOL MUSIK */
+    #toggleMusic {
+      position: fixed; bottom: 20px; right: 20px; 
+      padding: 12px 15px; border-radius: 50%; 
+      cursor: pointer; background: var(--hijau); color: white; 
+      border: 2px solid var(--gold); font-size: 18px; 
+      z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: 0.3s;
+    }
+    #toggleMusic:hover { transform: scale(1.1); }
   </style>
 </head>
 <body>
+
+  <!-- AUDIO MUSIK LATAR (DEALOVA) -->
+  <!-- Ganti link src dengan link MP3 Dealova pilihan Anda -->
+  <audio id="bgMusic" loop>
+    <source src="https://raw.githubusercontent.com/adifirmansyahb431-ship-it/kelasxi6man3bogor/main/once-dealova.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- TOMBOL MUTE/UNMUTE -->
+  <button id="toggleMusic" title="Hidupkan/Matikan Musik">🔇</button>
 
   <div class="ticker-wrapper">
     <div class="ticker-text">
@@ -96,13 +116,46 @@
   </div>
 
   <script>
+    // ==========================================
+    // LOGIKA MUSIK INSTRUMENTAL
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+      const audio = document.getElementById('bgMusic');
+      const btnMusic = document.getElementById('toggleMusic');
+      
+      audio.volume = 0.3; // Volume 30%
+
+      const playMusic = () => {
+        audio.play().then(() => {
+            btnMusic.innerHTML = '🔊';
+        }).catch(error => {
+            console.log("Musik diblokir sampai ada interaksi.");
+        });
+        document.removeEventListener('click', playMusic);
+        document.removeEventListener('keydown', playMusic);
+      };
+
+      document.addEventListener('click', playMusic);
+      document.addEventListener('keydown', playMusic);
+
+      btnMusic.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (audio.paused) {
+          audio.play();
+          btnMusic.innerHTML = '🔊';
+        } else {
+          audio.pause();
+          btnMusic.innerHTML = '🔇';
+        }
+      });
+    });
+
     // =======================================================
     // KODE PENTING: CEK SESI LOGIN SAAT HALAMAN DIBUKA
     // =======================================================
     window.addEventListener('DOMContentLoaded', () => {
       const namaSiswaLama = localStorage.getItem("cbtNamaSiswa");
       if (namaSiswaLama) {
-        // Jika sudah login, langsung tampilkan menu pilihan
         document.getElementById("formLogin").style.display = "none";
         document.getElementById("menuPilihan").style.display = "block";
         document.getElementById("namaSiswaPilihan").textContent = namaSiswaLama;
