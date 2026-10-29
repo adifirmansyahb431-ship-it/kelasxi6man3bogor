@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kelola Data Siswa X-9 - SIPADAK</title>
+  
+  <!-- Library Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    window.fbFunc = { collection, addDoc, getDocs, deleteDoc, doc, query, where };
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .container { max-width: 1000px; margin: 20px auto; padding: 0 16px; }
+    .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); }
+    .btn-back { color: #2980b9; text-decoration: underline; font-size: 14px; font-weight: bold; cursor: pointer; background: none; border: none; padding: 0; margin-bottom: 15px; display: inline-block;}
+    
+    .drop-zone { border: 2px dashed #ccc; border-radius: 12px; padding: 40px 20px; text-align: center; cursor: pointer; transition: 0.3s; background: #fafafa; margin-bottom: 20px; }
+    .drop-zone:hover { background: #f1f5f9; border-color: var(--hijau); }
+    .drop-zone svg { width: 50px; height: 50px; color: var(--hijau); margin-bottom: 10px; }
+    .drop-zone h3 { margin: 0 0 5px 0; color: var(--hijau); }
+    .drop-zone p { margin: 0; font-size: 13px; color: #666; }
+    input[type="file"] { display: none; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    th { background: #f8fafc; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>📤 Kelola Data Siswa X-9</h1>
+    <span>MAN 3 BOGOR</span>
+  </div>
+
+  <div class="container">
+    <button onclick="kembali()" class="btn-back">⬅ Kembali ke Dashboard</button>
+
+    <div class="card">
+      <h2 style="margin-top:0; color: var(--hijau);">Upload Data Siswa dari Excel</h2>
+      <p style="font-size: 14px; color: #666;">Pastikan file Excel memiliki header: <b>NISN, NAMA SISWA, L/P</b>.</p>
+
+      <!-- AREA UPLOAD EXCEL -->
+      <label class="drop-zone" for="fileExcel">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+        <h3 id="textFile">Klik untuk pilih file Excel</h3>
+        <p>atau drag & drop file ke sini</p>
+        <input type="file" id="fileExcel" accept=".xlsx,.xls" onchange="prosesExcel(event)">
+      </label>
+    </div>
+
+    <!-- TABEL PREVIEW -->
+    <div class="card" id="cardPreview" style="display: none;">
+      <h3 style="color: var(--hijau); margin-top: 0;">Preview Data Sebelum Disimpan</h3>
+      <div style="overflow-x: auto; margin-bottom: 20px;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50px;">No</th>
+              <th>NISN</th>
+              <th>Nama Siswa</th>
+              <th>L/P</th>
+            </tr>
+          </thead>
+          <tbody id="previewExcel"></tbody>
+        </table>
+      </div>
+      <button onclick="simpanKeFirebase()" style="background: #16a085; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%;">💾 SIMPAN SEMUA DATA KE DATABASE</button>
+    </div>
+
+    <!-- DATA SAAT INI DI DATABASE -->
+    <div class="card">
+      <h3 style="color: var(--hijau); margin-top: 0;">Data Siswa X-9 Tersimpan</h3>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50px;">No</th>
+              <th>NISN</th>
+              <th>Nama Siswa</th>
+              <th style="width: 100px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabelDatabase">
+            <tr><td colspan="4" style="text-align: center;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+
+    function kembali() {
+      if (window.parent && window.parent.tutupHalaman) {
+        window.parent.tutupHalaman();
+      } else {
+        window.location.href = "dashboard-induk.html";
+      }
+    }
+
+    let dataSiswaExcel = [];
+
+    // 1. PROSES BACA FILE EXCEL
+    function prosesExcel(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      document.getElementById("textFile").textContent = "Membaca file...";
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+          const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+          // Cari index kolom header
+          const headerRow = json[0].map(c => String(c).toUpperCase().trim());
+          let idxNama = headerRow.findIndex(h => h.includes("NAMA"));
+          let idxNisn = headerRow.findIndex(h => h.includes("NISN") || h === "NIS");
+          let idxJK = headerRow.findIndex(h => h.includes("L/P") || h.includes("JK") || h.includes("JENIS KELAMIN"));
+
+          if (idxNama === -1) idxNama = 1; // Default kolom B
+          if (idxNisn === -1) idxNisn = 0; // Default kolom A
+
+          dataSiswaExcel = [];
+          for (let i = 1; i < json.length; i++) {
+            const row = json[i];
+            const nama = row[idxNama] ? String(row[idxNama]).trim() : "";
+            
+            // Filter nama yang valid (bukan angka)
+            if (nama !== "" && !/^\d+$/.test(nama)) {
+              dataSiswaExcel.push({
+                nisn: row[idxNisn] ? String(row[idxNisn]).trim() : "-",
+                nama: nama,
+                jk: idxJK !== -1 && row[idxJK] ? String(row[idxJK]).trim() : "-"
+              });
+            }
+          }
+
+          if (dataSiswaExcel.length === 0) {
+            alert("Tidak ada data siswa valid di dalam Excel.");
+            return;
+          }
+
+          tampilkanPreview();
+          document.getElementById("textFile").textContent = "File Excel berhasil dimuat";
+
+        } catch (err) {
+          console.error(err);
+          alert("Gagal membaca Excel: " + err.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // 2. TAMPILKAN PREVIEW
+    function tampilkanPreview() {
+      const tbody = document.getElementById("previewExcel");
+      let html = "";
+      dataSiswaExcel.forEach((s, i) => {
+        html += `<tr>
+          <td style="text-align:center;">${i + 1}</td>
+          <td>${s.nisn}</td>
+          <td><b>${s.nama}</b></td>
+          <td>${s.jk}</td>
+        </tr>`;
+      });
+      tbody.innerHTML = html;
+      document.getElementById("cardPreview").style.display = "block";
+    }
+
+    // 3. SIMPAN KE FIREBASE (Koleksi SiswaX9)
+    async function simpanKeFirebase() {
+      if (dataSiswaExcel.length === 0) return;
+      
+      const btn = event.target;
+      btn.textContent = "⏳ Menyimpan ke Database...";
+      btn.disabled = true;
+
+      const { collection, addDoc } = window.fbFunc;
+      const db = window.db;
+
+      try {
+        let promises = dataSiswaExcel.map(siswa => {
+          return addDoc(collection(db, "SiswaX9"), {
+            nama: siswa.nama,
+            nisn: siswa.nisn,
+            jenisKelamin: siswa.jk,
+            password: "123456", // Password default
+            kelas: "X-9"
+          });
+        });
+
+        await Promise.all(promises);
+        alert(`✅ Berhasil menyimpan ${dataSiswaExcel.length} siswa X-9 ke database!`);
+        
+        // Reset tampilan
+        dataSiswaExcel = [];
+        document.getElementById("cardPreview").style.display = "none";
+        document.getElementById("fileExcel").value = "";
+        document.getElementById("textFile").textContent = "Klik untuk pilih file Excel";
+        
+        muatDataDatabase(); // Refresh tabel bawah
+
+      } catch (error) {
+        console.error(error);
+        alert("❌ Gagal menyimpan data ke database.");
+      } finally {
+        btn.textContent = "💾 SIMPAN SEMUA DATA KE DATABASE";
+        btn.disabled = false;
+      }
+    }
+
+    // 4. MUAT DATA DARI FIREBASE (Koleksi SiswaX9)
+    window.addEventListener('firebaseReady', () => {
+      muatDataDatabase();
+    });
+
+    async function muatDataDatabase() {
+      const { collection, getDocs } = window.fbFunc;
+      const db = window.db;
+      const tbody = document.getElementById("tabelDatabase");
+      
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Memuat data...</td></tr>';
+
+      try {
+        const snap = await getDocs(collection(db, "SiswaX9"));
+        let list = [];
+        snap.forEach(doc => {
+          list.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Urutkan A-Z
+        list.sort((a, b) => a.nama.localeCompare(b.nama));
+
+        if (list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Belum ada data siswa X-9.</td></tr>';
+          return;
+        }
+
+        let html = "";
+        list.forEach((s, i) => {
+          html += `<tr>
+            <td style="text-align:center;">${i + 1}</td>
+            <td>${s.nisn}</td>
+            <td><b>${s.nama}</b></td>
+            <td style="text-align:center;">
+              <button onclick="hapusSiswa('${s.id}')" style="background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:12px;">Hapus</button>
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html;
+
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color:red;">Gagal memuat data.</td></tr>';
+      }
+    }
+
+    // 5. HAPUS SISWA
+    async function hapusSiswa(id) {
+      if (!confirm("Yakin ingin menghapus siswa ini?")) return;
+      
+      const { doc, deleteDoc } = window.fbFunc;
+      const db = window.db;
+
+      try {
+        await deleteDoc(doc(db, "SiswaX9", id));
+        alert("Siswa berhasil dihapus.");
+        muatDataDatabase();
+      } catch (error) {
+        console.error(error);
+        alert("Gagal menghapus siswa.");
+      }
+    }
+  </script>
+</body>
+</html>
