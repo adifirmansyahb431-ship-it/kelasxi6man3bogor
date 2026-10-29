@@ -43,10 +43,16 @@
     .menu-ujian h3 { color: var(--hijau); margin-bottom: 5px; font-weight: 800;}
     .menu-ujian p { color: #666; font-size: 14px; margin-bottom: 25px; }
     .btn-pilihan { display: block; width: 100%; padding: 15px; margin-bottom: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; transition: 0.3s; }
+    
+    /* Warna tombol disamakan dengan X-7 */
     .btn-pre { background: #d8c3a5; color: #0a3622; border: 1px solid #c2ad8f;}
+    .btn-pre:hover { background: #c2ad8f; }
     .btn-post { background: #e8d5b7; color: #0a3622; border: 1px solid #d1be9f;}
+    .btn-post:hover { background: #d1be9f; }
     .btn-lkpd { background: #16a085; color: white; }
+    .btn-lkpd:hover { background: #12876f; }
     .btn-keluar { background: #e74c3c; color: white; }
+    .btn-keluar:hover { background: #c0392b; }
   </style>
 </head>
 <body>
@@ -80,10 +86,12 @@
         <h3>Pilih Jenis Ujian X-9</h3>
         <p>Halo, <b id="namaSiswaPilihan" style="color: var(--hijau);"></b>!</p>
         
-        <!-- PASTIKAN FILE UJIAN X-9 SUDAH ADA DI GITHUB -->
+        <!-- PASTIKAN NAMA FILE DI BAWAH INI SUDAH ADA DI GITHUB ANDA -->
         <a href="ujian-cbt-x9.html" class="btn-pilihan btn-pre">📝 Mulai Pre-Test</a>
         <a href="post-test-x9.html" class="btn-pilihan btn-post">🎯 Mulai Post-Test</a>
+        <a href="lkpd-produsen-x9.html" class="btn-pilihan btn-lkpd">📁 Buka LKPD</a>
         
+        <!-- PERBAIKAN: KELUAR KEMBALI KE login-cbt-x9.html -->
         <button onclick="logoutCBT()" class="btn-pilihan btn-keluar" style="margin-top: 10px;">🚪 Keluar</button>
       </div>
 
@@ -110,15 +118,11 @@
         let loginBerhasil = false;
         let dataSiswa = null;
 
-        // =======================================================
-        // PENTING: MEMBACA DARI KOLEKSI "SiswaX9" (BUKAN Siswa)
-        // =======================================================
+        // BACA DARI KOLEKSI SiswaX9
         const snapSiswa = await getDocs(collection(db, "SiswaX9"));
         snapSiswa.forEach((doc) => {
           const data = doc.data();
-          // Cek apakah NISN cocok
           if(data.nisn === nis || data.nis === nis) {
-             // Cek password (default 123456 jika kosong)
              if(pass === data.password || (data.password === undefined && pass === "123456")) { 
                loginBerhasil = true;
                dataSiswa = data;
@@ -149,7 +153,8 @@
       if(confirm("Yakin ingin keluar?")) {
         localStorage.removeItem("cbtNamaSiswa");
         localStorage.removeItem("cbtNisSiswa");
-        window.location.reload(); 
+        // PERBAIKAN: Kembali ke halaman login X-9, bukan XI-6
+        window.location.href = "login-cbt-x9.html"; 
       }
     }
   </script>
