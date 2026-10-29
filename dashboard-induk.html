@@ -328,7 +328,7 @@
       document.getElementById("welcomeText").textContent = `Selamat Datang, ${nama}!`;
 
       // DAFTAR MENU
-      const semuaMenu = [
+          const semuaMenu = [
         { id: "menuPelanggaran", href: "pelanggaran.html", icon: "📝", title: "Input Pelanggaran" },
         { id: "menuRekap", href: "rekap.html", icon: "📊", title: "Rekap Poin" },
         { id: "menuNilai", href: "nilai.html", icon: "⭐", title: "Input Nilai" },
@@ -341,7 +341,12 @@
         { id: "menuMedia", href: "media-belajar.html", icon: "📚", title: "Media Belajar" },
         { id: "menuAbsensiX7", href: "absensi-x7.html", icon: "📋", title: "Absensi X-7" },
         { id: "menuRekapNilaiCBT", href: "rekap-nilai-cbt.html", icon: "📊", title: "Rekap Nilai CBT" },
-        { id: "menuRekapHasil", href: "rekap-hasil-belajar.html", icon: "📁", title: "Rekap Hasil Belajar" }
+        { id: "menuRekapHasil", href: "rekap-hasil-belajar.html", icon: "📁", title: "Rekap Hasil Belajar" },
+        
+        // ===== MENU KHUSUS KELAS X-9 =====
+        { id: "menuKelolaSiswaX9", href: "kelola-siswa-x9.html", icon: "📤", title: "Kelola Siswa X-9" },
+        { id: "menuAbsensiX9", href: "absensi-x9.html", icon: "📋", title: "Absensi X-9" },
+        { id: "menuCbtX9", href: "login-cbt-x9.html", icon: "💻", title: "CBT Kelas X-9" }
       ];
 
       let menuTampil = [];
