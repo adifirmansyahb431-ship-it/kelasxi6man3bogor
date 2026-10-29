@@ -84,6 +84,18 @@
       z-index: 90;
     }
 
+    /* CSS UNTUK JUDUL KATEGORI MENU (SEPERTI DI EXCEL) */
+    .menu-header {
+      padding: 18px 20px 6px 20px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 5px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
     .menu-item {
       display: flex;
       align-items: center;
@@ -281,7 +293,6 @@
 
     // LOGIKA EFEK CONGRATULATIONS
     window.addEventListener('load', () => {
-      // 1. Tembakkan Confetti
       confetti({
         particleCount: 200,
         spread: 100,
@@ -289,7 +300,6 @@
         colors: ['#d4af37', '#00f3ff', '#ffffff']
       });
 
-      // Confetti kedua dari samping
       setTimeout(() => {
         confetti({
           particleCount: 100,
@@ -307,14 +317,13 @@
         });
       }, 400);
 
-      // 2. Hilangkan Overlay setelah 3 detik
       setTimeout(() => {
         const overlay = document.getElementById('welcome-overlay');
         if(overlay) {
           overlay.style.opacity = '0';
-          setTimeout(() => overlay.style.display = 'none', 1000); // Tunggu transisi selesai
+          setTimeout(() => overlay.style.display = 'none', 1000);
         }
-      }, 3000); // 3000ms = 3 detik
+      }, 3000);
     });
 
     const sudahLogin = localStorage.getItem("siTatibLogin");
@@ -327,26 +336,31 @@
       document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK <br><span style="color:#00f3ff;font-size:11px;">Login: ${nama}</span>`;
       document.getElementById("welcomeText").textContent = `Selamat Datang, ${nama}!`;
 
-      // DAFTAR MENU
-          const semuaMenu = [
+      // ==========================================
+      // STRUKTUR MENU BARU (BERKELOMPOK SEPERTI DI EXCEL)
+      // ==========================================
+      const semuaMenu = [
+        { type: "header", title: "MENU UTAMA" },
         { id: "menuPelanggaran", href: "pelanggaran.html", icon: "📝", title: "Input Pelanggaran" },
         { id: "menuRekap", href: "rekap.html", icon: "📊", title: "Rekap Poin" },
         { id: "menuNilai", href: "nilai.html", icon: "⭐", title: "Input Nilai" },
-        { id: "menuAbsensi", href: "absensi.html", icon: "📋", title: "Absensi Siswa" },
+        { id: "menuAbsensi", href: "absensi.html", icon: "📋", title: "Absensi Siswa XI-6" },
         { id: "menuRekapBulanan", href: "rekap-bulanan.html", icon: "📅", title: "Rekap Bulanan" },
-        { id: "menuKelolaSiswa", href: "kelola-siswa.html", icon: "📤", title: "Kelola Siswa" },
+        { id: "menuKelolaSiswa", href: "kelola-siswa.html", icon: "📤", title: "Kelola Siswa XI-6" },
         { id: "menuKelolaAkun", href: "kelola-akun.html", icon: "👤", title: "Akun Siswa" },
         { id: "menuKasKelas", href: "kas-kelas.html", icon: "💰", title: "Kas Kelas" },
         { id: "menuKartuKelas", href: "kartu-siswa.html", icon: "🪪", title: "Kartu Kelas" },        
-        { id: "menuMedia", href: "media-belajar.html", icon: "📚", title: "Media Belajar" },
-        { id: "menuAbsensiX7", href: "absensi-x7.html", icon: "📋", title: "Absensi X-7" },
-        { id: "menuRekapNilaiCBT", href: "rekap-nilai-cbt.html", icon: "📊", title: "Rekap Nilai CBT" },
-        { id: "menuRekapHasil", href: "rekap-hasil-belajar.html", icon: "📁", title: "Rekap Hasil Belajar" },
+        { id: "menuMedia", href: "media-belajar.html", icon: "📚", title: "Media Belajar XI-6" },
         
-        // ===== MENU KHUSUS KELAS X-9 =====
-        { id: "menuKelolaSiswaX9", href: "kelola-siswa-x9.html", icon: "📤", title: "Kelola Siswa X-9" },
-        { id: "menuAbsensiX9", href: "absensi-x9.html", icon: "📋", title: "Absensi X-9" },
-        { id: "menuCbtX9", href: "login-cbt-x9.html", icon: "💻", title: "CBT Kelas X-9" }
+        { type: "header", title: "REKAP NILAI CBT" },
+        { id: "menuCbtX9", href: "login-cbt-x9.html", icon: "💻", title: "CBT Kelas X-9" },
+        { id: "menuRekapNilaiCBT", href: "rekap-nilai-cbt.html", icon: "📊", title: "Rekap Nilai XI-6" },
+        
+        { type: "header", title: "REKAP HASIL BELAJAR" },
+        { id: "menuAbsensiX7", href: "absensi-x7.html", icon: "📋", title: "Absensi Kelas X-7" },
+        { id: "menuAbsensiX9", href: "absensi-x9.html", icon: "📋", title: "Absensi Kelas X-9" },
+        { id: "menuRekapHasil", href: "rekap-hasil-belajar.html", icon: "📁", title: "Rekap Hasil XI-6" },
+        { id: "menuKelolaSiswaX9", href: "kelola-siswa-x9.html", icon: "📤", title: "Kelola Siswa X-9" }
       ];
 
       let menuTampil = [];
@@ -355,19 +369,37 @@
       if (role === "admin") {
         menuTampil = semuaMenu; 
       } else if (role === "sekretaris") {
-        menuTampil = semuaMenu.filter(m => ["menuAbsensi", "menuRekapBulanan", "menuKasKelas"].includes(m.id));
+        // Filter menu untuk sekretaris (hanya menu tertentu)
+        menuTampil = semuaMenu.filter(m => 
+          m.type === "header" || 
+          ["menuAbsensi", "menuRekapBulanan", "menuKasKelas"].includes(m.id)
+        );
       } else if (role === "bendahara") {
-        menuTampil = semuaMenu.filter(m => m.id === "menuKasKelas");
+        // Filter menu untuk bendahara
+        menuTampil = semuaMenu.filter(m => 
+          m.type === "header" || 
+          m.id === "menuKasKelas"
+        );
       }
 
       const sidebar = document.getElementById("sidebar");
+      
       menuTampil.forEach(menu => {
-        const a = document.createElement("a");
-        a.className = "menu-item";
-        a.href = "javascript:void(0)";
-        a.innerHTML = `<div class="icon">${menu.icon}</div> ${menu.title}`;
-        a.onclick = function() { bukaHalaman(menu.href, this); };
-        sidebar.appendChild(a);
+        if (menu.type === "header") {
+          // Render Judul Kategori
+          const header = document.createElement("div");
+          header.className = "menu-header";
+          header.textContent = menu.title;
+          sidebar.appendChild(header);
+        } else {
+          // Render Tombol Menu
+          const a = document.createElement("a");
+          a.className = "menu-item";
+          a.href = "javascript:void(0)";
+          a.innerHTML = `<div class="icon">${menu.icon}</div> ${menu.title}`;
+          a.onclick = function() { bukaHalaman(menu.href, this); };
+          sidebar.appendChild(a);
+        }
       });
     }
 
@@ -387,7 +419,6 @@
       document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
       elementMenu.classList.add('active');
 
-      // Otomatis tutup sidebar di HP setelah menu diklik
       if (window.innerWidth <= 768) {
         toggleSidebar();
       }
