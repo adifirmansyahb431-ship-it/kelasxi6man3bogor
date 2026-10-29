@@ -112,9 +112,28 @@
 
     .btn-keluar { background: #e74c3c; color: white; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3); }
     .btn-keluar:hover { background: #c0392b; transform: translateY(-2px); }
+
+    /* Tombol Musik */
+    #toggleMusic {
+      position: fixed; bottom: 20px; right: 20px; 
+      padding: 12px 15px; border-radius: 50%; 
+      cursor: pointer; background: var(--hijau); color: white; 
+      border: 2px solid var(--gold); font-size: 18px; 
+      z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: 0.3s;
+    }
+    #toggleMusic:hover { transform: scale(1.1); }
   </style>
 </head>
 <body>
+
+  <!-- AUDIO MUSIK LATAR (Ganti link src dengan link mp3 Anda) -->
+  <audio id="bgMusic" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- TOMBOL MUTE/UNMUTE -->
+  <button id="toggleMusic" title="Hidupkan/Matikan Musik">🔇</button>
 
   <!-- RUNNING TEXT -->
   <div class="ticker-wrapper">
@@ -158,6 +177,50 @@
   </div>
 
   <script>
+    // ==========================================
+    // LOGIKA MUSIK INSTRUMENTAL
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+      const audio = document.getElementById('bgMusic');
+      const btnMusic = document.getElementById('toggleMusic');
+      
+      // Set volume musik (0.3 = 30% agar tidak terlalu keras)
+      audio.volume = 0.3; 
+
+      // Fungsi untuk memulai musik saat ada interaksi
+      const playMusic = () => {
+        audio.play().then(() => {
+            btnMusic.innerHTML = '🔊'; // Ubah ikon jika berhasil
+        }).catch(error => {
+            console.log("Musik diblokir oleh browser sampai ada interaksi.");
+        });
+        
+        // Hapus event listener setelah berhasil diputar
+        document.removeEventListener('click', playMusic);
+        document.removeEventListener('keydown', playMusic);
+      };
+
+      // Jalankan musik saat siswa klik di mana saja atau mengetik
+      document.addEventListener('click', playMusic);
+      document.addEventListener('keydown', playMusic);
+
+      // Tombol Mute/Unmute
+      btnMusic.addEventListener('click', (e) => {
+        e.stopPropagation(); // Mencegah klik tombol memicu event klik body
+        if (audio.paused) {
+          audio.play();
+          btnMusic.innerHTML = '🔊';
+        } else {
+          audio.pause();
+          btnMusic.innerHTML = '🔇';
+        }
+      });
+    });
+
+
+    // ==========================================
+    // LOGIKA LOGIN CBT
+    // ==========================================
     async function prosesLogin() {
       const nis = document.getElementById("loginNis").value.trim();
       const pass = document.getElementById("loginPass").value.trim();
