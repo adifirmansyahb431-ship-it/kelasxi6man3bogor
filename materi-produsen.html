@@ -233,7 +233,12 @@
   </div>
 
   <script>
-    if(!localStorage.getItem("cbtNamaSiswa")) window.location.href = "login-cbt.html";
+    // Cek login hanya jika halaman dibuka langsung oleh siswa (bukan dari dashboard induk)
+if (!window.parent || window.parent === window) {
+    if (!localStorage.getItem("cbtNamaSiswa")) {
+        window.location.href = "login-cbt.html";
+    }
+}
 
     function kembali() {
       if (window.parent && window.parent.tutupHalaman) {
