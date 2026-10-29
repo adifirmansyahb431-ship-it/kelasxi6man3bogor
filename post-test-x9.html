@@ -1,1 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post-Test Perilaku Produsen - SIPADAK</title>
+  
+  <!-- Library Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+  </script>
+
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .btn-keluar-header { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    
+    .container { max-width: 1100px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; display: grid; grid-template-columns: 1fr 250px; gap: 20px; align-items: start; }
+    .main-content { display: flex; flex-direction: column; }
+    .sidebar-nomor { display: flex; flex-direction: column; position: sticky; top: 20px; }
+    
+    .cbt-header { display: flex; justify-content: space-between; align-items: center; background: var(--hijau); color: white; padding: 15px 20px; border-radius: 12px 12px 0 0; font-weight: bold; }
+    .timer { background: #ef4444; padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-size: 16px; }
+    
+    .cbt-body { background: white; padding: 25px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px; min-height: 400px;}
+    .soal-header { display: flex; justify-content: space-between; margin-bottom: 15px; color: #64748b; font-size: 14px; font-weight: bold; }
+    .soal-text { font-size: 16px; line-height: 1.6; margin-bottom: 20px; color: #1e293b; }
+    
+    .opsi-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+    .opsi-label { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 15px; }
+    .opsi-label:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .opsi-label input[type="radio"] { width: 18px; height: 18px; accent-color: var(--hijau); }
+    
+    .cbt-nav { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+    .btn-nav { background: #e2e8f0; color: #333; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .btn-nav:hover { background: #cbd5e1; }
+    .btn-nav.primary { background: var(--hijau); color: white; }
+    
+    .nomor-grid { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; box-shadow: 0 2px 9px rgba(0,0,0,0.05); }
+    .nomor-grid h4 { width: 100%; text-align: center; margin: 0 0 10px 0; color: var(--hijau); }
+    .nomor-btn { width: 35px; height: 35px; border-radius: 6px; border: 2px solid #e2e8f0; background: white; font-weight: bold; cursor: pointer; color: #64748b; }
+    .nomor-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); }
+    .nomor-btn.sudah-dijawab { background: var(--gold); color: white; border-color: var(--gold); }
+
+    .hasil-box { text-align: center; padding: 40px 20px; }
+    .piala { font-size: 100px; display: inline-block; animation: bounceIn 1s ease-out, float 3s ease-in-out infinite 1s; filter: drop-shadow(0 10px 15px rgba(212, 175, 55, 0.4)); }
+    @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    .ucapan { font-size: 32px; font-weight: 800; color: var(--gold); margin: 10px 0; text-transform: uppercase; letter-spacing: 2px; }
+    .skor-angka { font-size: 70px; font-weight: 800; color: var(--hijau); margin: 10px 0; }
+    .predikat { font-size: 20px; color: #64748b; font-weight: bold; margin-top: 5px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>🎯 POST-TEST PERILAKU PRODUSEN</h1>
+    <div class="header-right">
+      <span id="infoSiswa" style="font-weight:bold; margin-right:15px;">Memuat...</span>
+      <button class="btn-keluar-header" onclick="konfirmasiKeluar()">🚪 Keluar</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="main-content">
+      <div class="cbt-header">
+        <span>POST-TEST</span>
+        <div class="timer" id="timerPost">⏱️ 20:00</div>
+      </div>
+      <div class="cbt-body" id="cbtPostBody"></div>
+    </div>
+    <div class="sidebar-nomor">
+      <div class="nomor-grid" id="gridNomor">
+        <h4>Nomor Soal</h4>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Cek Login Khusus CBT Siswa
+    if(!localStorage.getItem("cbtNamaSiswa")) {
+        window.location.href = "login-cbt.html";
+    }
+
+    // 15 SOAL ASLI DENGAN OPSI A SAMPAI E
+    const soalPostTest = [
+      { q: "Tujuan utama produsen dalam melakukan kegiatan produksi adalah...", opsi: ["A. Meminimalkan kepuasan", "B. Memaksimalkan keuntungan (profit)", "C. Menghabiskan anggaran", "D. Menimbun barang", "E. Mengurangi produksi"], jawaban: 1 },
+      { q: "Faktor produksi yang berupa mesin dan bangunan disebut...", opsi: ["A. Tenaga Kerja", "B. Sumber Daya Alam", "C. Modal (Capital)", "D. Kewirausahaan", "E. Teknologi"], jawaban: 2 },
+      { q: "Kurva Isoquant menghubungkan titik-titik yang menunjukkan...", opsi: ["A. Biaya produksi yang sama", "B. Output yang sama dari kombinasi input berbeda", "C. Keuntungan yang sama", "D. Harga yang sama", "E. Kuantitas permintaan yang sama"], jawaban: 1 },
+      { q: "Persamaan garis Isocost adalah...", opsi: ["A. Q = f(L, K)", "B. C = (w × L) + (r × K)", "C. MRTS = -ΔK/ΔL", "D. TR = P × Q", "E. TC = TFC + TVC"], jawaban: 1 },
+      { q: "Titik keseimbangan produsen tercapai ketika...", opsi: ["A. Garis Isocost memotong sumbu L", "B. Kurva Isoquant bersinggungan dengan garis Isocost", "C. Kurva Isoquant berada di atas garis Isocost", "D. Anggaran produsen habis", "E. Kurva Isoquant memotong sumbu K"], jawaban: 1 },
+      { q: "Diketahui C = Rp 20.000.000, w = Rp 4.000.000, r = Rp 2.000.000. Jika produsen memilih 2 tenaga kerja, berapa unit modal yang bisa disewa?", opsi: ["A. 4 unit", "B. 5 unit", "C. 6 unit", "D. 7 unit", "E. 8 unit"], jawaban: 2 },
+      { q: "Pada tabel Isoquant, kombinasi C (3L, 5K) ke D (4L, 3K) menghasilkan output sama. Berapakah MRTS dari C ke D?", opsi: ["A. -1", "B. -2", "C. -3", "D. -4", "E. -5"], jawaban: 1 },
+      { q: "Jika sewa modal (r) turun, sementara upah dan anggaran tetap, maka garis Isocost akan...", opsi: ["A. Bergeser sejajar ke kanan", "B. Berputar pada sumbu L (menjadi lebih datar)", "C. Berputar pada sumbu K (menjadi lebih curam)", "D. Tidak berubah", "E. Bergeser ke kiri bawah"], jawaban: 1 },
+      { q: "Seorang produsen memiliki anggaran Rp 15.000.000. Upah (w) = Rp 3.000.000, Sewa modal (r) = Rp 3.000.000. Berapa kombinasi maksimal tenaga kerja dan modal?", opsi: ["A. 3L dan 2K", "B. 2L dan 3K", "C. 4L dan 1K", "D. 5L dan 0K", "E. 1L dan 4K"], jawaban: 0 },
+      { q: "Jika produsen ingin memproduksi 100 unit dengan biaya minimal, maka ia harus berada pada...", opsi: ["A. Titik potong sumbu", "B. Titik singgung Isocost dan Isoquant terendah yang menyentuh target output", "C. Titik tertinggi kurva Isoquant", "D. Titik tengah garis Isocost", "E. Titik terjauh dari origin"], jawaban: 1 },
+      { q: "Perhatikan data: Kombinasi X (2L, 4K) biaya Rp 14 jt, output 90 unit. Kombinasi Y (4L, 2K) biaya Rp 14 jt, output 90 unit. Analisis yang tepat adalah...", opsi: ["A. Kombinasi X lebih efisien", "B. Kombinasi Y lebih efisien", "C. Kedua kombinasi berada pada Isoquant yang sama dengan biaya sama (Isocost sama)", "D. Produsen sebaiknya menambah anggaran", "E. Kedua kombinasi tidak bisa dibandingkan"], jawaban: 2 },
+      { q: "Mengapa produsen tidak memilih kombinasi yang berada di atas garis Isocost?", opsi: ["A. Karena outputnya terlalu kecil", "B. Karena biayanya melebihi anggaran yang dimiliki", "C. Karena teknologinya sudah usang", "D. Karena tenaga kerjanya kurang", "E. Karena modalnya berlebih"], jawaban: 1 },
+      { q: "Apa yang terjadi pada keseimbangan produsen jika harga tenaga kerja (w) naik tajam?", opsi: ["A. Produsen akan beralih menggunakan lebih banyak modal (K) dan lebih sedikit tenaga kerja (L)", "B. Produsen akan menambah tenaga kerja", "C. Produsen akan berhenti produksi", "D. Kurva Isoquant akan bergeser ke atas", "E. Garis Isocost akan bergeser sejajar ke kanan"], jawaban: 0 },
+      { q: "Dalam jangka panjang, jika produsen ingin meningkatkan output dari 100 unit menjadi 200 unit, maka ia harus...", opsi: ["A. Tetap pada Isoquant yang sama", "B. Bergerak ke kurva Isoquant yang lebih tinggi (kanan atas) dengan anggaran yang mungkin lebih besar", "C. Mengurangi penggunaan modal", "D. Menurunkan harga jual", "E. Mengurangi jumlah tenaga kerja"], jawaban: 1 },
+      { q: "Diketahui MRTS = 2, w = Rp 4.000.000, r = Rp 2.000.000. Apakah produsen sudah dalam keseimbangan?", opsi: ["A. Ya, karena MRTS = w/r", "B. Belum, karena MRTS (2) tidak sama dengan w/r (2)", "C. Belum, karena MRTS (2) lebih kecil dari w/r (2)", "D. Tidak dapat ditentukan", "E. Ya, karena MRTS lebih besar dari w/r"], jawaban: 0 }
+    ];
+
+    let soalAktif = 0;
+    let timerInterval;
+    const namaSiswa = localStorage.getItem("cbtNamaSiswa");
+
+    window.konfirmasiKeluar = function() {
+      if (confirm("Yakin ingin keluar dari ujian? Jawaban yang belum disimpan akan hilang.")) {
+        clearInterval(timerInterval);
+        localStorage.removeItem("cbtNamaSiswa");
+        localStorage.removeItem("cbtNisSiswa");
+        window.location.href = "login-cbt.html"; 
+      }
+    }
+
+    window.mulaiUjian = function() {
+      renderSoal(soalPostTest);
+      mulaiTimer(1200); // 20 Menit
+    }
+
+    window.renderSoal = function(bankSoal) {
+      const container = document.getElementById('cbtPostBody');
+      let html = '';
+
+      bankSoal.forEach((soal, index) => {
+        html += `
+          <div class="soal-item" id="soal-${index}" style="display: ${index === 0 ? 'block' : 'none'};">
+            <div class="soal-header">
+              <span>Soal ${index + 1} dari ${bankSoal.length}</span>
+              <span>Pilih satu jawaban</span>
+            </div>
+            <div class="soal-text">${soal.q}</div>
+            <div class="opsi-container">
+              ${soal.opsi.map((opt, i) => `
+                <label class="opsi-label">
+                  <input type="radio" name="soal_${index}" value="${i}" onchange="cekDijawab(${index})">
+                  ${opt}
+                </label>
+              `).join('')}
+            </div>
+            <div class="cbt-nav">
+              <button class="btn-nav" onclick="pindahSoal(${index - 1})" ${index === 0 ? 'style="visibility:hidden"' : ''}>⬅ Sebelumnya</button>
+              <button class="btn-nav primary" onclick="pindahSoal(${index + 1})" ${index === bankSoal.length - 1 ? 'style="display:none"' : ''}>Selanjutnya ➡</button>
+              <button class="btn-nav primary" onclick="selesaiUjian()" ${index === bankSoal.length - 1 ? 'style="display:block"' : 'style="display:none"'}>Selesai & Lihat Skor</button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+
+      const gridNomor = document.getElementById('gridNomor');
+      let htmlNomor = '<h4>Nomor Soal</h4>';
+      bankSoal.forEach((_, i) => {
+        htmlNomor += `<button class="nomor-btn ${i === 0 ? 'active' : ''}" id="btn-nomor-${i}" onclick="pindahSoal(${i})">${i + 1}</button>`;
+      });
+      gridNomor.innerHTML = htmlNomor;
+    }
+
+    window.pindahSoal = function(indexTujuan) {
+      if (indexTujuan < 0 || indexTujuan >= soalPostTest.length) return;
+
+      document.querySelectorAll('.soal-item').forEach(el => el.style.display = 'none');
+      const soalTarget = document.getElementById(`soal-${indexTujuan}`);
+      if (soalTarget) soalTarget.style.display = 'block';
+
+      document.querySelectorAll('.nomor-btn').forEach(el => el.classList.remove('active'));
+      const btnNomor = document.getElementById(`btn-nomor-${indexTujuan}`);
+      if (btnNomor) btnNomor.classList.add('active');
+
+      soalAktif = indexTujuan;
+    }
+
+    window.cekDijawab = function(indexSoal) {
+      const btnNomor = document.getElementById(`btn-nomor-${indexSoal}`);
+      if (btnNomor) btnNomor.classList.add('sudah-dijawab');
+    }
+
+    window.mulaiTimer = function(durasiDetik) {
+      const timerEl = document.getElementById('timerPost');
+      let sisa = durasiDetik;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const menit = Math.floor(sisa / 60).toString().padStart(2, '0');
+        const detik = (sisa % 60).toString().padStart(2, '0');
+        timerEl.innerHTML = `⏱️ ${menit}:${detik}`;
+
+        if (sisa <= 0) {
+          clearInterval(timerInterval);
+          alert("Waktu habis! Jawaban akan otomatis dikumpulkan.");
+          selesaiUjian();
+        }
+        sisa--;
+      }, 1000);
+    }
+
+    window.selesaiUjian = async function() {
+      clearInterval(timerInterval);
+      let skor = 0;
+      
+      let detailJawaban = {};
+      soalPostTest.forEach((soal, index) => {
+        const jawabanUser = document.querySelector(`input[name="soal_${index}"]:checked`);
+        const opsiDipilih = jawabanUser ? soal.opsi[parseInt(jawabanUser.value)] : "Tidak dijawab";
+        const kunciJawaban = soal.opsi[soal.jawaban];
+        
+        if (jawabanUser && parseInt(jawabanUser.value) === soal.jawaban) {
+          skor++;
+        }
+        detailJawaban[`Soal ${index + 1}: ${soal.q.substring(0, 30)}...`] = `Dijawab: ${opsiDipilih} | Kunci: ${kunciJawaban}`;
+      });
+
+      const persentase = Math.round((skor / soalPostTest.length) * 100);
+      const container = document.getElementById('cbtPostBody');
+      
+      container.innerHTML = `
+        <div class="hasil-box">
+          <div class="piala">🏆</div>
+          <h2 class="ucapan">CONGRATULATIONS!</h2>
+          <p class="skor-angka">${persentase}</p>
+          <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
+          <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${soalPostTest.length}</strong> soal.</p>
+          <button class="btn-keluar-header" style="margin-top:30px; padding: 15px 40px; font-size: 16px; background:var(--hijau);" onclick="window.location.href='login-cbt.html'">🚪 Keluar ke Menu</button>
+        </div>
+      `;
+
+      document.querySelector('.sidebar-nomor').style.display = 'none';
+
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6, x: 0.1 }, colors: ['#d4af37', '#0a3622', '#ffffff', '#f1c40f'] });
+      setTimeout(() => { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6, x: 0.9 }, colors: ['#d4af37', '#0a3622', '#ffffff', '#f1c40f'] }); }, 300);
+
+      if (namaSiswa) {
+        try {
+          await addDoc(collection(window.db, "HasilUjian"), {
+            nama: namaSiswa,
+            jenisUjian: "Post-Test",
+            skor: skor,
+            totalSoal: soalPostTest.length,
+            persentase: persentase,
+            tanggal: new Date().toISOString().split('T')[0],
+            detailJawaban: detailJawaban
+          });
+        } catch (error) { console.error("Gagal simpan nilai:", error); }
+      }
+
+      localStorage.removeItem("cbtNamaSiswa");
+      localStorage.removeItem("cbtNisSiswa");
+    }
+
+    if (!namaSiswa) {
+      alert("Anda belum login. Silakan login terlebih dahulu.");
+      window.location.href = "login-cbt.html";
+    } else {
+      document.getElementById("infoSiswa").textContent = `Peserta: ${namaSiswa}`;
+      window.mulaiUjian(); 
+    }
+  </script>
+</body>
+</html>
 
