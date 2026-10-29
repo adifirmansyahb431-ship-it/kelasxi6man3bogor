@@ -1,1 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login CBT X-9 - SIPADAK</title>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    window.fbFunc = { collection, getDocs };
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --cream: #fdf6e3; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--cream); min-height: 100vh; display: flex; flex-direction: column; }
+    .ticker-wrapper { overflow: hidden; background: var(--hijau); border-bottom: 3px solid var(--gold); padding: 10px 0; width: 100%; }
+    .ticker-text { display: inline-block; white-space: nowrap; padding-left: 100%; animation: jalanTerus 20s linear infinite; color: var(--gold); font-weight: 800; font-size: 16px; letter-spacing: 2px; }
+    @keyframes jalanTerus { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+    .main-content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-box { background: rgba(255, 255, 255, 0.9); width: min(420px, 90%); padding: 30px 25px; border-radius: 20px; box-shadow: 0 20px 60px rgba(10, 54, 34, 0.15); border: 2px solid var(--gold); }
+    .login-box h2 { text-align: center; color: var(--hijau); margin: 0 0 5px; font-weight: 800; }
+    .login-box p { text-align: center; font-size: 13px; color: #666; margin: 0 0 20px; }
+    label { font-weight: bold; font-size: 13px; color: var(--hijau); display: block; margin-bottom: 5px;}
+    input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; font-family: inherit;}
+    .btn-login { width: 100%; padding: 12px; background: var(--hijau); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px;}
+    #loginMessage { color: #e74c3c; text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px; min-height: 18px; }
+    .menu-ujian { display: none; text-align: center; }
+    .menu-ujian h3 { color: var(--hijau); margin-bottom: 5px; font-weight: 800;}
+    .menu-ujian p { color: #666; font-size: 14px; margin-bottom: 25px; }
+    .btn-pilihan { display: block; width: 100%; padding: 15px; margin-bottom: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; transition: 0.3s; }
+    .btn-pre { background: #d8c3a5; color: #0a3622; border: 1px solid #c2ad8f;}
+    .btn-post { background: #e8d5b7; color: #0a3622; border: 1px solid #d1be9f;}
+    .btn-lkpd { background: #16a085; color: white; }
+    .btn-keluar { background: #e74c3c; color: white; }
+  </style>
+</head>
+<body>
+
+  <div class="ticker-wrapper">
+    <div class="ticker-text">
+      ★ SELAMAT DATANG DI CBT KELAS X-9 ★ MAN 3 BOGOR ★ AYO BELAJAR EKONOMI ★
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="login-box">
+      
+      <!-- FORM LOGIN -->
+      <div id="formLogin">
+        <h2>Sistem CBT X-9</h2>
+        <p>Masukkan NISN dan Password untuk memulai ujian.</p>
+
+        <label>NISN (Nomor Induk Siswa)</label>
+        <input id="loginNis" type="text" placeholder="Masukkan NISN" />
+        
+        <label>Password</label>
+        <input id="loginPass" type="password" placeholder="Password" />
+        
+        <button class="btn-login" onclick="prosesLogin()">🚀 MASUK</button>
+        <div id="loginMessage"></div>
+      </div>
+
+      <!-- MENU PILIHAN UJIAN -->
+      <div id="menuPilihan" class="menu-ujian">
+        <h3>Pilih Jenis Ujian X-9</h3>
+        <p>Halo, <b id="namaSiswaPilihan" style="color: var(--hijau);"></b>!</p>
+        
+        <!-- PASTIKAN FILE UJIAN X-9 SUDAH ADA DI GITHUB -->
+        <a href="ujian-cbt-x9.html" class="btn-pilihan btn-pre">📝 Mulai Pre-Test</a>
+        <a href="post-test-x9.html" class="btn-pilihan btn-post">🎯 Mulai Post-Test</a>
+        
+        <button onclick="logoutCBT()" class="btn-pilihan btn-keluar" style="margin-top: 10px;">🚪 Keluar</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    async function prosesLogin() {
+      const nis = document.getElementById("loginNis").value.trim();
+      const pass = document.getElementById("loginPass").value.trim();
+      const pesan = document.getElementById("loginMessage");
+
+      if (!nis || !pass) {
+        pesan.textContent = "❌ NISN dan Password wajib diisi!";
+        return;
+      }
+
+      pesan.textContent = "⏳ Memeriksa data...";
+
+      try {
+        const { collection, getDocs } = window.fbFunc;
+        const db = window.db;
+
+        let loginBerhasil = false;
+        let dataSiswa = null;
+
+        // =======================================================
+        // PENTING: MEMBACA DARI KOLEKSI "SiswaX9" (BUKAN Siswa)
+        // =======================================================
+        const snapSiswa = await getDocs(collection(db, "SiswaX9"));
+        snapSiswa.forEach((doc) => {
+          const data = doc.data();
+          // Cek apakah NISN cocok
+          if(data.nisn === nis || data.nis === nis) {
+             // Cek password (default 123456 jika kosong)
+             if(pass === data.password || (data.password === undefined && pass === "123456")) { 
+               loginBerhasil = true;
+               dataSiswa = data;
+             }
+          }
+        });
+
+        if (loginBerhasil && dataSiswa) {
+          localStorage.setItem("cbtNamaSiswa", dataSiswa.nama);
+          localStorage.setItem("cbtNisSiswa", nis);
+          
+          document.getElementById("formLogin").style.display = "none";
+          document.getElementById("menuPilihan").style.display = "block";
+          document.getElementById("namaSiswaPilihan").textContent = dataSiswa.nama;
+          
+          pesan.textContent = "";
+
+        } else {
+           pesan.textContent = "❌ NISN tidak ditemukan atau Password salah!";
+        }
+      } catch (error) {
+        console.error(error);
+        pesan.textContent = "❌ Gagal terhubung ke database.";
+      }
+    }
+
+    function logoutCBT() {
+      if(confirm("Yakin ingin keluar?")) {
+        localStorage.removeItem("cbtNamaSiswa");
+        localStorage.removeItem("cbtNisSiswa");
+        window.location.reload(); 
+      }
+    }
+  </script>
+</body>
+</html>
