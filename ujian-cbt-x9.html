@@ -341,6 +341,14 @@
       document.getElementById("infoSiswa").textContent = `Peserta: ${namaSiswa}`;
       window.mulaiUjian(); 
     }
+        function kembaliKeMenu() {
+      if (confirm("Yakin ingin kembali ke menu utama? Jawaban yang belum disimpan akan hilang.")) {
+        clearInterval(timerInterval); // Hentikan timer
+        localStorage.removeItem("cbtNamaSiswa");
+        localStorage.removeItem("cbtNisSiswa");
+        window.location.href = "login-cbt-x9.html"; // Kembali ke menu pilihan X-9
+      }
+    }
   </script>
 </body>
 </html>
