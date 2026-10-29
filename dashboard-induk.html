@@ -1,4 +1,345 @@
-      // STRUKTUR MENU BARU (KHUSUS X-7 & X-9 DI BAGIAN REKAP)
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Induk - SIPADAK XI-6</title>
+  
+  <!-- Library Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root { 
+      --dark-bg: #070b19; 
+      --sidebar-bg: #0d1326;
+      --neon-cyan: #00f3ff; 
+      --text: #e2e8f0; 
+      --hover-bg: rgba(0, 243, 255, 0.1);
+      --gold: #d4af37;
+    }
+    * { box-sizing: border-box; }
+    
+    body { 
+      margin: 0; 
+      font-family: 'Segoe UI', sans-serif; 
+      background-color: var(--dark-bg);
+      color: var(--text); 
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden; 
+    }
+
+    /* HEADER ATAS */
+    .header { 
+      background: rgba(7, 11, 25, 0.95); 
+      color: var(--neon-cyan); 
+      display: flex; 
+      align-items: center; 
+      gap: 15px; 
+      padding: 10px 20px; 
+      border-bottom: 2px solid var(--neon-cyan); 
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+      z-index: 100;
+      height: 70px;
+      flex-shrink: 0;
+    }
+    .header img { height: 45px; width: 45px; background: white; border-radius: 8px; padding: 2px; object-fit: cover; }
+    .header .brand { flex: 1; font-size: 18px; font-weight: 800; line-height: 1.2; text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);}
+    .header .brand small { display: block; font-size: 12px; color: #aaa; font-weight: 600; text-shadow: none;}
+    .header .logout { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 8px 15px; font-weight: 700; cursor: pointer; box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
+
+    /* TOMBOL MENU (Hanya muncul di HP) */
+    .menu-toggle {
+      display: none; 
+      background: transparent;
+      border: none;
+      color: var(--neon-cyan);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    /* AREA UTAMA (KIRI & KANAN) */
+    .main-wrapper {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 70px); 
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* SIDEBAR KIRI */
+    .sidebar {
+      width: 260px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid rgba(0, 243, 255, 0.2);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 15px 0;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+      flex-shrink: 0;
+      transition: transform 0.3s ease-in-out; 
+      z-index: 90;
+    }
+
+    /* CSS UNTUK JUDUL KATEGORI MENU */
+    .menu-header {
+      padding: 18px 20px 6px 20px;
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 5px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      text-shadow: 0 0 5px rgba(212, 175, 55, 0.4);
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      color: #aaa;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: 0.2s;
+      cursor: pointer;
+      border-left: 4px solid transparent;
+    }
+    
+    .menu-item:hover, .menu-item.active {
+      background-color: var(--hover-bg);
+      color: var(--neon-cyan);
+      border-left-color: var(--neon-cyan);
+    }
+
+    .menu-item .icon {
+      font-size: 18px;
+      filter: drop-shadow(0 0 5px rgba(0, 243, 255, 0.5));
+    }
+
+    /* KONTEN KANAN */
+    .content-area {
+      flex: 1;
+      background-color: var(--dark-bg);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* CSS RUNNING TEXT */
+    .ticker-wrapper {
+      overflow: hidden;
+      background: rgba(0, 243, 255, 0.05);
+      border-bottom: 1px solid var(--neon-cyan);
+      padding: 10px 0;
+      box-shadow: 0 4px 10px rgba(0, 243, 255, 0.1);
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    .ticker-text {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%; 
+      animation: jalanTerus 25s linear infinite; 
+      color: var(--neon-cyan);
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 5px rgba(0, 243, 255, 0.8);
+    }
+
+    @keyframes jalanTerus {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* LAYAR SAMBUTAN */
+    .welcome-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--neon-cyan);
+      text-align: center;
+      padding: 20px;
+      flex: 1;
+    }
+    .welcome-screen h2 { text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); margin-bottom: 10px; font-size: 28px;}
+    .welcome-screen p { color: #aaa; font-size: 16px; }
+
+    /* IFRAME */
+    #mainFrame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+      background: white; 
+      flex: 1;
+    }
+
+    /* =========================================
+       EFEK CONGRATULATIONS OVERLAY
+       ========================================= */
+    #welcome-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(7, 11, 25, 0.95);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 1s ease;
+    }
+
+    .piala {
+      font-size: 120px;
+      animation: bounceIn 1s ease-out, float 3s ease-in-out infinite 1s;
+      filter: drop-shadow(0 10px 20px rgba(212, 175, 55, 0.6));
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .ucapan {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--gold);
+      margin: 10px 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+      animation: fadeInDown 1s ease-out 0.5s both;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =========================================
+       TAMPILAN KHUSUS HP (RESPONSIF)
+       ========================================= */
+    @media (max-width: 768px) {
+      .menu-toggle { display: block; }
+      .sidebar { position: absolute; top: 0; left: 0; height: 100%; transform: translateX(-100%); }
+      .sidebar.active { transform: translateX(0); }
+      .sidebar-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 80; }
+      .sidebar-overlay.active { display: block; }
+      .ucapan { font-size: 24px; text-align: center; padding: 0 20px;}
+      .piala { font-size: 80px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- OVERLAY CONGRATULATIONS -->
+  <div id="welcome-overlay">
+    <div class="piala">🏆</div>
+    <h2 class="ucapan">CONGRATULATIONS!</h2>
+    <p style="color: #fff; font-size: 18px; margin-top: 10px;">Selamat datang kembali di Dashboard Induk SIPADAK.</p>
+  </div>
+
+  <div class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <img src="fotogroupxi-6.png" alt="logo" />
+    <div class="brand">
+      SIPADAK XI-6
+      <small id="infoUser">MAN 3 BOGOR</small>
+    </div>
+    <button class="logout" onclick="logout()">🚪 KELUAR</button>
+  </div>
+
+  <div class="main-wrapper">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar"></div>
+
+    <div class="content-area">
+      <div class="ticker-wrapper">
+        <div class="ticker-text">
+          SISTEM INFORMASI PANGKALAN DATA KELAS XI-6 ★ SIPADAK ★ MAN 3 BOGOR ★ SISTEM INFORMASI PANGKALAN DATA KELAS XI-6 ★ SIPADAK ★ MAN 3 BOGOR ★
+        </div>
+      </div>
+
+      <div class="welcome-screen" id="welcomeScreen">
+        <h2 id="welcomeText">Selamat Datang!</h2>
+        <p>Silakan pilih menu di sebelah kiri untuk mulai mengelola data.</p>
+      </div>
+      
+      <iframe id="mainFrame" src=""></iframe>
+    </div>
+  </div>
+
+  <script>
+    // MENCEGAH LOOPING
+    if (window.top !== window.self) {
+      window.top.location.href = "dashboard-induk.html";
+    }
+
+    // LOGIKA EFEK CONGRATULATIONS
+    window.addEventListener('load', () => {
+      confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: ['#d4af37', '#00f3ff', '#ffffff']
+      });
+
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ['#d4af37', '#00f3ff']
+        });
+        confetti({
+          particleCount: 100,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ['#d4af37', '#00f3ff']
+        });
+      }, 400);
+
+      setTimeout(() => {
+        const overlay = document.getElementById('welcome-overlay');
+        if(overlay) {
+          overlay.style.opacity = '0';
+          setTimeout(() => overlay.style.display = 'none', 1000);
+        }
+      }, 3000);
+    });
+
+    const sudahLogin = localStorage.getItem("siTatibLogin");
+    const role = localStorage.getItem("siTatibRole");
+    const nama = localStorage.getItem("siTatibNama");
+
+    if (sudahLogin !== "true" || role === "siswa" || !nama) {
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK <br><span style="color:#00f3ff;font-size:11px;">Login: ${nama}</span>`;
+      document.getElementById("welcomeText").textContent = `Selamat Datang, ${nama}!`;
+
+      // ==========================================
+      // STRUKTUR MENU (DENGAN JUDUL KATEGORI)
+      // ==========================================
       const semuaMenu = [
         { type: "header", title: "MENU UTAMA XI-6" },
         { id: "menuPelanggaran", href: "pelanggaran.html", icon: "📝", title: "Input Pelanggaran" },
@@ -14,7 +355,6 @@
         { id: "menuRekapNilaiCBT", href: "rekap-nilai-cbt.html", icon: "📊", title: "Rekap Nilai XI-6" },
         { id: "menuRekapHasil", href: "rekap-hasil-belajar.html", icon: "📁", title: "Rekap Hasil XI-6" },
         
-        // KHUSUS X-7 DAN X-9
         { type: "header", title: "REKAP NILAI CBT X-7 & X-9" },
         { id: "menuCbtX7", href: "login-cbt-x7.html", icon: "💻", title: "CBT Kelas X-7" },
         { id: "menuCbtX9", href: "login-cbt-x9.html", icon: "💻", title: "CBT Kelas X-9" },
@@ -24,3 +364,80 @@
         { id: "menuAbsensiX9", href: "absensi-x9.html", icon: "📋", title: "Absensi Kelas X-9" },
         { id: "menuKelolaSiswaX9", href: "kelola-siswa-x9.html", icon: "📤", title: "Kelola Siswa X-9" }
       ];
+
+      let menuTampil = [];
+      
+      // LOGIKA HAK AKSES
+      if (role === "admin") {
+        menuTampil = semuaMenu; 
+      } else if (role === "sekretaris") {
+        menuTampil = semuaMenu.filter(m => 
+          m.type === "header" || 
+          ["menuAbsensi", "menuRekapBulanan", "menuKasKelas", "menuCbtX7", "menuCbtX9", "menuAbsensiX7", "menuAbsensiX9"].includes(m.id)
+        );
+      } else if (role === "bendahara") {
+        menuTampil = semuaMenu.filter(m => 
+          m.type === "header" || 
+          m.id === "menuKasKelas"
+        );
+      }
+
+      const sidebar = document.getElementById("sidebar");
+      
+      menuTampil.forEach(menu => {
+        if (menu.type === "header") {
+          const header = document.createElement("div");
+          header.className = "menu-header";
+          header.textContent = menu.title;
+          sidebar.appendChild(header);
+        } else {
+          const a = document.createElement("a");
+          a.className = "menu-item";
+          a.href = "javascript:void(0)";
+          a.innerHTML = `<div class="icon">${menu.icon}</div> ${menu.title}`;
+          a.onclick = function() { bukaHalaman(menu.href, this); };
+          sidebar.appendChild(a);
+        }
+      });
+    }
+
+    // Fungsi Buka/Tutup Sidebar (HP)
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebarOverlay");
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    }
+
+    function bukaHalaman(url, elementMenu) {
+      document.getElementById("welcomeScreen").style.display = "none";
+      const iframe = document.getElementById("mainFrame");
+      iframe.style.display = "block";
+      iframe.src = url;
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+      elementMenu.classList.add('active');
+
+      if (window.innerWidth <= 768) {
+        toggleSidebar();
+      }
+    }
+
+    window.tutupHalaman = function() {
+      const iframe = document.getElementById("mainFrame");
+      iframe.style.display = "none";
+      iframe.src = "";
+      document.getElementById("welcomeScreen").style.display = "flex";
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+    }
+
+    function logout() {
+      if (!confirm("Yakin keluar dari aplikasi?")) return;
+      localStorage.removeItem("siTatibLogin");
+      localStorage.removeItem("siTatibRole");
+      localStorage.removeItem("siTatibNama");
+      localStorage.removeItem("siTatibEmail");
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
