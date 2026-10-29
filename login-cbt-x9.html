@@ -96,6 +96,19 @@
   </div>
 
   <script>
+    // =======================================================
+    // KODE PENTING: CEK SESI LOGIN SAAT HALAMAN DIBUKA
+    // =======================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      const namaSiswaLama = localStorage.getItem("cbtNamaSiswa");
+      if (namaSiswaLama) {
+        // Jika sudah login, langsung tampilkan menu pilihan
+        document.getElementById("formLogin").style.display = "none";
+        document.getElementById("menuPilihan").style.display = "block";
+        document.getElementById("namaSiswaPilihan").textContent = namaSiswaLama;
+      }
+    });
+
     async function prosesLogin() {
       const nis = document.getElementById("loginNis").value.trim();
       const pass = document.getElementById("loginPass").value.trim();
@@ -152,19 +165,6 @@
         window.location.href = "login-cbt-x9.html"; 
       }
     }
-
-    // =======================================================
-    // KODE PENTING: CEK SESI LOGIN SAAT HALAMAN DIBUKA
-    // =======================================================
-    window.addEventListener('DOMContentLoaded', () => {
-      const namaSiswaLama = localStorage.getItem("cbtNamaSiswa");
-      if (namaSiswaLama) {
-        // Jika sudah login, langsung tampilkan menu pilihan
-        document.getElementById("formLogin").style.display = "none";
-        document.getElementById("menuPilihan").style.display = "block";
-        document.getElementById("namaSiswaPilihan").textContent = namaSiswaLama;
-      }
-    });
   </script>
 </body>
 </html>
