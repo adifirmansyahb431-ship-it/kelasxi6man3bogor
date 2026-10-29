@@ -1,1 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rekap Hasil Belajar X-9 - SIPADAK</title>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy, doc, deleteDoc, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    window.fbFunc = { collection, getDocs, query, orderBy, doc, deleteDoc, where };
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .container { max-width: 1000px; margin: 20px auto; padding: 0 16px; }
+    .card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); margin-bottom: 20px; }
+    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+    h3 { margin-top: 0; color: var(--hijau); }
+    
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
+    th { background: #f8fafc; text-align: center; }
+    
+    /* Style untuk Tombol Aksi (Cetak & Hapus) */
+    .btn-action-group { display: flex; gap: 5px; justify-content: center; }
+    .btn-print { background: #e67e22; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; white-space: nowrap; }
+    .btn-delete { background: #e74c3c; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; white-space: nowrap; }
+    .btn-delete:hover { background: #c0392b; }
+    
+    /* CSS UNTUK MENYATUKAN TAMPILAN DI DALAM IFRAME DASHBOARD */
+    body.di-dalam-iframe .header,
+    body.di-dalam-iframe .btn-back {
+      display: none !important;
+    }
+    body.di-dalam-iframe .container {
+      margin-top: 20px;
+      max-width: 100%;
+    }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; }
+      .card { box-shadow: none; border: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header no-print">
+    <h1>📁 Rekap Hasil Belajar X-9</h1>
+    <span>SIPADAK MAN 3 BOGOR</span>
+  </div>
+
+  <div class="container no-print">
+    <a href="javascript:void(0)" onclick="kembali()" class="btn-back">⬅ Kembali ke Dashboard</a>
+
+    <!-- CARD 1: HASIL CBT (SKOR) -->
+    <div class="card">
+      <h3>Daftar Nilai Pre-Test & Post-Test X-9</h3>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Siswa</th>
+              <th>Jenis Ujian</th>
+              <th>Tanggal</th>
+              <th>Skor</th>
+              <th>Nilai Akhir</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="listHasilCBT">
+            <tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CARD 2: HASIL LKPD -->
+    <div class="card">
+      <h3>Jawaban LKPD Siswa X-9</h3>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Siswa</th>
+              <th>Tanggal</th>
+              <th>Jawaban Esai (Ringkas)</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="listHasilLKPD">
+            <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+
+    // DETEKSI IFRAME: Jika dibuka dari Dashboard Induk, sembunyikan header
+    if (window.self !== window.top) {
+      document.body.classList.add('di-dalam-iframe');
+    }
+
+    function kembali() {
+      if (window.parent && window.parent.tutupHalaman) {
+        window.parent.tutupHalaman();
+      } else {
+        window.location.href = "dashboard-induk.html";
+      }
+    }
+
+    window.addEventListener('firebaseReady', async () => {
+      loadDataCBT();
+      loadDataLKPD();
+    });
+
+    // Fungsi untuk memuat data CBT (Difilter Kelas X-9)
+    async function loadDataCBT() {
+      const { collection, getDocs, query, orderBy, where } = window.fbFunc;
+      const db = window.db;
+      const tbodyCBT = document.getElementById("listHasilCBT");
+      
+      tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>';
+      let htmlCBT = ""; let noCBT = 1;
+
+      try {
+        // Filter hanya untuk kelas X-9
+        const qCBT = query(
+          collection(db, "HasilUjian"), 
+          where("kelas", "==", "X-9"),
+          orderBy("tanggal", "desc")
+        );
+        const snapCBT = await getDocs(qCBT);
+        
+        if(snapCBT.empty) {
+          tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data ujian X-9.</td></tr>';
+        } else {
+          snapCBT.forEach(docSnap => {
+            const d = docSnap.data();
+            const docId = docSnap.id;
+            
+            let detailJson = JSON.stringify(d.detailJawaban || {});
+            detailJson = detailJson.replace(/"/g, '&quot;');
+
+            htmlCBT += `<tr>
+              <td style="text-align:center;">${noCBT++}</td>
+              <td><b>${d.nama}</b></td>
+              <td>${d.jenisUjian || "Pre-Test"}</td>
+              <td>${d.tanggal}</td>
+              <td style="text-align:center;">${d.skor} / ${d.totalSoal}</td>
+              <td style="text-align:center; font-weight:bold; color:${d.persentase >= 70 ? 'green' : 'red'};">${d.persentase}</td>
+              <td style="text-align:center;">
+                <div class="btn-action-group">
+                  <button class="btn-print" 
+                          data-nama="${d.nama}" 
+                          data-jenis="${d.jenisUjian || "Pre-Test"}" 
+                          data-tanggal="${d.tanggal}" 
+                          data-detail="${detailJson}"
+                          onclick="cetakCBT(this)">🖨️ Cetak</button>
+                  <button class="btn-delete" onclick="hapusData('HasilUjian', '${docId}')">🗑️ Hapus</button>
+                </div>
+              </td>
+            </tr>`;
+          });
+          tbodyCBT.innerHTML = htmlCBT;
+        }
+      } catch (e) { console.error(e); tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data. Pastikan index Firebase sudah dibuat.</td></tr>'; }
+    }
+
+    // Fungsi untuk memuat data LKPD (Difilter Kelas X-9)
+    async function loadDataLKPD() {
+      const { collection, getDocs, query, orderBy, where } = window.fbFunc;
+      const db = window.db;
+      const tbodyLKPD = document.getElementById("listHasilLKPD");
+      
+      tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
+      let htmlLKPD = ""; let noLKPD = 1;
+
+      try {
+        // Asumsi data LKPD X-9 juga memiliki field kelas: "X-9"
+        const qLKPD = query(
+          collection(db, "HasilLKPD"), 
+          where("kelas", "==", "X-9"),
+          orderBy("tanggal", "desc")
+        );
+        const snapLKPD = await getDocs(qLKPD);
+        
+        if(snapLKPD.empty) {
+          tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada jawaban LKPD X-9.</td></tr>';
+        } else {
+          snapLKPD.forEach(docSnap => {
+            const d = docSnap.data();
+            const docId = docSnap.id;
+            const jawabanRingkas = d.jawaban ? d.jawaban.substring(0, 50) + "..." : "-";
+            let jawabanJson = d.jawaban ? d.jawaban.replace(/"/g, '&quot;') : "-";
+
+            htmlLKPD += `<tr>
+              <td style="text-align:center;">${noLKPD++}</td>
+              <td><b>${d.nama}</b></td>
+              <td>${d.tanggal}</td>
+              <td>${jawabanRingkas}</td>
+              <td style="text-align:center;">
+                <div class="btn-action-group">
+                  <button class="btn-print" 
+                          data-nama="${d.nama}" 
+                          data-tanggal="${d.tanggal}" 
+                          data-jawaban="${jawabanJson}"
+                          onclick="cetakLKPD(this)">🖨️ Cetak</button>
+                  <button class="btn-delete" onclick="hapusData('HasilLKPD', '${docId}')">🗑️ Hapus</button>
+                </div>
+              </td>
+            </tr>`;
+          });
+          tbodyLKPD.innerHTML = htmlLKPD;
+        }
+      } catch (e) { console.error(e); tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat data. Pastikan index Firebase sudah dibuat.</td></tr>'; }
+    }
+
+    // Fungsi Hapus Data
+    window.hapusData = async function(namaKoleksi, docId) {
+      if (!confirm("Apakah Anda yakin ingin menghapus data ini secara permanen?")) {
+        return;
+      }
+
+      try {
+        const { doc, deleteDoc } = window.fbFunc;
+        const db = window.db;
+        
+        await deleteDoc(doc(db, namaKoleksi, docId));
+        
+        alert("Data berhasil dihapus!");
+        
+        if (namaKoleksi === 'HasilUjian') {
+          loadDataCBT();
+        } else if (namaKoleksi === 'HasilLKPD') {
+          loadDataLKPD();
+        }
+        
+      } catch (error) {
+        console.error("Gagal menghapus data:", error);
+        alert("Gagal menghapus data. Silakan coba lagi.");
+      }
+    };
+
+    // Fungsi Cetak Detail CBT
+    function cetakCBT(btn) {
+      const nama = btn.getAttribute('data-nama');
+      const jenis = btn.getAttribute('data-jenis');
+      const tanggal = btn.getAttribute('data-tanggal');
+      let detailStr = btn.getAttribute('data-detail');
+      
+      detailStr = detailStr.replace(/&quot;/g, '"');
+      
+      let detail = {};
+      try {
+        detail = JSON.parse(detailStr);
+      } catch (e) {
+        console.error("Gagal parse JSON:", e);
+      }
+
+      const win = window.open('', '_blank');
+      let soalHtml = "";
+      
+      if (Object.keys(detail).length === 0) {
+        soalHtml = `<p style="color:red; font-style:italic;">Data detail jawaban tidak ditemukan.</p>`;
+      } else {
+        Object.keys(detail).forEach(key => {
+          soalHtml += `<p><b>${key}:</b> ${detail[key]}</p>`;
+        });
+      }
+
+      win.document.write(`
+        <html><head><title>Hasil ${jenis} - ${nama}</title>
+        <style>body{font-family:sans-serif;padding:40px;} h2{text-align:center;}</style>
+        </head><body>
+          <h2>HASIL UJIAN ${jenis.toUpperCase()} X-9</h2>
+          <p><b>Nama:</b> ${nama} <br><b>Tanggal:</b> ${tanggal}</p>
+          <hr>
+          <div>${soalHtml}</div>
+          <div style="margin-top:50px; text-align:right;">
+            <p>Guru Mata Pelajaran Ekonomi,</p><br><br><br>
+            <p><b>ADI FIRMANSYAH, S.E.</b><br>NIP. 198301112025211003</p>
+          </div>
+        </body></html>
+      `);
+      win.document.close();
+      win.print();
+    }
+
+    // Fungsi Cetak LKPD
+    function cetakLKPD(btn) {
+      const nama = btn.getAttribute('data-nama');
+      const tanggal = btn.getAttribute('data-tanggal');
+      let jawaban = btn.getAttribute('data-jawaban').replace(/&quot;/g, '"');
+
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <html><head><title>LKPD - ${nama}</title>
+        <style>body{font-family:sans-serif;padding:40px;} h2{text-align:center;}</style>
+        </head><body>
+          <h2>LEMBAR KERJA PESERTA DIDIK X-9</h2>
+          <p><b>Nama:</b> ${nama} <br><b>Tanggal:</b> ${tanggal}</p>
+          <hr>
+          <div style="white-space:pre-wrap; line-height:1.6;">${jawaban}</div>
+          <div style="margin-top:50px; text-align:right;">
+            <p>Guru Mata Pelajaran Ekonomi,</p><br><br><br>
+            <p><b>ADI FIRMANSYAH, S.E.</b><br>NIP. 198301112025211003</p>
+          </div>
+        </body></html>
+      `);
+      win.document.close();
+      win.print();
+    }
+  </script>
+</body>
+</html>
