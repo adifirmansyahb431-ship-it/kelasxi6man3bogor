@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Media Belajar - Perilaku Produsen</title>
   
+  <!-- Library untuk Download Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; --biru: #3b82f6; }
     * { box-sizing: border-box; }
@@ -31,6 +34,17 @@
     /* CARD MATERI */
     .materi-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 25px; }
     
+    /* TEKS & VISUAL MATERI */
+    h3 { color: var(--hijau); margin-top: 25px; margin-bottom: 10px; font-size: 18px; border-left: 4px solid var(--gold); padding-left: 10px; }
+    h4 { color: var(--hijau); font-size: 16px; margin-bottom: 5px; }
+    p { line-height: 1.7; font-size: 15px; color: #475569; margin-bottom: 15px; }
+    ul, ol { line-height: 1.7; font-size: 15px; color: #475569; margin-bottom: 15px; padding-left: 20px; }
+    
+    /* KOTAK INFO */
+    .kotak-info { background: #eff6ff; border-left: 4px solid var(--biru); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .kotak-info h4 { margin: 0 0 5px 0; color: var(--biru); font-size: 16px; }
+    .kotak-info p { margin: 0; font-size: 14px; color: #1e3a8a; }
+
     /* VIDEO YOUTUBE */
     .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
@@ -86,6 +100,11 @@
       <button class="tab-btn" onclick="bukaTab('posttest', this)">🎯 Post-Test</button>
     </div>
 
+    <!-- TOMBOL DOWNLOAD SOAL -->
+    <div style="text-align: right; margin-bottom: 15px;">
+      <button onclick="downloadSemuaSoal()" style="background: #e67e22; color: white; padding: 10px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">📥 Download Semua Soal (Excel)</button>
+    </div>
+
     <!-- ==================== SECTION 1: PRE-TEST (CBT) ==================== -->
     <div id="pretest" class="content-section active">
       <div class="cbt-header">
@@ -97,13 +116,83 @@
       </div>
     </div>
 
-    <!-- ==================== SECTION 2: MATERI (HANYA VIDEO) ==================== -->
+    <!-- ==================== SECTION 2: MATERI (VIDEO & ULASAN) ==================== -->
     <div id="materi" class="content-section">
       <div class="materi-card">
-          <div class="video-container">
-            <!-- VIDEO ID BARU: TC6b6PPbcJs -->
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/TC6b6PPbcJs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-          </div>
+        <h3>🎥 Video Pembelajaran: Teori Produksi</h3>
+        <div class="video-container">
+            <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/TC6b6PPbcJs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+
+        <h3>📖 A. Ulasan Materi: Perilaku Produsen</h3>
+        <p><strong>Perilaku Produsen</strong> adalah keseluruhan tindakan dan keputusan yang diambil oleh produsen dalam mengombinasikan faktor-faktor produksi (input) seperti tenaga kerja dan modal untuk menghasilkan barang atau jasa (output) secara efisien demi mencapai keuntungan optimal.</p>
+
+        <h3>📖 B. Kurva Isoquant (Kurva Produksi Sama)</h3>
+        <p><strong>Isoquant</strong> adalah kurva yang menunjukkan berbagai kombinasi penggunaan dua faktor produksi variabel (Tenaga Kerja / L dan Modal / K) yang menghasilkan jumlah total output (Q) yang sama. Kurva ini cembung ke arah titik asal (origin) karena berlakunya hukum <em>Diminishing MRTS</em>.</p>
+        
+        <!-- GAMBAR KURVA ISOQUANT -->
+        <div style="text-align: center; margin-bottom: 20px;">
+          <svg width="300" height="250" viewBox="0 0 300 250" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <line x1="40" y1="210" x2="280" y2="210" stroke="#333" stroke-width="2" />
+            <line x1="40" y1="210" x2="40" y2="20" stroke="#333" stroke-width="2" />
+            <text x="270" y="235" font-size="14" font-weight="bold" fill="#333">Tenaga Kerja (L)</text>
+            <text x="10" y="30" font-size="14" font-weight="bold" fill="#333" transform="rotate(-90 10,30)">Modal (K)</text>
+            <path d="M 70 40 Q 130 150 250 180" fill="none" stroke="#3b82f6" stroke-width="3" />
+            <path d="M 60 90 Q 120 170 230 200" fill="none" stroke="#10b981" stroke-width="3" />
+            <path d="M 50 140 Q 100 190 200 205" fill="none" stroke="#f59e0b" stroke-width="3" />
+            <text x="180" y="170" font-size="12" fill="#3b82f6" font-weight="bold">Q3</text>
+            <text x="160" y="190" font-size="12" fill="#10b981" font-weight="bold">Q2</text>
+            <text x="140" y="210" font-size="12" fill="#f59e0b" font-weight="bold">Q1</text>
+          </svg>
+        </div>
+
+        <h3>📖 C. Garis Isocost (Garis Biaya Sama)</h3>
+        <p><strong>Isocost</strong> adalah garis yang menunjukkan seluruh kombinasi dua faktor produksi (L dan K) yang dapat dibeli oleh produsen dengan total anggaran/biaya produksi (C) yang sama. Persamaannya: <strong>C = (w × L) + (r × K)</strong>.</p>
+        
+        <!-- GAMBAR GARIS ISOCOST -->
+        <div style="text-align: center; margin-bottom: 20px;">
+          <svg width="300" height="250" viewBox="0 0 300 250" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <line x1="40" y1="210" x2="280" y2="210" stroke="#333" stroke-width="2" />
+            <line x1="40" y1="210" x2="40" y2="20" stroke="#333" stroke-width="2" />
+            <text x="270" y="235" font-size="14" font-weight="bold" fill="#333">Tenaga Kerja (L)</text>
+            <text x="10" y="30" font-size="14" font-weight="bold" fill="#333" transform="rotate(-90 10,30)">Modal (K)</text>
+            <line x1="40" y1="60" x2="240" y2="210" stroke="#e74c3c" stroke-width="3" />
+            <circle cx="40" cy="60" r="4" fill="#e74c3c" />
+            <text x="15" y="55" font-size="12" fill="#e74c3c" font-weight="bold">C/r</text>
+            <circle cx="240" cy="210" r="4" fill="#e74c3c" />
+            <text x="245" y="225" font-size="12" fill="#e74c3c" font-weight="bold">C/w</text>
+            <text x="150" y="120" font-size="12" fill="#e74c3c" font-weight="bold" transform="rotate(-30 150,120)">Isocost (C)</text>
+          </svg>
+        </div>
+
+        <h3>📖 D. Keseimbangan Produsen (Producer Equilibrium)</h3>
+        <p><strong>Keseimbangan Produsen</strong> tercapai ketika produsen dapat memaksimalkan output dengan anggaran tertentu, atau meminimalkan biaya untuk target output tertentu. Secara grafis, ini terjadi pada titik di mana <strong>kurva Isoquant bersinggungan (tangent) dengan garis Isocost</strong>.</p>
+        
+        <!-- GAMBAR KESEIMBANGAN PRODUSEN -->
+        <div style="text-align: center; margin-bottom: 20px;">
+          <svg width="300" height="250" viewBox="0 0 300 250" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <line x1="40" y1="210" x2="280" y2="210" stroke="#333" stroke-width="2" />
+            <line x1="40" y1="210" x2="40" y2="20" stroke="#333" stroke-width="2" />
+            <text x="270" y="235" font-size="14" font-weight="bold" fill="#333">Tenaga Kerja (L)</text>
+            <text x="10" y="30" font-size="14" font-weight="bold" fill="#333" transform="rotate(-90 10,30)">Modal (K)</text>
+            <path d="M 100 40 Q 140 150 250 180" fill="none" stroke="#3b82f6" stroke-width="3" />
+            <text x="200" y="160" font-size="12" fill="#3b82f6" font-weight="bold">Isoquant (Q)</text>
+            <line x1="60" y1="60" x2="240" y2="200" stroke="#e74c3c" stroke-width="3" />
+            <text x="150" y="105" font-size="12" fill="#e74c3c" font-weight="bold" transform="rotate(-30 150,105)">Isocost (C)</text>
+            <circle cx="165" cy="142" r="6" fill="#10b981" />
+            <text x="175" y="140" font-size="14" fill="#10b981" font-weight="bold">Titik E</text>
+            <line x1="165" y1="142" x2="165" y2="210" stroke="#999" stroke-width="1" stroke-dasharray="4" />
+            <line x1="165" y1="142" x2="40" y2="142" stroke="#999" stroke-width="1" stroke-dasharray="4" />
+            <text x="155" y="225" font-size="12" fill="#666">L*</text>
+            <text x="20" y="146" font-size="12" fill="#666">K*</text>
+          </svg>
+        </div>
+        
+        <div class="kotak-info">
+          <h4>💡 Kesimpulan Keseimbangan</h4>
+          <p>Pada titik singgung (Titik E), produsen telah mencapai efisiensi biaya tertinggi. Ia tidak bisa menambah output lagi tanpa menambah anggaran, dan tidak bisa mengurangi biaya lagi tanpa mengurangi output.</p>
+        </div>
+
       </div>
     </div>
 
@@ -121,8 +210,8 @@
   </div>
 
   <script>
-    // Cek Login
-    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+    // Cek Login Khusus Siswa CBT
+    if(!localStorage.getItem("cbtNamaSiswa")) window.location.href = "login-cbt.html";
 
     function kembali() {
       if (window.parent && window.parent.tutupHalaman) {
@@ -150,37 +239,37 @@
     // BANK SOAL PRE-TEST (10 Soal)
     // ==========================================
     const soalPreTest = [
-      { q: "Keseluruhan tindakan produsen dalam mengombinasikan input untuk menghasilkan output secara efisien disebut...", opsi: ["Perilaku Konsumen", "Perilaku Produsen", "Distribusi", "Konsumsi"], jawaban: 1 },
-      { q: "Kurva yang menunjukkan berbagai kombinasi dua faktor produksi yang menghasilkan jumlah output yang sama disebut...", opsi: ["Isocost", "Isoquant", "Kurva Permintaan", "Kurva Penawaran"], jawaban: 1 },
-      { q: "Garis yang menunjukkan kombinasi faktor produksi yang dapat dibeli dengan anggaran tertentu disebut...", opsi: ["Isoquant", "Isocost", "Kurva Indiferen", "Garis Anggaran"], jawaban: 1 },
-      { q: "Manakah yang BUKAN termasuk faktor yang mempengaruhi perilaku produsen?", opsi: ["Harga faktor produksi", "Tingkat teknologi", "Selera konsumen", "Kebijakan pemerintah"], jawaban: 2 },
-      { q: "Jika total biaya (C) Rp 10.000.000, upah tenaga kerja (w) Rp 2.000.000, dan sewa modal (r) Rp 2.000.000. Jika produsen menggunakan 3 tenaga kerja, berapa unit modal yang bisa disewa?", opsi: ["1 unit", "2 unit", "3 unit", "4 unit"], jawaban: 1 },
-      { q: "Pada tabel Isoquant, kombinasi A (1L, 12K) dan B (2L, 8K) menghasilkan output 100 unit. Berapakah MRTS dari A ke B?", opsi: ["-2", "-3", "-4", "-5"], jawaban: 2 },
-      { q: "Jika anggaran produsen naik dari Rp 12.000.000 menjadi Rp 15.000.000, apa yang terjadi pada garis Isocost?", opsi: ["Bergerak ke kiri bawah", "Bergeser sejajar ke kanan atas", "Berputar pada sumbu L", "Tetap di posisi semula"], jawaban: 1 },
-      { q: "Seorang produsen memiliki anggaran Rp 12.000.000. Kombinasi (3L, 2K) menghabiskan Rp 12.000.000 dan menghasilkan 100 unit. Kombinasi (1L, 3K) menghabiskan Rp 11.000.000 dan menghasilkan 80 unit. Analisis yang tepat adalah...", opsi: ["Kombinasi (1,3) lebih efisien karena lebih murah", "Kombinasi (3,2) adalah keseimbangan produsen karena anggaran terpakai optimal untuk output maksimal", "Kombinasi (1,3) sebaiknya dipilih karena menyisakan uang", "Kedua kombinasi sama efisiennya"], jawaban: 1 },
-      { q: "Mengapa kurva Isoquant berbentuk cembung ke arah titik asal (origin)?", opsi: ["Karena harga input selalu naik", "Karena berlakunya hukum Diminishing MRTS (tingkat substitusi semakin menurun)", "Karena anggaran produsen terbatas", "Karena teknologi tidak berubah"], jawaban: 1 },
-      { q: "Jika upah tenaga kerja (w) naik, sementara anggaran dan sewa modal tetap, bagaimana pengaruhnya terhadap garis Isocost?", opsi: ["Garis Isocost bergeser sejajar ke kanan", "Garis Isocost menjadi lebih landai (berputar pada sumbu K)", "Garis Isocost menjadi lebih curam (berputar pada sumbu K)", "Garis Isocost tidak berubah"], jawaban: 2 }
+      { q: "Keseluruhan tindakan produsen dalam mengombinasikan input untuk menghasilkan output secara efisien disebut...", opsi: ["A. Perilaku Konsumen", "B. Perilaku Produsen", "C. Distribusi", "D. Konsumsi", "E. Produksi"], jawaban: 1 },
+      { q: "Kurva yang menunjukkan berbagai kombinasi dua faktor produksi yang menghasilkan jumlah output yang sama disebut...", opsi: ["A. Isocost", "B. Isoquant", "C. Kurva Permintaan", "D. Kurva Penawaran", "E. Garis Anggaran"], jawaban: 1 },
+      { q: "Garis yang menunjukkan kombinasi faktor produksi yang dapat dibeli dengan anggaran tertentu disebut...", opsi: ["A. Isoquant", "B. Isocost", "C. Kurva Indiferen", "D. Garis Anggaran", "E. Kurva Biaya"], jawaban: 1 },
+      { q: "Manakah yang BUKAN termasuk faktor yang mempengaruhi perilaku produsen?", opsi: ["A. Harga faktor produksi", "B. Tingkat teknologi", "C. Selera konsumen", "D. Kebijakan pemerintah", "E. Tujuan perusahaan"], jawaban: 2 },
+      { q: "Jika total biaya (C) Rp 10.000.000, upah tenaga kerja (w) Rp 2.000.000, dan sewa modal (r) Rp 2.000.000. Jika produsen menggunakan 3 tenaga kerja, berapa unit modal yang bisa disewa?", opsi: ["A. 1 unit", "B. 2 unit", "C. 3 unit", "D. 4 unit", "E. 5 unit"], jawaban: 1 },
+      { q: "Pada tabel Isoquant, kombinasi A (1L, 12K) dan B (2L, 8K) menghasilkan output 100 unit. Berapakah MRTS dari A ke B?", opsi: ["A. -2", "B. -3", "C. -4", "D. -5", "E. -6"], jawaban: 2 },
+      { q: "Jika anggaran produsen naik dari Rp 12.000.000 menjadi Rp 15.000.000, apa yang terjadi pada garis Isocost?", opsi: ["A. Bergerak ke kiri bawah", "B. Bergeser sejajar ke kanan atas", "C. Berputar pada sumbu L", "D. Tetap di posisi semula", "E. Berputar pada sumbu K"], jawaban: 1 },
+      { q: "Seorang produsen memiliki anggaran Rp 12.000.000. Kombinasi (3L, 2K) menghabiskan Rp 12.000.000 dan menghasilkan 100 unit. Kombinasi (1L, 3K) menghabiskan Rp 11.000.000 dan menghasilkan 80 unit. Analisis yang tepat adalah...", opsi: ["A. Kombinasi (1,3) lebih efisien karena lebih murah", "B. Kombinasi (3,2) adalah keseimbangan produsen karena anggaran terpakai optimal untuk output maksimal", "C. Kombinasi (1,3) sebaiknya dipilih karena menyisakan uang", "D. Kedua kombinasi sama efisiennya", "E. Produsen sebaiknya menambah anggaran"], jawaban: 1 },
+      { q: "Mengapa kurva Isoquant berbentuk cembung ke arah titik asal (origin)?", opsi: ["A. Karena harga input selalu naik", "B. Karena berlakunya hukum Diminishing MRTS (tingkat substitusi semakin menurun)", "C. Karena anggaran produsen terbatas", "D. Karena teknologi tidak berubah", "E. Karena output terus bertambah"], jawaban: 1 },
+      { q: "Jika upah tenaga kerja (w) naik, sementara anggaran dan sewa modal tetap, bagaimana pengaruhnya terhadap garis Isocost?", opsi: ["A. Garis Isocost bergeser sejajar ke kanan", "B. Garis Isocost menjadi lebih landai (berputar pada sumbu K)", "C. Garis Isocost menjadi lebih curam (berputar pada sumbu K)", "D. Garis Isocost tidak berubah", "E. Garis Isocost bergeser ke kiri bawah"], jawaban: 2 }
     ];
 
     // ==========================================
     // BANK SOAL POST-TEST (15 Soal)
     // ==========================================
     const soalPostTest = [
-      { q: "Tujuan utama produsen dalam melakukan kegiatan produksi adalah...", opsi: ["Meminimalkan kepuasan", "Memaksimalkan keuntungan (profit)", "Menghabiskan anggaran", "Menimbun barang"], jawaban: 1 },
-      { q: "Faktor produksi yang berupa mesin dan bangunan disebut...", opsi: ["Tenaga Kerja", "Sumber Daya Alam", "Modal (Capital)", "Kewirausahaan"], jawaban: 2 },
-      { q: "Kurva Isoquant menghubungkan titik-titik yang menunjukkan...", opsi: ["Biaya produksi yang sama", "Output yang sama dari kombinasi input berbeda", "Keuntungan yang sama", "Harga yang sama"], jawaban: 1 },
-      { q: "Persamaan garis Isocost adalah...", opsi: ["Q = f(L, K)", "C = (w × L) + (r × K)", "MRTS = -ΔK/ΔL", "TR = P × Q"], jawaban: 1 },
-      { q: "Titik keseimbangan produsen tercapai ketika...", opsi: ["Garis Isocost memotong sumbu L", "Kurva Isoquant bersinggungan dengan garis Isocost", "Kurva Isoquant berada di atas garis Isocost", "Anggaran produsen habis"], jawaban: 1 },
-      { q: "Diketahui C = Rp 20.000.000, w = Rp 4.000.000, r = Rp 2.000.000. Jika produsen memilih 2 tenaga kerja, berapa unit modal yang bisa disewa?", opsi: ["4 unit", "5 unit", "6 unit", "7 unit"], jawaban: 2 },
-      { q: "Pada tabel Isoquant, kombinasi C (3L, 5K) ke D (4L, 3K) menghasilkan output sama. Berapakah MRTS dari C ke D?", opsi: ["-1", "-2", "-3", "-4"], jawaban: 1 },
-      { q: "Jika sewa modal (r) turun, sementara upah dan anggaran tetap, maka garis Isocost akan...", opsi: ["Bergeser sejajar ke kanan", "Berputar pada sumbu L (menjadi lebih datar)", "Berputar pada sumbu K (menjadi lebih curam)", "Tidak berubah"], jawaban: 1 },
-      { q: "Seorang produsen memiliki anggaran Rp 15.000.000. Upah (w) = Rp 3.000.000, Sewa modal (r) = Rp 3.000.000. Berapa kombinasi maksimal tenaga kerja dan modal?", opsi: ["3L dan 2K", "2L dan 3K", "4L dan 1K", "5L dan 0K"], jawaban: 0 },
-      { q: "Jika produsen ingin memproduksi 100 unit dengan biaya minimal, maka ia harus berada pada...", opsi: ["Titik potong sumbu", "Titik singgung Isocost dan Isoquant terendah yang menyentuh target output", "Titik tertinggi kurva Isoquant", "Titik tengah garis Isocost"], jawaban: 1 },
-      { q: "Perhatikan data: Kombinasi X (2L, 4K) biaya Rp 14 jt, output 90 unit. Kombinasi Y (4L, 2K) biaya Rp 14 jt, output 90 unit. Analisis yang tepat adalah...", opsi: ["Kombinasi X lebih efisien", "Kombinasi Y lebih efisien", "Kedua kombinasi berada pada Isoquant yang sama dengan biaya sama (Isocost sama)", "Produsen sebaiknya menambah anggaran"], jawaban: 2 },
-      { q: "Mengapa produsen tidak memilih kombinasi yang berada di atas garis Isocost?", opsi: ["Karena outputnya terlalu kecil", "Karena biayanya melebihi anggaran yang dimiliki", "Karena teknologinya sudah usang", "Karena tenaga kerjanya kurang"], jawaban: 1 },
-      { q: "Apa yang terjadi pada keseimbangan produsen jika harga tenaga kerja (w) naik tajam?", opsi: ["Produsen akan beralih menggunakan lebih banyak modal (K) dan lebih sedikit tenaga kerja (L)", "Produsen akan menambah tenaga kerja", "Produsen akan berhenti produksi", "Kurva Isoquant akan bergeser ke atas"], jawaban: 0 },
-      { q: "Dalam jangka panjang, jika produsen ingin meningkatkan output dari 100 unit menjadi 200 unit, maka ia harus...", opsi: ["Tetap pada Isoquant yang sama", "Bergerak ke kurva Isoquant yang lebih tinggi (kanan atas) dengan anggaran yang mungkin lebih besar", "Mengurangi penggunaan modal", "Menurunkan harga jual"], jawaban: 1 },
-      { q: "Diketahui MRTS = 2, w = Rp 4.000.000, r = Rp 2.000.000. Apakah produsen sudah dalam keseimbangan?", opsi: ["Ya, karena MRTS = w/r", "Belum, karena MRTS (2) tidak sama dengan w/r (2)", "Belum, karena MRTS (2) lebih kecil dari w/r (2)", "Tidak dapat ditentukan"], jawaban: 0 }
+      { q: "Tujuan utama produsen dalam melakukan kegiatan produksi adalah...", opsi: ["A. Meminimalkan kepuasan", "B. Memaksimalkan keuntungan (profit)", "C. Menghabiskan anggaran", "D. Menimbun barang", "E. Mengurangi produksi"], jawaban: 1 },
+      { q: "Faktor produksi yang berupa mesin dan bangunan disebut...", opsi: ["A. Tenaga Kerja", "B. Sumber Daya Alam", "C. Modal (Capital)", "D. Kewirausahaan", "E. Teknologi"], jawaban: 2 },
+      { q: "Kurva Isoquant menghubungkan titik-titik yang menunjukkan...", opsi: ["A. Biaya produksi yang sama", "B. Output yang sama dari kombinasi input berbeda", "C. Keuntungan yang sama", "D. Harga yang sama", "E. Kuantitas permintaan yang sama"], jawaban: 1 },
+      { q: "Persamaan garis Isocost adalah...", opsi: ["A. Q = f(L, K)", "B. C = (w × L) + (r × K)", "C. MRTS = -ΔK/ΔL", "D. TR = P × Q", "E. TC = TFC + TVC"], jawaban: 1 },
+      { q: "Titik keseimbangan produsen tercapai ketika...", opsi: ["A. Garis Isocost memotong sumbu L", "B. Kurva Isoquant bersinggungan dengan garis Isocost", "C. Kurva Isoquant berada di atas garis Isocost", "D. Anggaran produsen habis", "E. Kurva Isoquant memotong sumbu K"], jawaban: 1 },
+      { q: "Diketahui C = Rp 20.000.000, w = Rp 4.000.000, r = Rp 2.000.000. Jika produsen memilih 2 tenaga kerja, berapa unit modal yang bisa disewa?", opsi: ["A. 4 unit", "B. 5 unit", "C. 6 unit", "D. 7 unit", "E. 8 unit"], jawaban: 2 },
+      { q: "Pada tabel Isoquant, kombinasi C (3L, 5K) ke D (4L, 3K) menghasilkan output sama. Berapakah MRTS dari C ke D?", opsi: ["A. -1", "B. -2", "C. -3", "D. -4", "E. -5"], jawaban: 1 },
+      { q: "Jika sewa modal (r) turun, sementara upah dan anggaran tetap, maka garis Isocost akan...", opsi: ["A. Bergeser sejajar ke kanan", "B. Berputar pada sumbu L (menjadi lebih datar)", "C. Berputar pada sumbu K (menjadi lebih curam)", "D. Tidak berubah", "E. Bergeser ke kiri bawah"], jawaban: 1 },
+      { q: "Seorang produsen memiliki anggaran Rp 15.000.000. Upah (w) = Rp 3.000.000, Sewa modal (r) = Rp 3.000.000. Berapa kombinasi maksimal tenaga kerja dan modal?", opsi: ["A. 3L dan 2K", "B. 2L dan 3K", "C. 4L dan 1K", "D. 5L dan 0K", "E. 1L dan 4K"], jawaban: 0 },
+      { q: "Jika produsen ingin memproduksi 100 unit dengan biaya minimal, maka ia harus berada pada...", opsi: ["A. Titik potong sumbu", "B. Titik singgung Isocost dan Isoquant terendah yang menyentuh target output", "C. Titik tertinggi kurva Isoquant", "D. Titik tengah garis Isocost", "E. Titik terjauh dari origin"], jawaban: 1 },
+      { q: "Perhatikan data: Kombinasi X (2L, 4K) biaya Rp 14 jt, output 90 unit. Kombinasi Y (4L, 2K) biaya Rp 14 jt, output 90 unit. Analisis yang tepat adalah...", opsi: ["A. Kombinasi X lebih efisien", "B. Kombinasi Y lebih efisien", "C. Kedua kombinasi berada pada Isoquant yang sama dengan biaya sama (Isocost sama)", "D. Produsen sebaiknya menambah anggaran", "E. Kedua kombinasi tidak bisa dibandingkan"], jawaban: 2 },
+      { q: "Mengapa produsen tidak memilih kombinasi yang berada di atas garis Isocost?", opsi: ["A. Karena outputnya terlalu kecil", "B. Karena biayanya melebihi anggaran yang dimiliki", "C. Karena teknologinya sudah usang", "D. Karena tenaga kerjanya kurang", "E. Karena modalnya berlebih"], jawaban: 1 },
+      { q: "Apa yang terjadi pada keseimbangan produsen jika harga tenaga kerja (w) naik tajam?", opsi: ["A. Produsen akan beralih menggunakan lebih banyak modal (K) dan lebih sedikit tenaga kerja (L)", "B. Produsen akan menambah tenaga kerja", "C. Produsen akan berhenti produksi", "D. Kurva Isoquant akan bergeser ke atas", "E. Garis Isocost akan bergeser sejajar ke kanan"], jawaban: 0 },
+      { q: "Dalam jangka panjang, jika produsen ingin meningkatkan output dari 100 unit menjadi 200 unit, maka ia harus...", opsi: ["A. Tetap pada Isoquant yang sama", "B. Bergerak ke kurva Isoquant yang lebih tinggi (kanan atas) dengan anggaran yang mungkin lebih besar", "C. Mengurangi penggunaan modal", "D. Menurunkan harga jual", "E. Mengurangi jumlah tenaga kerja"], jawaban: 1 },
+      { q: "Diketahui MRTS = 2, w = Rp 4.000.000, r = Rp 2.000.000. Apakah produsen sudah dalam keseimbangan?", opsi: ["A. Ya, karena MRTS = w/r", "B. Belum, karena MRTS (2) tidak sama dengan w/r (2)", "C. Belum, karena MRTS (2) lebih kecil dari w/r (2)", "D. Tidak dapat ditentukan", "E. Ya, karena MRTS lebih besar dari w/r"], jawaban: 0 }
     ];
 
     // ==========================================
@@ -220,91 +309,11 @@
               ${soal.opsi.map((opt, i) => `
                 <label class="opsi-label">
                   <input type="radio" name="${tipe}_soal_${index}" value="${i}" onchange="cekDijawab('${tipe}', ${index})">
-                  ${String.fromCharCode(65 + i)}. ${opt}
+                  ${opt}
                 </label>
               `).join('')}
             </div>
             <div class="cbt-nav">
               <button class="btn-nav" onclick="pindahSoal('${tipe}', ${index - 1})" ${index === 0 ? 'disabled' : ''}>⬅ Sebelumnya</button>
               <button class="btn-nav primary" onclick="pindahSoal('${tipe}', ${index + 1})" ${index === bankSoal.length - 1 ? 'style="display:none"' : ''}>Selanjutnya ➡</button>
-              <button class="btn-nav primary" onclick="selesaiCBT(JSON.stringify(${JSON.stringify(bankSoal)}), '${tipe}')" ${index === bankSoal.length - 1 ? 'style="display:block"' : 'style="display:none"'}>Selesai & Lihat Skor</button>
-            </div>
-          </div>
-        `;
-      });
-
-      html += `<div class="nomor-grid" id="grid-${tipe}">`;
-      bankSoal.forEach((_, i) => {
-        html += `<button class="nomor-btn ${i === 0 ? 'active' : ''}" id="btn-nomor-${tipe}-${i}" onclick="pindahSoal('${tipe}', ${i})">${i + 1}</button>`;
-      });
-      html += `</div>`;
-
-      container.innerHTML = html;
-    }
-
-    let soalAktif = { pre: 0, post: 0 };
-
-    function pindahSoal(tipe, indexTujuan) {
-      if (indexTujuan < 0) return;
-      const totalSoal = tipe === 'pre' ? soalPreTest.length : soalPostTest.length;
-      if (indexTujuan >= totalSoal) return;
-
-      document.querySelectorAll(`[id^="soal-${tipe}-"]`).forEach(el => el.style.display = 'none');
-      document.getElementById(`soal-${tipe}-${indexTujuan}`).style.display = 'block';
-
-      document.querySelectorAll(`[id^="btn-nomor-${tipe}-"]`).forEach(el => el.classList.remove('active'));
-      document.getElementById(`btn-nomor-${tipe}-${indexTujuan}`).classList.add('active');
-
-      soalAktif[tipe] = indexTujuan;
-    }
-
-    function cekDijawab(tipe, indexSoal) {
-      const btnNomor = document.getElementById(`btn-nomor-${tipe}-${indexSoal}`);
-      if (btnNomor) btnNomor.classList.add('sudah-dijawab');
-    }
-
-    function mulaiTimer(elementId, durasiDetik, callbackSelesai) {
-      const timerEl = document.getElementById(elementId);
-      let sisa = durasiDetik;
-      clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        const menit = Math.floor(sisa / 60).toString().padStart(2, '0');
-        const detik = (sisa % 60).toString().padStart(2, '0');
-        timerEl.innerHTML = `⏱️ ${menit}:${detik}`;
-
-        if (sisa <= 0) {
-          clearInterval(timerInterval);
-          alert("Waktu habis! Jawaban akan otomatis dikumpulkan.");
-          callbackSelesai();
-        }
-        sisa--;
-      }, 1000);
-    }
-
-    function selesaiCBT(bankSoal, tipe) {
-      clearInterval(timerInterval);
-      let skor = 0;
-      
-      bankSoal.forEach((soal, index) => {
-        const jawabanUser = document.querySelector(`input[name="${tipe}_soal_${index}"]:checked`);
-        if (jawabanUser && parseInt(jawabanUser.value) === soal.jawaban) {
-          skor++;
-        }
-      });
-
-      const persentase = Math.round((skor / bankSoal.length) * 100);
-      const container = document.getElementById(tipe === 'pre' ? 'cbtPreBody' : 'cbtPostBody');
-      
-      container.innerHTML = `
-        <div class="hasil-box">
-          <h3 style="border:none; text-align:center;">Hasil ${tipe === 'pre' ? 'Pre-Test' : 'Post-Test'}</h3>
-          <p class="skor-angka">${persentase}</p>
-          <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
-          <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${bankSoal.length}</strong> soal.</p>
-          <button class="btn-nav primary" style="margin-top:20px;" onclick="location.reload()">🔄 Ulangi Tes</button>
-        </div>
-      `;
-    }
-  </script>
-</body>
-</html>
+              <button class="btn-nav
