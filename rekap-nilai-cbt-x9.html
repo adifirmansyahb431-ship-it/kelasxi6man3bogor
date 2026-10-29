@@ -1,1 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rekap Nilai CBT X-9 - SIPADAK</title>
+  
+  <!-- Library Chart.js untuk Grafik -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    // Tambahkan 'where' ke fbFunc
+    window.fbFunc = { collection, getDocs, query, orderBy, where };
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f3f5f4; --text: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .header h1 { margin: 0; font-size: 20px; }
+    .container { max-width: 1000px; margin: 20px auto; padding: 0 16px; }
+    .card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 9px rgba(0,0,0,0.07); margin-bottom: 20px; }
+    .btn-back { background: var(--hijau); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+    h3 { margin-top: 0; color: var(--hijau); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    th { background: #f8fafc; text-align: center; }
+    .skor-tinggi { color: #27ae60; font-weight: bold; }
+    .skor-rendah { color: #e74c3c; font-weight: bold; }
+    
+    /* Area Grafik */
+    .grafik-container { position: relative; height: 300px; width: 100%; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>📊 Rekap Nilai Ujian CBT X-9</h1>
+    <span>SIPADAK MAN 3 BOGOR</span>
+  </div>
+
+  <div class="container">
+    <a href="javascript:void(0)" onclick="kembali()" class="btn-back">⬅ Kembali ke Dashboard</a>
+
+    <!-- CARD 1: GRAFIK -->
+    <div class="card">
+      <h3>Grafik Perolehan Nilai Kelas X-9</h3>
+      <div class="grafik-container">
+        <canvas id="grafikNilai"></canvas>
+      </div>
+    </div>
+
+    <!-- CARD 2: TABEL DATA -->
+    <div class="card">
+      <h3>Daftar Nilai Siswa Kelas X-9</h3>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Siswa</th>
+              <th>Jenis Ujian</th>
+              <th>Tanggal</th>
+              <th>Benar</th>
+              <th>Total Soal</th>
+              <th>Nilai Akhir</th>
+            </tr>
+          </thead>
+          <tbody id="listNilai">
+            <tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if(localStorage.getItem("siTatibLogin") !== "true") window.location.href = "index.html";
+
+    function kembali() {
+      if (window.parent && window.parent.tutupHalaman) {
+        window.parent.tutupHalaman();
+      } else {
+        window.location.href = "dashboard-induk.html";
+      }
+    }
+
+    window.addEventListener('firebaseReady', async () => {
+      const { collection, getDocs, query, orderBy, where } = window.fbFunc;
+      const db = window.db;
+      const tbody = document.getElementById("listNilai");
+
+      try {
+        // QUERY: Ambil data HasilUjian HANYA untuk kelas X-9
+        const q = query(
+          collection(db, "HasilUjian"), 
+          where("kelas", "==", "X-9"),
+          orderBy("tanggal", "desc")
+        );
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada siswa X-9 yang mengikuti ujian.</td></tr>';
+          return;
+        }
+
+        let namaSiswaArr = [];
+        let nilaiSiswaArr = [];
+        let no = 1;
+        let htmlTabel = "";
+
+        snap.forEach(doc => {
+          const data = doc.data();
+          const kelasSkor = data.persentase >= 70 ? "skor-tinggi" : "skor-rendah";
+          // Jika jenisUjian tidak ada, tampilkan "Pre-Test" sebagai default
+          const jenis = data.jenisUjian || "Pre-Test"; 
+
+          htmlTabel += `
+            <tr>
+              <td style="text-align:center;">${no++}</td>
+              <td><b>${data.nama}</b></td>
+              <td style="text-align:center;">${jenis}</td>
+              <td style="text-align:center;">${data.tanggal}</td>
+              <td style="text-align:center;">${data.skor}</td>
+              <td style="text-align:center;">${data.totalSoal}</td>
+              <td class="${kelasSkor}" style="text-align:center;">${data.persentase}</td>
+            </tr>
+          `;
+
+          // Data untuk Grafik
+          namaSiswaArr.push(data.nama);
+          nilaiSiswaArr.push(data.persentase);
+        });
+
+        tbody.innerHTML = htmlTabel;
+
+        // RENDER GRAFIK GARIS (LINE CHART)
+        const ctx = document.getElementById('grafikNilai').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: namaSiswaArr,
+            datasets: [{
+              label: 'Nilai Ujian X-9',
+              data: nilaiSiswaArr,
+              backgroundColor: 'rgba(10, 54, 34, 0.2)',
+              borderColor: 'rgba(10, 54, 34, 1)',
+              borderWidth: 3,
+              pointBackgroundColor: '#d4af37',
+              pointBorderColor: '#fff',
+              pointRadius: 6,
+              pointHoverRadius: 8,
+              tension: 0.3,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                title: { display: true, text: 'Nilai' }
+              },
+              x: {
+                title: { display: true, text: 'Nama Siswa' }
+              }
+            },
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data. Pastikan index Firebase sudah dibuat.</td></tr>';
+      }
+    });
+  </script>
+</body>
+</html>
