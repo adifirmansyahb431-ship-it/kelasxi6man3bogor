@@ -40,6 +40,10 @@
     .kotak-info { background: #eff6ff; border-left: 4px solid var(--biru); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .kotak-info h4 { margin: 0 0 5px 0; color: var(--biru); font-size: 16px; }
     .kotak-info p { margin: 0; font-size: 14px; color: #1e3a8a; }
+    
+    /* Rumus Box */
+    .rumus-box { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-size: 18px; font-family: 'Times New Roman', Times, serif; }
+    .rumus-box i { font-size: 16px; color: #64748b; display: block; margin-top: 5px; font-family: 'Segoe UI', sans-serif;}
 
     .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
@@ -119,6 +123,39 @@
             <tr><td>E</td><td>5</td><td>2</td><td>100 unit</td></tr>
           </tbody>
         </table>
+
+        <!-- SISIPAN MATERI MRTS -->
+        <h3>📖 1.b. Marginal Rate of Technical Substitution (MRTS)</h3>
+        <p><strong>MRTS</strong> menunjukkan berapa banyak unit Modal (K) yang harus dikorbankan untuk mendapatkan tambahan 1 unit Tenaga Kerja (L) demi mempertahankan jumlah output yang sama (tetap berada di kurva Isoquant yang sama).</p>
+        
+        <div class="rumus-box">
+          MRTS<sub>L,K</sub> = - (ΔK / ΔL)
+          <i>(Menunjukkan berapa banyak Modal yang dikorbankan untuk tambahan 1 Tenaga Kerja)</i>
+        </div>
+
+        <h4>Tabel Perhitungan MRTS</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Perpindahan Kombinasi</th>
+              <th>Perubahan Tenaga Kerja (ΔL)</th>
+              <th>Perubahan Modal (ΔK)</th>
+              <th>Kalkulasi MRTS (-ΔK/ΔL)</th>
+              <th>Nilai MRTS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Dari A ke B</td><td>2 - 1 = +1</td><td>8 - 12 = -4</td><td>- (-4 / 1)</td><td><strong>4</strong></td></tr>
+            <tr><td>Dari B ke C</td><td>3 - 2 = +1</td><td>5 - 8 = -3</td><td>- (-3 / 1)</td><td><strong>3</strong></td></tr>
+            <tr><td>Dari C ke D</td><td>4 - 3 = +1</td><td>3 - 5 = -2</td><td>- (-2 / 1)</td><td><strong>2</strong></td></tr>
+            <tr><td>Dari D ke E</td><td>5 - 4 = +1</td><td>2 - 3 = -1</td><td>- (-1 / 1)</td><td><strong>1</strong></td></tr>
+          </tbody>
+        </table>
+
+        <div class="kotak-info">
+          <h4>💡 Interpretasi MRTS</h4>
+          <p>Nilai MRTS semakin menurun dari 4, 3, 2, hingga 1. Hal ini membuktikan berlakunya <strong>Hukum Diminishing MRTS</strong>. Semakin banyak tenaga kerja yang digunakan, semakin sedikit modal yang perlu dikorbankan untuk menambah satu tenaga kerja lagi, karena tenaga kerja tersebut menjadi kurang produktif dalam menggantikan modal.</p>
+        </div>
 
         <h4>Karakteristik Kurva Isoquant</h4>
         <ul>
@@ -233,12 +270,12 @@
   </div>
 
   <script>
-    // Cek login hanya jika halaman dibuka langsung oleh siswa (bukan dari dashboard induk)
-if (!window.parent || window.parent === window) {
-    if (!localStorage.getItem("cbtNamaSiswa")) {
-        window.location.href = "login-cbt.html";
+    // Cek login hanya jika halaman dibuka langsung oleh siswa (bukan di dalam iframe Dashboard)
+    if (window.self === window.top) {
+        if (!localStorage.getItem("cbtNamaSiswa")) {
+            window.location.href = "login-cbt.html";
+        }
     }
-}
 
     function kembali() {
       if (window.parent && window.parent.tutupHalaman) {
