@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LKPD Perilaku Produsen X-9 - SIPADAK</title>
   
+  <!-- Library Confetti & Firebase -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+  </script>
+
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; }
     * { box-sizing: border-box; }
@@ -71,6 +90,8 @@
   <script>
     // Cek Login Siswa X-9
     const namaSiswa = localStorage.getItem("cbtNamaSiswa");
+    const nisSiswa = localStorage.getItem("cbtNisSiswa");
+
     if (!namaSiswa) {
       alert("Anda belum login. Silakan login terlebih dahulu.");
       window.location.href = "login-cbt-x9.html"; 
@@ -78,7 +99,6 @@
 
     function kembaliKeMenu() {
       if (confirm("Yakin ingin kembali ke menu? Pastikan jawaban sudah dikirim.")) {
-        // Kembali ke menu X-9 TANPA menghapus sesi login
         window.location.href = "login-cbt-x9.html"; 
       }
     }
@@ -91,7 +111,7 @@
       }
     }
 
-    function simpanJawaban() {
+    window.simpanJawaban = async function() {
       const j1 = document.getElementById("jawaban1").value.trim();
       const j2 = document.getElementById("jawaban2").value.trim();
       const j3 = document.getElementById("jawaban3").value.trim();
@@ -103,13 +123,42 @@
         return;
       }
 
-      // Simulasi Penyimpanan (Karena menggunakan format frontend saja)
-      status.style.color = "green";
-      status.textContent = "✅ Jawaban LKPD berhasil dikirim! Mengalihkan...";
+      const btn = document.querySelector('.btn-simpan');
+      btn.textContent = "⏳ Menyimpan...";
+      btn.disabled = true;
+      status.textContent = "";
 
-      setTimeout(() => {
-        window.location.href = "login-cbt-x9.html"; 
-      }, 2000);
+      // Gabungkan jawaban
+      const jawabanLengkap = `1. ${j1}\n\n2. ${j2}\n\n3. ${j3}`;
+
+      try {
+        // Simpan ke Firebase dengan field kelas "X-9"
+        await addDoc(collection(window.db, "HasilLKPD"), {
+          nama: namaSiswa,
+          nis: nisSiswa,
+          kelas: "X-9", // <--- PENTING UNTUK REKAP
+          jawaban: jawabanLengkap,
+          tanggal: new Date().toISOString().split('T')[0]
+        });
+
+        status.style.color = "green";
+        status.textContent = "✅ Jawaban LKPD berhasil dikirim!";
+        btn.textContent = "✅ TERKIRIM";
+        
+        // Efek Confetti
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#d4af37', '#0a3622', '#16a085'] });
+
+        setTimeout(() => {
+          window.location.href = "login-cbt-x9.html"; 
+        }, 2000);
+
+      } catch (error) {
+        console.error(error);
+        status.style.color = "red";
+        status.textContent = "❌ Gagal menyimpan jawaban. Coba lagi.";
+        btn.textContent = "💾 KIRIM JAWABAN LKPD";
+        btn.disabled = false;
+      }
     }
   </script>
 </body>
