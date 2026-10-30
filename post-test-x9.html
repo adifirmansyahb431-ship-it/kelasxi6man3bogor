@@ -253,6 +253,7 @@
           await addDoc(collection(window.db, "HasilUjian"), {
             nama: namaSiswa,
             jenisUjian: "Post-Test",
+            kelas: "X-9",
             skor: skor,
             totalSoal: soalPostTest.length,
             persentase: persentase,
