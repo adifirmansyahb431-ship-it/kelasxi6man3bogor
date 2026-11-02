@@ -10,7 +10,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
@@ -23,8 +23,8 @@
 
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    // Tambahkan 'where' ke fbFunc
-    window.fbFunc = { collection, getDocs, query, orderBy, where };
+    // 'orderBy' dihapus dari fbFunc karena tidak dipakai lagi
+    window.fbFunc = { collection, getDocs, query, where };
     window.dispatchEvent(new Event('firebaseReady'));
   </script>
 
@@ -102,16 +102,15 @@
     }
 
     window.addEventListener('firebaseReady', async () => {
-      const { collection, getDocs, query, orderBy, where } = window.fbFunc;
+      const { collection, getDocs, query, where } = window.fbFunc; 
       const db = window.db;
       const tbody = document.getElementById("listNilai");
 
       try {
-        // QUERY: Ambil data HasilUjian HANYA untuk kelas X-9
+        // QUERY: Hanya memfilter kelas, tanpa orderBy
         const q = query(
           collection(db, "HasilUjian"), 
-          where("kelas", "==", "X-9"),
-          orderBy("tanggal", "desc")
+          where("kelas", "==", "X-9")
         );
         const snap = await getDocs(q);
 
@@ -120,15 +119,22 @@
           return;
         }
 
+        // TAMPUNG DATA KE ARRAY UNTUK DIURUTKAN
+        let dataUjian = [];
+        snap.forEach(doc => {
+          dataUjian.push(doc.data());
+        });
+
+        // URUTKAN TANGGAL TERBARU KE TERLAMA (PAKAI JAVASCRIPT)
+        dataUjian.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
         let namaSiswaArr = [];
         let nilaiSiswaArr = [];
         let no = 1;
         let htmlTabel = "";
 
-        snap.forEach(doc => {
-          const data = doc.data();
+        dataUjian.forEach(data => {
           const kelasSkor = data.persentase >= 70 ? "skor-tinggi" : "skor-rendah";
-          // Jika jenisUjian tidak ada, tampilkan "Pre-Test" sebagai default
           const jenis = data.jenisUjian || "Pre-Test"; 
 
           htmlTabel += `
@@ -174,24 +180,16 @@
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              y: {
-                beginAtZero: true,
-                max: 100,
-                title: { display: true, text: 'Nilai' }
-              },
-              x: {
-                title: { display: true, text: 'Nama Siswa' }
-              }
+              y: { beginAtZero: true, max: 100, title: { display: true, text: 'Nilai' } },
+              x: { title: { display: true, text: 'Nama Siswa' } }
             },
-            plugins: {
-              legend: { display: false }
-            }
+            plugins: { legend: { display: false } }
           }
         });
 
       } catch (error) {
-        console.error(error);
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data. Pastikan index Firebase sudah dibuat.</td></tr>';
+        console.error("Error Firebase:", error);
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data. Cek Console (F12) untuk detail error.</td></tr>';
       }
     });
   </script>
