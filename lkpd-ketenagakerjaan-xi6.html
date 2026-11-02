@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LKPD Ketenagakerjaan XI-6 - SIPADAK</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+  </script>
+
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; --biru: #3b82f6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100; }
+    .btn-keluar-header { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    
+    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; }
+    .materi-card, .lkpd-section { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .lkpd-section { border: 2px solid var(--gold); }
+    
+    h3 { color: var(--hijau); margin-top: 0; border-left: 4px solid var(--gold); padding-left: 10px; }
+    p { line-height: 1.7; font-size: 15px; color: #475569; }
+    
+    .soal-box { margin-bottom: 25px; }
+    .soal-text { font-weight: bold; margin-bottom: 10px; color: var(--hijau); }
+    textarea { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-family: inherit; font-size: 14px; resize: vertical; }
+    textarea:focus { outline: none; border-color: var(--hijau); }
+    .btn-simpan { width: 100%; padding: 15px; background: #16a085; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+    .btn-simpan:hover { background: #12876f; }
+    .pesan { text-align: center; font-weight: bold; margin-top: 15px; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>📁 LKPD Ketenagakerjaan XI-6</h1>
+    <button class="btn-keluar-header" onclick="window.location.href='profil-siswa.html'">🚪 Keluar</button>
+  </div>
+
+  <div class="container">
+    <!-- BAGIAN MATERI RINGKAS -->
+    <div class="materi-card">
+      <h3>📖 Ringkasan Materi</h3>
+      <p><strong>Ketenagakerjaan</strong> adalah segala hal yang berhubungan dengan tenaga kerja pada waktu sebelum, selama, dan sesudah masa kerja. Angkatan kerja adalah penduduk usia 15 tahun ke atas yang sedang bekerja atau mencari pekerjaan.</p>
+      <p><strong>Pengangguran</strong> adalah keadaan di mana seseorang yang termasuk dalam angkatan kerja tidak memiliki pekerjaan dan sedang berusaha mencari pekerjaan. Jenis-jenisnya antara lain:</p>
+      <ul>
+        <li><strong>Friksional:</strong> Sedang mencari kerja/menunggu panggilan.</li>
+        <li><strong>Struktural:</strong> Ketidaksesuaian keterampilan dengan lapangan kerja.</li>
+        <li><strong>Siklikal:</strong> Akibat resesi/depresi ekonomi.</li>
+        <li><strong>Musiman:</strong> Akibat perubahan musim (misal petani).</li>
+        <li><strong>Teknologi:</strong> Akibat otomatisasi mesin/robot.</li>
+      </ul>
+    </div>
+
+    <!-- BAGIAN SOAL LKPD -->
+    <div class="lkpd-section">
+      <h2 style="color: var(--hijau); text-align: center; margin-top: 0;">Lembar Jawaban LKPD</h2>
+      <p style="text-align: center; color: #64748b; margin-bottom: 25px; font-size: 14px;">Silakan jawab pertanyaan berikut berdasarkan materi di atas.</p>
+
+      <div class="soal-box">
+        <div class="soal-text">1. Jelaskan apa perbedaan antara "Tenaga Kerja" dan "Angkatan Kerja"!</div>
+        <textarea rows="4" id="jawaban1" placeholder="Ketik jawaban Anda di sini..."></textarea>
+      </div>
+
+      <div class="soal-box">
+        <div class="soal-text">2. Mengapa pengangguran struktural lebih sulit diatasi dibandingkan pengangguran friksional? Berikan alasannya!</div>
+        <textarea rows="4" id="jawaban2" placeholder="Ketik jawaban Anda di sini..."></textarea>
+      </div>
+
+      <div class="soal-box">
+        <div class="soal-text">3. Berikan satu contoh nyata pengangguran musiman yang terjadi di lingkungan sekitar Anda dan bagaimana cara mengatasinya!</div>
+        <textarea rows="4" id="jawaban3" placeholder="Ketik jawaban Anda di sini..."></textarea>
+      </div>
+
+      <button class="btn-simpan" onclick="simpanJawaban()">💾 KIRIM JAWABAN LKPD</button>
+      <div class="pesan" id="pesanStatus"></div>
+    </div>
+  </div>
+
+  <script>
+    const namaSiswa = localStorage.getItem("siTatibNama");
+    const nisSiswa = localStorage.getItem("siTatibEmail") || "XI-6"; // Fallback jika NIS tak tersimpan
+
+    if (!namaSiswa) {
+      alert("Anda belum login. Silakan login terlebih dahulu.");
+      window.location.href = "index.html"; 
+    }
+
+    window.simpanJawaban = async function() {
+      const j1 = document.getElementById("jawaban1").value.trim();
+      const j2 = document.getElementById("jawaban2").value.trim();
+      const j3 = document.getElementById("jawaban3").value.trim();
+      const status = document.getElementById("pesanStatus");
+
+      if (!j1 || !j2 || !j3) {
+        status.style.color = "red";
+        status.textContent = "❌ Harap isi semua jawaban sebelum mengirim!";
+        return;
+      }
+
+      const btn = document.querySelector('.btn-simpan');
+      btn.textContent = "⏳ Menyimpan...";
+      btn.disabled = true;
+      status.textContent = "";
+
+      const jawabanLengkap = `1. ${j1}\n\n2. ${j2}\n\n3. ${j3}`;
+
+      try {
+        await addDoc(collection(window.db, "HasilLKPD"), {
+          nama: namaSiswa,
+          nis: nisSiswa,
+          kelas: "XI-6", 
+          jawaban: jawabanLengkap,
+          tanggal: new Date().toISOString().split('T')[0]
+        });
+
+        status.style.color = "green";
+        status.textContent = "✅ Jawaban LKPD berhasil dikirim!";
+        btn.textContent = "✅ TERKIRIM";
+        
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#d4af37', '#0a3622', '#16a085'] });
+
+        setTimeout(() => {
+          window.location.href = "profil-siswa.html"; 
+        }, 2000);
+
+      } catch (error) {
+        console.error(error);
+        status.style.color = "red";
+        status.textContent = "❌ Gagal menyimpan jawaban. Coba lagi.";
+        btn.textContent = "💾 KIRIM JAWABAN LKPD";
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
