@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Post-Test Ekonomi XI-6 - SIPADAK</title>
+  <title>Post-Test Ketenagakerjaan XI-6 - SIPADAK</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -42,8 +42,8 @@
 </head>
 <body>
   <div class="header">
-    <h1>🎯 POST-TEST EKONOMI XI-6</h1>
-    <button class="btn-keluar-header" onclick="window.location.href='dashboard-siswa.html'">🚪 Keluar</button>
+    <h1>🎯 POST-TEST KETENAGAKERJAAN XI-6</h1>
+    <button class="btn-keluar-header" onclick="window.location.href='profil-siswa.html'">🚪 Keluar</button>
   </div>
   <div class="container">
     <div class="cbt-header"><span>POST-TEST</span> <span id="timer">⏱️ 15:00</span></div>
@@ -55,18 +55,18 @@
     let soalAktif = 0;
     let timerInterval;
 
-    // 10 SOAL POST-TEST (Silakan ganti teks soalnya sesuai kebutuhan)
+    // 10 SOAL POST-TEST (KETENAGAKERJAAN & PENGANGGURAN)
     const soalPostTest = [
-      { q: "Ilmu yang mempelajari tentang cara manusia memenuhi kebutuhan hidupnya disebut...", opsi: ["A. Sosiologi", "B. Ekonomi", "C. Geografi", "D. Sejarah"], jawaban: 1 },
-      { q: "Kebutuhan yang harus dipenuhi agar manusia dapat bertahan hidup disebut kebutuhan...", opsi: ["A. Primer", "B. Sekunder", "C. Tersier", "D. Jasmani"], jawaban: 0 },
-      { q: "Alat pemuas kebutuhan yang jumlahnya terbatas dan butuh pengorbanan untuk mendapatkannya disebut...", opsi: ["A. Barang bebas", "B. Barang ekonomi", "C. Barang illith", "D. Jasa"], jawaban: 1 },
-      { q: "Hukum permintaan menyatakan bahwa jika harga naik, maka jumlah permintaan akan...", opsi: ["A. Naik", "B. Turun", "C. Tetap", "D. Tidak terpengaruh"], jawaban: 1 },
-      { q: "Pasar yang memperjualbelikan barang-barang modal dan bahan baku disebut...", opsi: ["A. Pasar konsumen", "B. Pasar produksi", "C. Pasar abstrak", "D. Pasar konkret"], jawaban: 1 },
-      { q: "Lembaga keuangan yang bertugas menarik uang dari masyarakat dan menyalurkannya kembali dalam bentuk kredit adalah...", opsi: ["A. Koperasi", "B. Pasar modal", "C. Bank", "D. Pegadaian"], jawaban: 2 },
-      { q: "Sistem ekonomi yang memberikan kebebasan penuh kepada masyarakat untuk berusaha disebut sistem ekonomi...", opsi: ["A. Tradisional", "B. Komando", "C. Kapitalis/Liberal", "D. Campuran"], jawaban: 2 },
-      { q: "Pajak yang bebannya tidak dapat dipindahkan kepada orang lain disebut pajak...", opsi: ["A. Tidak langsung", "B. Langsung", "C. Progresif", "D. Regresif"], jawaban: 1 },
-      { q: "Pendapatan Nasional yang dihitung berdasarkan jumlah balas jasa yang diterima pemilik faktor produksi disebut...", opsi: ["A. GDP", "B. GNP", "C. NNI", "D. PI"], jawaban: 2 },
-      { q: "Lembaga yang berwenang mengatur dan mengawasi kegiatan perbankan di Indonesia adalah...", opsi: ["A. OJK", "B. Bank Indonesia", "C. Kementerian Keuangan", "D. LPS"], jawaban: 0 }
+      { q: "Angkatan kerja terdiri dari penduduk usia kerja yang...", opsi: ["A. Bekerja dan mencari kerja", "B. Bersekolah dan mengurus rumah tangga", "C. Sedang sakit dan cacat", "D. Sudah pensiun", "E. Belum cukup umur"], jawaban: 0 },
+      { q: "Pengangguran yang terjadi karena ketidaksesuaian antara keterampilan pencari kerja dengan kebutuhan pasar kerja disebut pengangguran...", opsi: ["A. Friksional", "B. Struktural", "C. Siklikal", "D. Musiman", "E. Terbuka"], jawaban: 1 },
+      { q: "Pengangguran yang terjadi karena kemajuan teknologi yang menggantikan tenaga manusia (misalnya robot) disebut pengangguran...", opsi: ["A. Friksional", "B. Struktural", "C. Teknologi", "D. Siklikal", "E. Musiman"], jawaban: 2 },
+      { q: "Dampak sosial yang paling sering terjadi akibat tingkat pengangguran yang tinggi adalah...", opsi: ["A. Menurunnya harga barang", "B. Meningkatnya pendapatan nasional", "C. Meningkatnya kriminalitas dan kemiskinan", "D. Berkurangnya populasi penduduk", "E. Meningkatnya kualitas pendidikan"], jawaban: 2 },
+      { q: "Salah satu cara mengatasi pengangguran struktural adalah...", opsi: ["A. Memberikan bantuan langsung tunai", "B. Mengadakan pelatihan kerja dan mendirikan industri padat karya", "C. Mengirim pekerja ke luar negeri", "D. Menaikkan pajak penghasilan", "E. Mengurangi jam kerja"], jawaban: 1 },
+      { q: "Petani yang tidak menggarap sawahnya saat musim kemarau dan menunggu musim hujan adalah contoh pengangguran...", opsi: ["A. Friksional", "B. Struktural", "C. Siklikal", "D. Musiman", "E. Terselubung"], jawaban: 3 },
+      { q: "Tujuan utama pemerintah menetapkan Upah Minimum Provinsi (UMP) adalah...", opsi: ["A. Menambah beban pengusaha", "B. Melindungi pekerja agar mendapat upah layak", "C. Mengurangi jumlah pengangguran", "D. Meningkatkan angka kelahiran", "E. Menekan harga barang"], jawaban: 1 },
+      { q: "Penduduk yang berusia 15 tahun ke atas yang sedang bekerja atau mencari pekerjaan disebut...", opsi: ["A. Penduduk usia produktif", "B. Bukan angkatan kerja", "C. Angkatan kerja", "D. Pengangguran struktural", "E. Tenaga kerja terdidik"], jawaban: 2 },
+      { q: "Seseorang yang menganggur karena sedang menunggu panggilan kerja atau baru lulus sekolah termasuk jenis pengangguran...", opsi: ["A. Friksional", "B. Struktural", "C. Siklikal", "D. Musiman", "E. Teknologi"], jawaban: 0 },
+      { q: "Pengangguran yang diakibatkan oleh naik turunnya siklus ekonomi (resesi/depresi) disebut...", opsi: ["A. Friksional", "B. Struktural", "C. Siklikal", "D. Musiman", "E. Teknologi"], jawaban: 2 }
     ];
 
     const mulaiUjian = () => {
@@ -139,7 +139,7 @@
           <h2 style="color: var(--gold);">CONGRATULATIONS!</h2>
           <div class="skor-angka">${persentase}</div>
           <p>Benar <strong>${skor}</strong> dari <strong>${soalPostTest.length}</strong> soal.</p>
-          <button class="btn-keluar-header" style="margin-top:20px; padding: 15px 40px; background:var(--hijau);" onclick="window.location.href='dashboard-siswa.html'">🚪 Keluar ke Menu</button>
+          <button class="btn-keluar-header" style="margin-top:20px; padding: 15px 40px; background:var(--hijau);" onclick="window.location.href='profil-siswa.html'">🚪 Keluar ke Menu</button>
         </div>
       `;
 
