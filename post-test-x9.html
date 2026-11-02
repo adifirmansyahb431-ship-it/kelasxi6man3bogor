@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    // TYPO DIPERBAIKI DI SINI
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -128,7 +129,7 @@
         clearInterval(timerInterval);
         localStorage.removeItem("cbtNamaSiswa");
         localStorage.removeItem("cbtNisSiswa");
-        window.location.href = "login-cbt.html"; 
+        window.location.href = "login-cbt-x9.html"; // Diperbaiki ke X9
       }
     }
 
@@ -239,7 +240,7 @@
           <p class="skor-angka">${persentase}</p>
           <p class="predikat">${persentase >= 80 ? 'Luar Biasa! 🏆' : persentase >= 60 ? 'Bagus, Terus Belajar! 👍' : 'Jangan Menyerah, Ayo Belajar Lagi! 📚'}</p>
           <p style="margin-top:20px;">Benar <strong>${skor}</strong> dari <strong>${soalPostTest.length}</strong> soal.</p>
-          <button class="btn-keluar-header" style="margin-top:30px; padding: 15px 40px; font-size: 16px; background:var(--hijau);" onclick="window.location.href='login-cbt.html'">🚪 Keluar ke Menu</button>
+          <button class="btn-keluar-header" style="margin-top:30px; padding: 15px 40px; font-size: 16px; background:var(--hijau);" onclick="window.location.href='login-cbt-x9.html'">🚪 Keluar ke Menu</button>
         </div>
       `;
 
@@ -269,7 +270,7 @@
 
     if (!namaSiswa) {
       alert("Anda belum login. Silakan login terlebih dahulu.");
-      window.location.href = "login-cbt.html";
+      window.location.href = "login-cbt-x9.html"; // Diperbaiki ke X9
     } else {
       document.getElementById("infoSiswa").textContent = `Peserta: ${namaSiswa}`;
       window.mulaiUjian(); 
@@ -277,4 +278,3 @@
   </script>
 </body>
 </html>
-
