@@ -25,14 +25,33 @@
     table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 20px; }
     th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
     th { background: #0a3622; color: white; text-align: center; }
-    .btn-back { display: inline-block; background: #e2e8f0; color: #333; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-bottom: 20px; }
+    
+    /* Tombol Kembali */
+    .btn-back { 
+      display: inline-block; 
+      background: #e2e8f0; 
+      color: #333; 
+      padding: 10px 20px; 
+      border-radius: 8px; 
+      text-decoration: none; 
+      font-weight: bold; 
+      margin-bottom: 20px; 
+      transition: 0.3s;
+    }
+    .btn-back:hover { background: #cbd5e1; }
+    
+    /* Menyembunyikan tombol kembali jika dibuka di iframe Dashboard Induk */
+    body.di-dalam-iframe .btn-back { display: none; }
+    
     .skor-tinggi { color: #27ae60; font-weight: bold; }
     .skor-rendah { color: #e74c3c; font-weight: bold; }
   </style>
 </head>
 <body>
   <div class="card">
-    <a href="dashboard-siswa.html" class="btn-back">⬅ Kembali</a>
+    <!-- TOMBOL KEMBALI DIPERBAIKI KE PROFIL SISWA -->
+    <a href="profil-siswa.html" class="btn-back">⬅ Kembali ke Profil</a>
+    
     <h2>📊 Rekap Nilai Pre-Test & Post-Test XI-6</h2>
     <div style="overflow-x: auto;">
       <table>
@@ -54,9 +73,15 @@
   </div>
 
   <script>
+    // Deteksi iframe dari dashboard induk
+    if (window.self !== window.top) {
+      document.body.classList.add('di-dalam-iframe');
+    }
+
     window.addEventListener('load', async () => {
       const tbody = document.getElementById("listNilai");
       try {
+        // Query memfilter kelas XI-6 saja
         const q = query(collection(window.db, "HasilUjian"), where("kelas", "==", "XI-6"));
         const snap = await getDocs(q);
 
@@ -90,7 +115,7 @@
         tbody.innerHTML = html;
       } catch (error) {
         console.error(error);
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Gagal memuat data.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Gagal memuat data. Cek Console (F12).</td></tr>';
       }
     });
   </script>
