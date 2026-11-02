@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    // TYPO DIPERBAIKI DI SINI
+    // TYPO SUDAH DIPERBAIKI (tidak ada huruf s sebelum tanda kutip)
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -129,7 +129,7 @@
         clearInterval(timerInterval);
         localStorage.removeItem("cbtNamaSiswa");
         localStorage.removeItem("cbtNisSiswa");
-        window.location.href = "login-cbt-x9.html"; // Diperbaiki ke X9
+        window.location.href = "login-cbt-x9.html"; 
       }
     }
 
@@ -270,7 +270,7 @@
 
     if (!namaSiswa) {
       alert("Anda belum login. Silakan login terlebih dahulu.");
-      window.location.href = "login-cbt-x9.html"; // Diperbaiki ke X9
+      window.location.href = "login-cbt-x9.html";
     } else {
       document.getElementById("infoSiswa").textContent = `Peserta: ${namaSiswa}`;
       window.mulaiUjian(); 
