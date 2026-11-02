@@ -7,7 +7,7 @@
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy, doc, deleteDoc, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, doc, deleteDoc, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
@@ -19,7 +19,9 @@
     };
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    window.fbFunc = { collection, getDocs, query, orderBy, doc, deleteDoc, where };
+    
+    // orderBy DIHAPUS dari fbFunc karena tidak dipakai lagi
+    window.fbFunc = { collection, getDocs, query, doc, deleteDoc, where };
     window.dispatchEvent(new Event('firebaseReady'));
   </script>
 
@@ -139,7 +141,7 @@
 
     // Fungsi untuk memuat data CBT (Difilter Kelas X-9)
     async function loadDataCBT() {
-      const { collection, getDocs, query, orderBy, where } = window.fbFunc;
+      const { collection, getDocs, query, where } = window.fbFunc;
       const db = window.db;
       const tbodyCBT = document.getElementById("listHasilCBT");
       
@@ -147,21 +149,25 @@
       let htmlCBT = ""; let noCBT = 1;
 
       try {
-        // Filter hanya untuk kelas X-9
+        // Query TANPA orderBy agar tidak error
         const qCBT = query(
           collection(db, "HasilUjian"), 
-          where("kelas", "==", "X-9"),
-          orderBy("tanggal", "desc")
+          where("kelas", "==", "X-9")
         );
         const snapCBT = await getDocs(qCBT);
         
         if(snapCBT.empty) {
           tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data ujian X-9.</td></tr>';
         } else {
+          // Tampung ke array lalu urutkan pakai JS
+          let dataCBT = [];
           snapCBT.forEach(docSnap => {
-            const d = docSnap.data();
-            const docId = docSnap.id;
-            
+            dataCBT.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          dataCBT.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+          dataCBT.forEach(d => {
+            const docId = d.id;
             let detailJson = JSON.stringify(d.detailJawaban || {});
             detailJson = detailJson.replace(/"/g, '&quot;');
 
@@ -187,12 +193,12 @@
           });
           tbodyCBT.innerHTML = htmlCBT;
         }
-      } catch (e) { console.error(e); tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data. Pastikan index Firebase sudah dibuat.</td></tr>'; }
+      } catch (e) { console.error(e); tbodyCBT.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data. Cek Console (F12).</td></tr>'; }
     }
 
     // Fungsi untuk memuat data LKPD (Difilter Kelas X-9)
     async function loadDataLKPD() {
-      const { collection, getDocs, query, orderBy, where } = window.fbFunc;
+      const { collection, getDocs, query, where } = window.fbFunc;
       const db = window.db;
       const tbodyLKPD = document.getElementById("listHasilLKPD");
       
@@ -200,20 +206,25 @@
       let htmlLKPD = ""; let noLKPD = 1;
 
       try {
-        // Asumsi data LKPD X-9 juga memiliki field kelas: "X-9"
+        // Query TANPA orderBy agar tidak error
         const qLKPD = query(
           collection(db, "HasilLKPD"), 
-          where("kelas", "==", "X-9"),
-          orderBy("tanggal", "desc")
+          where("kelas", "==", "X-9")
         );
         const snapLKPD = await getDocs(qLKPD);
         
         if(snapLKPD.empty) {
           tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada jawaban LKPD X-9.</td></tr>';
         } else {
+          // Tampung ke array lalu urutkan pakai JS
+          let dataLKPD = [];
           snapLKPD.forEach(docSnap => {
-            const d = docSnap.data();
-            const docId = docSnap.id;
+            dataLKPD.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          dataLKPD.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+          dataLKPD.forEach(d => {
+            const docId = d.id;
             const jawabanRingkas = d.jawaban ? d.jawaban.substring(0, 50) + "..." : "-";
             let jawabanJson = d.jawaban ? d.jawaban.replace(/"/g, '&quot;') : "-";
 
@@ -236,7 +247,7 @@
           });
           tbodyLKPD.innerHTML = htmlLKPD;
         }
-      } catch (e) { console.error(e); tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat data. Pastikan index Firebase sudah dibuat.</td></tr>'; }
+      } catch (e) { console.error(e); tbodyLKPD.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat data. Cek Console (F12).</td></tr>'; }
     }
 
     // Fungsi Hapus Data
