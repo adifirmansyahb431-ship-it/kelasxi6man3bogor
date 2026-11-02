@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post-Test Ekonomi XI-6 - SIPADAK</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+  </script>
+  <style>
+    :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); }
+    .btn-keluar-header { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; }
+    .cbt-header { display: flex; justify-content: space-between; background: var(--hijau); color: white; padding: 15px 20px; border-radius: 12px 12px 0 0; font-weight: bold; }
+    .cbt-body { background: white; padding: 25px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px; }
+    .soal-item { display: none; }
+    .soal-item.active { display: block; }
+    .soal-text { font-size: 16px; margin-bottom: 20px; font-weight: bold; }
+    .opsi-label { display: flex; align-items: center; gap: 10px; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; margin-bottom: 10px; }
+    .opsi-label:hover { background: #f8fafc; }
+    .cbt-nav { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+    .btn-nav { background: #e2e8f0; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-nav.primary { background: var(--hijau); color: white; }
+    .hasil-box { text-align: center; padding: 40px 20px; }
+    .skor-angka { font-size: 70px; font-weight: 800; color: var(--hijau); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎯 POST-TEST EKONOMI XI-6</h1>
+    <button class="btn-keluar-header" onclick="window.location.href='dashboard-siswa.html'">🚪 Keluar</button>
+  </div>
+  <div class="container">
+    <div class="cbt-header"><span>POST-TEST</span> <span id="timer">⏱️ 15:00</span></div>
+    <div class="cbt-body" id="cbtBody"></div>
+  </div>
+
+  <script>
+    const namaSiswa = localStorage.getItem("siTatibNama") || "Siswa XI-6";
+    let soalAktif = 0;
+    let timerInterval;
+
+    // 10 SOAL POST-TEST (Silakan ganti teks soalnya sesuai kebutuhan)
+    const soalPostTest = [
+      { q: "Ilmu yang mempelajari tentang cara manusia memenuhi kebutuhan hidupnya disebut...", opsi: ["A. Sosiologi", "B. Ekonomi", "C. Geografi", "D. Sejarah"], jawaban: 1 },
+      { q: "Kebutuhan yang harus dipenuhi agar manusia dapat bertahan hidup disebut kebutuhan...", opsi: ["A. Primer", "B. Sekunder", "C. Tersier", "D. Jasmani"], jawaban: 0 },
+      { q: "Alat pemuas kebutuhan yang jumlahnya terbatas dan butuh pengorbanan untuk mendapatkannya disebut...", opsi: ["A. Barang bebas", "B. Barang ekonomi", "C. Barang illith", "D. Jasa"], jawaban: 1 },
+      { q: "Hukum permintaan menyatakan bahwa jika harga naik, maka jumlah permintaan akan...", opsi: ["A. Naik", "B. Turun", "C. Tetap", "D. Tidak terpengaruh"], jawaban: 1 },
+      { q: "Pasar yang memperjualbelikan barang-barang modal dan bahan baku disebut...", opsi: ["A. Pasar konsumen", "B. Pasar produksi", "C. Pasar abstrak", "D. Pasar konkret"], jawaban: 1 },
+      { q: "Lembaga keuangan yang bertugas menarik uang dari masyarakat dan menyalurkannya kembali dalam bentuk kredit adalah...", opsi: ["A. Koperasi", "B. Pasar modal", "C. Bank", "D. Pegadaian"], jawaban: 2 },
+      { q: "Sistem ekonomi yang memberikan kebebasan penuh kepada masyarakat untuk berusaha disebut sistem ekonomi...", opsi: ["A. Tradisional", "B. Komando", "C. Kapitalis/Liberal", "D. Campuran"], jawaban: 2 },
+      { q: "Pajak yang bebannya tidak dapat dipindahkan kepada orang lain disebut pajak...", opsi: ["A. Tidak langsung", "B. Langsung", "C. Progresif", "D. Regresif"], jawaban: 1 },
+      { q: "Pendapatan Nasional yang dihitung berdasarkan jumlah balas jasa yang diterima pemilik faktor produksi disebut...", opsi: ["A. GDP", "B. GNP", "C. NNI", "D. PI"], jawaban: 2 },
+      { q: "Lembaga yang berwenang mengatur dan mengawasi kegiatan perbankan di Indonesia adalah...", opsi: ["A. OJK", "B. Bank Indonesia", "C. Kementerian Keuangan", "D. LPS"], jawaban: 0 }
+    ];
+
+    const mulaiUjian = () => {
+      if(!localStorage.getItem("siTatibLogin")) { window.location.href = "index.html"; return; }
+      renderSoal(soalPostTest);
+      mulaiTimer(900); // 15 Menit
+    }
+
+    const renderSoal = (bankSoal) => {
+      const container = document.getElementById('cbtBody');
+      let html = '';
+      bankSoal.forEach((soal, index) => {
+        html += `
+          <div class="soal-item ${index === 0 ? 'active' : ''}" id="soal-${index}">
+            <div class="soal-text">Soal ${index + 1} dari ${bankSoal.length}</div>
+            <div class="soal-text">${soal.q}</div>
+            ${soal.opsi.map((opt, i) => `
+              <label class="opsi-label">
+                <input type="radio" name="soal_${index}" value="${i}">
+                ${opt}
+              </label>
+            `).join('')}
+            <div class="cbt-nav">
+              <button class="btn-nav" onclick="pindahSoal(${index - 1})" ${index === 0 ? 'style="visibility:hidden"' : ''}>⬅ Sebelumnya</button>
+              <button class="btn-nav primary" onclick="pindahSoal(${index + 1})" ${index === bankSoal.length - 1 ? 'style="display:none"' : ''}>Selanjutnya ➡</button>
+              <button class="btn-nav primary" onclick="selesaiUjian()" ${index === bankSoal.length - 1 ? 'style="display:block"' : 'style="display:none"'}>Selesai & Lihat Skor</button>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    const pindahSoal = (indexTujuan) => {
+      if (indexTujuan < 0 || indexTujuan >= soalPostTest.length) return;
+      document.querySelectorAll('.soal-item').forEach(el => el.classList.remove('active'));
+      document.getElementById(`soal-${indexTujuan}`).classList.add('active');
+      soalAktif = indexTujuan;
+    }
+
+    const mulaiTimer = (durasiDetik) => {
+      const timerEl = document.getElementById('timer');
+      let sisa = durasiDetik;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const menit = Math.floor(sisa / 60).toString().padStart(2, '0');
+        const detik = (sisa % 60).toString().padStart(2, '0');
+        timerEl.innerHTML = `⏱️ ${menit}:${detik}`;
+        if (sisa <= 0) { clearInterval(timerInterval); selesaiUjian(); }
+        sisa--;
+      }, 1000);
+    }
+
+    const selesaiUjian = async () => {
+      clearInterval(timerInterval);
+      let skor = 0;
+      let detailJawaban = {};
+      
+      soalPostTest.forEach((soal, index) => {
+        const jawabanUser = document.querySelector(`input[name="soal_${index}"]:checked`);
+        const opsiDipilih = jawabanUser ? soal.opsi[parseInt(jawabanUser.value)] : "Tidak dijawab";
+        if (jawabanUser && parseInt(jawabanUser.value) === soal.jawaban) { skor++; }
+        detailJawaban[`Soal ${index + 1}`] = opsiDipilih;
+      });
+
+      const persentase = Math.round((skor / soalPostTest.length) * 100);
+      document.getElementById('cbtBody').innerHTML = `
+        <div class="hasil-box">
+          <div style="font-size: 80px;">🏆</div>
+          <h2 style="color: var(--gold);">CONGRATULATIONS!</h2>
+          <div class="skor-angka">${persentase}</div>
+          <p>Benar <strong>${skor}</strong> dari <strong>${soalPostTest.length}</strong> soal.</p>
+          <button class="btn-keluar-header" style="margin-top:20px; padding: 15px 40px; background:var(--hijau);" onclick="window.location.href='dashboard-siswa.html'">🚪 Keluar ke Menu</button>
+        </div>
+      `;
+
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+
+      try {
+        await addDoc(collection(window.db, "HasilUjian"), {
+          nama: namaSiswa,
+          jenisUjian: "Post-Test",
+          kelas: "XI-6",
+          skor: skor,
+          totalSoal: soalPostTest.length,
+          persentase: persentase,
+          tanggal: new Date().toISOString().split('T')[0],
+          detailJawaban: detailJawaban
+        });
+      } catch (error) { console.error("Gagal simpan:", error); }
+    }
+
+    mulaiUjian();
+  </script>
+</body>
+</html>
