@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grafik Nilai XI-6 - SIPADAK</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+  </script>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f3f5f4; margin: 0; padding: 20px; }
+    .card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 900px; margin: 0 auto; }
+    h2 { color: #0a3622; text-align: center; }
+    .grafik-container { position: relative; height: 400px; width: 100%; margin-top: 20px; }
+    body.di-dalam-iframe .btn-back { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>📈 Grafik Nilai Kelas XI-6</h2>
+    <div class="grafik-container">
+      <canvas id="grafikNilai"></canvas>
+    </div>
+  </div>
+  <script>
+    if (window.self !== window.top) {
+      document.body.classList.add('di-dalam-iframe');
+    }
+    window.addEventListener('load', async () => {
+      try {
+        const q = query(collection(window.db, "HasilUjian"), where("kelas", "==", "XI-6"));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          document.querySelector('.grafik-container').innerHTML = '<p style="text-align:center; color:#666;">Belum ada data nilai untuk digrafikkan.</p>';
+          return;
+        }
+
+        let dataNilai = [];
+        snap.forEach(doc => dataNilai.push(doc.data()));
+        dataNilai.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+
+        const labels = dataNilai.map(d => `${d.nama} (${d.jenisUjian || 'N/A'})`);
+        const values = dataNilai.map(d => d.persentase);
+
+        const ctx = document.getElementById('grafikNilai').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Nilai Akhir (%)',
+              data: values,
+              backgroundColor: values.map(v => v >= 70 ? 'rgba(39, 174, 96, 0.8)' : 'rgba(231, 76, 60, 0.8)'),
+              borderColor: values.map(v => v >= 70 ? 'rgba(39, 174, 96, 1)' : 'rgba(231, 76, 60, 1)'),
+              borderWidth: 1,
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: { beginAtZero: true, max: 100, title: { display: true, text: 'Nilai (%)' } },
+              x: { ticks: { maxRotation: 45, minRotation: 45 } }
+            },
+            plugins: { legend: { display: false } }
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        document.querySelector('.grafik-container').innerHTML = '<p style="text-align:center; color:red;">Gagal memuat data grafik.</p>';
+      }
+    });
+  </script>
+</body>
+</html>
