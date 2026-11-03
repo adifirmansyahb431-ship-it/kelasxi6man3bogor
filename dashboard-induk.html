@@ -19,20 +19,25 @@
     .menu-toggle { display: none; background: transparent; border: none; color: var(--neon-cyan); font-size: 24px; cursor: pointer; padding: 5px; }
     .main-wrapper { display: flex; flex: 1; height: calc(100vh - 70px); overflow: hidden; }
     .sidebar { width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid rgba(0, 243, 255, 0.2); overflow-y: auto; display: flex; flex-direction: column; padding: 15px 0; z-index: 90; }
+    
+    /* CSS UNTUK JUDUL KATEGORI MENU */
     .menu-header { padding: 18px 20px 6px 20px; font-size: 11px; font-weight: 900; color: var(--gold); text-transform: uppercase; border-top: 1px solid rgba(255, 255, 255, 0.15); margin-top: 5px; }
     .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #aaa; text-decoration: none; font-weight: 600; font-size: 14px; cursor: pointer; border-left: 4px solid transparent; }
     .menu-item:hover, .menu-item.active { background-color: var(--hover-bg); color: var(--neon-cyan); border-left-color: var(--neon-cyan); }
+    
     .content-area { flex: 1; background-color: var(--dark-bg); position: relative; display: flex; flex-direction: column; overflow: hidden; }
     .ticker-wrapper { overflow: hidden; background: rgba(0, 243, 255, 0.05); border-bottom: 1px solid var(--neon-cyan); padding: 10px 0; flex-shrink: 0; }
     .ticker-text { display: inline-block; white-space: nowrap; padding-left: 100%; animation: jalanTerus 25s linear infinite; color: var(--neon-cyan); font-weight: 700; font-size: 15px; }
     @keyframes jalanTerus { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
     .welcome-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--neon-cyan); text-align: center; padding: 20px; flex: 1; }
     #mainFrame { width: 100%; height: 100%; border: none; display: none; background: white; flex: 1; }
+    
     #welcome-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(7, 11, 25, 0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
     .piala { font-size: 120px; animation: bounceIn 1s ease-out, float 3s ease-in-out infinite 1s; }
     @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); } }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
     .ucapan { font-size: 36px; font-weight: 800; color: var(--gold); margin: 10px 0; text-transform: uppercase; }
+    
     @media (max-width: 768px) {
       .menu-toggle { display: block; }
       .sidebar { position: absolute; height: 100%; transform: translateX(-100%); }
@@ -87,40 +92,41 @@
       document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK <br><span style="color:#00f3ff;font-size:11px;">Login: ${nama}</span>`;
       document.getElementById("welcomeText").textContent = `Selamat Datang, ${nama}!`;
 
-      // STRUKTUR MENU LENGKAP
+      // STRUKTUR MENU LENGKAP (SUDAH DIPERBAIKI)
       const semuaMenu = [
         { type: "header", title: "MENU UTAMA XI-6" },
-        { id: "m1", href: "pelanggaran.html", icon: "📝", title: "Input Pelanggaran" },
-        { id: "m2", href: "rekap.html", icon: "📊", title: "Rekap Poin" },
-        { id: "m3", href: "nilai.html", icon: "⭐", title: "Input Nilai" },
-        { id: "m4", href: "absensi.html", icon: "📋", title: "Absensi Siswa XI-6" },
-        { id: "m5", href: "rekap-bulanan.html", icon: "📅", title: "Rekap Bulanan" },
-        { id: "m6", href: "kelola-siswa.html", icon: "📤", title: "Kelola Siswa XI-6" },
-        { id: "m7", href: "kelola-akun.html", icon: "👤", title: "Akun Siswa" },
-        { id: "m8", href: "kas-kelas.html", icon: "💰", title: "Kas Kelas" },
-        { id: "m9", href: "kartu-siswa.html", icon: "🪪", title: "Kartu Kelas" },        
-        { id: "m10", href: "media-belajar.html", icon: "📚", title: "Media Belajar XI-6" },
+        { id: "menuPelanggaran", href: "pelanggaran.html", icon: "📝", title: "Input Pelanggaran" },
+        { id: "menuRekap", href: "rekap.html", icon: "📊", title: "Rekap Poin" },
+        { id: "menuNilai", href: "nilai.html", icon: "⭐", title: "Input Nilai" },
+        { id: "menuAbsensi", href: "absensi.html", icon: "📋", title: "Absensi Siswa XI-6" },
+        { id: "menuRekapBulanan", href: "rekap-bulanan.html", icon: "📅", title: "Rekap Bulanan" },
+        { id: "menuKelolaSiswa", href: "kelola-siswa.html", icon: "📤", title: "Kelola Siswa XI-6" },
+        { id: "menuKelolaAkun", href: "kelola-akun.html", icon: "👤", title: "Akun Siswa" },
+        { id: "menuKasKelas", href: "kas-kelas.html", icon: "💰", title: "Kas Kelas" },
+        { id: "menuKartuKelas", href: "kartu-siswa.html", icon: "🪪", title: "Kartu Kelas" },        
+        { id: "menuMedia", href: "media-belajar.html", icon: "📚", title: "Media Belajar XI-6" },
         
         { type: "header", title: "UJIAN & NILAI XI-6" },
-        { id: "m11", href: "pre-test-xi6.html", icon: "📝", title: "Pre-Test XI-6" },
-        { id: "m12", href: "post-test-xi6.html", icon: "🎯", title: "Post-Test XI-6" },
-        { id: "m13", href: "rekap-nilai-xi6.html", icon: "📊", title: "Rekap Nilai XI-6" },
-        { id: "m14", href: "grafik-xi6.html", icon: "📈", title: "Grafik Nilai XI-6" },
-        { id: "m15", href: "rekap-lkpd-xi6.html", icon: "📁", title: "Rekap LKPD XI-6" },
+        { id: "menuPreTestXI6", href: "pre-test-xi6.html", icon: "📝", title: "Pre-Test XI-6" },
+        { id: "menuPostTestXI6", href: "post-test-xi6.html", icon: "🎯", title: "Post-Test XI-6" },
+        { id: "menuRekapNilaiXI6", href: "rekap-nilai-xi6.html", icon: "📊", title: "Rekap Nilai XI-6" },
+        { id: "menuGrafikXI6", href: "grafik-xi6.html", icon: "📈", title: "Grafik Nilai XI-6" },
+        { id: "menuRekapLKPDXI6", href: "rekap-lkpd-xi6.html", icon: "📁", title: "Rekap LKPD XI-6" },
 
         { type: "header", title: "KELAS X-7" },
-        { id: "m16", href: "login-cbt-x7.html", icon: "💻", title: "CBT Kelas X-7" },
-        { id: "m17", href: "absensi-x7.html", icon: "📋", title: "Absensi X-7" },
+        { id: "menuCbtX7", href: "login-cbt-x7.html", icon: "💻", title: "CBT Kelas X-7" },
+        { id: "menuAbsensiX7", href: "absensi-x7.html", icon: "📋", title: "Absensi X-7" },
         
         { type: "header", title: "KELAS X-9" },
-        { id: "m18", href: "login-cbt-x9.html", icon: "💻", title: "CBT Kelas X-9" },
-        { id: "m19", href: "absensi-x9.html", icon: "📋", title: "Absensi X-9" },
-        { id: "m20", href: "kelola-siswa-x9.html", icon: "📤", title: "Kelola Siswa X-9" },
-        { id: "m21", href: "rekap-nilai-cbt-x9.html", icon: "📊", title: "Rekap Nilai X-9" },
-        { id: "m22", href: "rekap-hasil-belajar-x9.html", icon: "📁", title: "Rekap Hasil X-9" }
+        { id: "menuCbtX9", href: "login-cbt-x9.html", icon: "💻", title: "CBT Kelas X-9" },
+        { id: "menuAbsensiX9", href: "absensi-x9.html", icon: "📋", title: "Absensi X-9" },
+        { id: "menuKelolaSiswaX9", href: "kelola-siswa-x9.html", icon: "📤", title: "Kelola Siswa X-9" },
+        { id: "menuRekapNilaiX9", href: "rekap-nilai-cbt-x9.html", icon: "📊", title: "Rekap Nilai X-9" },
+        { id: "menuRekapHasilX9", href: "rekap-hasil-belajar-x9.html", icon: "📁", title: "Rekap Hasil X-9" }
       ];
 
       const sidebar = document.getElementById("sidebar");
+      
       semuaMenu.forEach(menu => {
         if (menu.type === "header") {
           const header = document.createElement("div");
@@ -138,17 +144,34 @@
       });
     }
 
-    function toggleSidebar() { document.getElementById("sidebar").classList.toggle("active"); document.getElementById("sidebarOverlay").classList.toggle("active"); }
+    function toggleSidebar() { 
+      document.getElementById("sidebar").classList.toggle("active"); 
+      document.getElementById("sidebarOverlay").classList.toggle("active"); 
+    }
+    
     function bukaHalaman(url, el) {
       document.getElementById("welcomeScreen").style.display = "none";
       const iframe = document.getElementById("mainFrame");
-      iframe.style.display = "block"; iframe.src = url;
+      iframe.style.display = "block"; 
+      iframe.src = url;
       document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
       el.classList.add('active');
       if (window.innerWidth <= 768) toggleSidebar();
     }
-    window.tutupHalaman = function() { document.getElementById("mainFrame").style.display = "none"; document.getElementById("mainFrame").src = ""; document.getElementById("welcomeScreen").style.display = "flex"; document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active')); }
-    function logout() { if(confirm("Keluar?")) { localStorage.clear(); window.location.href = "index.html"; } }
+    
+    window.tutupHalaman = function() { 
+      document.getElementById("mainFrame").style.display = "none"; 
+      document.getElementById("mainFrame").src = ""; 
+      document.getElementById("welcomeScreen").style.display = "flex"; 
+      document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active')); 
+    }
+    
+    function logout() { 
+      if(confirm("Keluar dari aplikasi?")) { 
+        localStorage.clear(); 
+        window.location.href = "index.html"; 
+      } 
+    }
   </script>
 </body>
 </html>
