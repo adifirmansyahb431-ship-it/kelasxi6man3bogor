@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LKPD Ketenagakerjaan XI-6 - SIPADAK</title>
+  <title>LKPD Diskusi Kelompok - Ketenagakerjaan XI-6</title>
+  
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -25,20 +26,28 @@
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; --biru: #3b82f6; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    
     .header { background: var(--hijau); color: #f6e27a; display: flex; justify-content: space-between; align-items: center; padding: 15px 22px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100; }
     .btn-keluar-header { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     
     .container { max-width: 900px; margin: 20px auto; padding: 0 16px; padding-bottom: 50px; }
+    
     .materi-card, .lkpd-section { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
     .lkpd-section { border: 2px solid var(--gold); }
     
     h3 { color: var(--hijau); margin-top: 0; border-left: 4px solid var(--gold); padding-left: 10px; }
     p { line-height: 1.7; font-size: 15px; color: #475569; }
     
-    .soal-box { margin-bottom: 25px; }
-    .soal-text { font-weight: bold; margin-bottom: 10px; color: var(--hijau); }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { font-weight: bold; color: var(--hijau); display: block; margin-bottom: 5px; font-size: 14px; }
+    .form-group input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 14px; }
+    .form-group input:focus { outline: none; border-color: var(--hijau); }
+
+    .soal-box { margin-bottom: 25px; background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid var(--biru); }
+    .soal-text { font-weight: bold; margin-bottom: 10px; color: var(--hijau); font-size: 15px; line-height: 1.5; }
     textarea { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-family: inherit; font-size: 14px; resize: vertical; }
     textarea:focus { outline: none; border-color: var(--hijau); }
+    
     .btn-simpan { width: 100%; padding: 15px; background: #16a085; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
     .btn-simpan:hover { background: #12876f; }
     .pesan { text-align: center; font-weight: bold; margin-top: 15px; font-size: 14px; }
@@ -47,12 +56,12 @@
 <body>
 
   <div class="header">
-    <h1>📁 LKPD Ketenagakerjaan XI-6</h1>
+    <h1>📁 LKPD Diskusi Kelompok - Ketenagakerjaan</h1>
     <button class="btn-keluar-header" onclick="window.location.href='profil-siswa.html'">🚪 Keluar</button>
   </div>
 
   <div class="container">
-    <!-- BAGIAN MATERI RINGKAS -->
+    <!-- BAGIAN MATERI RINGKAS (Sesuai permintaan sebelumnya) -->
     <div class="materi-card">
       <h3>📖 Ringkasan Materi</h3>
       <p><strong>Ketenagakerjaan</strong> adalah segala hal yang berhubungan dengan tenaga kerja pada waktu sebelum, selama, dan sesudah masa kerja. Angkatan kerja adalah penduduk usia 15 tahun ke atas yang sedang bekerja atau mencari pekerjaan.</p>
@@ -66,34 +75,57 @@
       </ul>
     </div>
 
-    <!-- BAGIAN SOAL LKPD -->
+    <!-- BAGIAN LKPD DISKUSI KELOMPOK -->
     <div class="lkpd-section">
-      <h2 style="color: var(--hijau); text-align: center; margin-top: 0;">Lembar Jawaban LKPD</h2>
-      <p style="text-align: center; color: #64748b; margin-bottom: 25px; font-size: 14px;">Silakan jawab pertanyaan berikut berdasarkan materi di atas.</p>
+      <h2 style="color: var(--hijau); text-align: center; margin-top: 0;">Lembar Kerja Diskusi Kelompok</h2>
+      <p style="text-align: center; color: #64748b; margin-bottom: 25px; font-size: 14px;">Silakan diskusikan 5 pertanyaan analisis berikut bersama kelompok Anda, lalu kirimkan hasilnya.</p>
 
+      <!-- Form Identitas Kelompok -->
+      <div class="form-group">
+        <label>Nama Kelompok</label>
+        <input type="text" id="inNamaKelompok" placeholder="Contoh: Kelompok 1 / Macan Tutul">
+      </div>
+      <div class="form-group">
+        <label>Anggota Kelompok (Pisahkan dengan koma)</label>
+        <input type="text" id="inAnggota" placeholder="Contoh: Anindya, Khansa, Raditya, Safa">
+      </div>
+
+      <hr style="margin: 25px 0; border: 1px solid #e2e8f0;">
+
+      <!-- 5 SOAL ANALISIS -->
       <div class="soal-box">
-        <div class="soal-text">1. Jelaskan apa perbedaan antara "Tenaga Kerja" dan "Angkatan Kerja"!</div>
-        <textarea rows="4" id="jawaban1" placeholder="Ketik jawaban Anda di sini..."></textarea>
+        <div class="soal-text">1. Analisislah mengapa pengangguran struktural di Indonesia didominasi oleh lulusan SMK/SMA, padahal mereka adalah angkatan kerja usia produktif. Apa akar masalahnya?</div>
+        <textarea rows="4" id="jawaban1" placeholder="Tuliskan hasil analisis kelompok Anda..."></textarea>
       </div>
 
       <div class="soal-box">
-        <div class="soal-text">2. Mengapa pengangguran struktural lebih sulit diatasi dibandingkan pengangguran friksional? Berikan alasannya!</div>
-        <textarea rows="4" id="jawaban2" placeholder="Ketik jawaban Anda di sini..."></textarea>
+        <div class="soal-text">2. Adanya otomatisasi (teknologi mesin/robot) di pabrik-pabrik memicu pengangguran teknologi. Menurut analisis kelompok Anda, bagaimana strategi tepat agar tenaga kerja Indonesia tidak tergerus oleh teknologi ini?</div>
+        <textarea rows="4" id="jawaban2" placeholder="Tuliskan hasil analisis kelompok Anda..."></textarea>
       </div>
 
       <div class="soal-box">
-        <div class="soal-text">3. Berikan satu contoh nyata pengangguran musiman yang terjadi di lingkungan sekitar Anda dan bagaimana cara mengatasinya!</div>
-        <textarea rows="4" id="jawaban3" placeholder="Ketik jawaban Anda di sini..."></textarea>
+        <div class="soal-text">3. Diketahui jumlah angkatan kerja di suatu daerah meningkat pesat, namun lapangan kerja yang tersedia sangat terbatas. Analisislah dampak sosial dan ekonomi jangka panjang yang mungkin terjadi di daerah tersebut!</div>
+        <textarea rows="4" id="jawaban3" placeholder="Tuliskan hasil analisis kelompok Anda..."></textarea>
       </div>
 
-      <button class="btn-simpan" onclick="simpanJawaban()">💾 KIRIM JAWABAN LKPD</button>
+      <div class="soal-box">
+        <div class="soal-text">4. Pemerintah menetapkan Upah Minimum (UMK/UMP) untuk melindungi pekerja. Namun, di sisi lain, pengusaha sering mengeluh karena upah yang tinggi dapat memicu Pemutusan Hubungan Kerja (PHK). Berikan analisis kritis kelompok Anda mengenai dilema ini!</div>
+        <textarea rows="4" id="jawaban4" placeholder="Tuliskan hasil analisis kelompok Anda..."></textarea>
+      </div>
+
+      <div class="soal-box">
+        <div class="soal-text">5. Berdasarkan data BPS, TPT (Tingkat Pengangguran Terbuka) di pedesaan dan perkotaan berbeda. Analisislah perbedaan karakteristik pengangguran di kedua wilayah tersebut dan solusi yang paling relevan untuk masing-masing wilayah!</div>
+        <textarea rows="4" id="jawaban5" placeholder="Tuliskan hasil analisis kelompok Anda..."></textarea>
+      </div>
+
+      <button class="btn-simpan" onclick="simpanJawaban()">💾 KIRIM HASIL DISKUSI</button>
       <div class="pesan" id="pesanStatus"></div>
     </div>
   </div>
 
   <script>
     const namaSiswa = localStorage.getItem("siTatibNama");
-    const nisSiswa = localStorage.getItem("siTatibEmail") || "XI-6"; // Fallback jika NIS tak tersimpan
+    const nisSiswa = localStorage.getItem("siTatibEmail") || "XI-6";
 
     if (!namaSiswa) {
       alert("Anda belum login. Silakan login terlebih dahulu.");
@@ -101,14 +133,19 @@
     }
 
     window.simpanJawaban = async function() {
+      const namaKelompok = document.getElementById("inNamaKelompok").value.trim();
+      const anggota = document.getElementById("inAnggota").value.trim();
       const j1 = document.getElementById("jawaban1").value.trim();
       const j2 = document.getElementById("jawaban2").value.trim();
       const j3 = document.getElementById("jawaban3").value.trim();
+      const j4 = document.getElementById("jawaban4").value.trim();
+      const j5 = document.getElementById("jawaban5").value.trim();
+      
       const status = document.getElementById("pesanStatus");
 
-      if (!j1 || !j2 || !j3) {
+      if (!namaKelompok || !anggota || !j1 || !j2 || !j3 || !j4 || !j5) {
         status.style.color = "red";
-        status.textContent = "❌ Harap isi semua jawaban sebelum mengirim!";
+        status.textContent = "❌ Harap isi nama kelompok, anggota, dan semua jawaban!";
         return;
       }
 
@@ -117,11 +154,19 @@
       btn.disabled = true;
       status.textContent = "";
 
-      const jawabanLengkap = `1. ${j1}\n\n2. ${j2}\n\n3. ${j3}`;
+      // Format jawaban agar rapi saat ditampilkan di Dashboard Guru
+      const jawabanLengkap = `NAMA KELOMPOK: ${namaKelompok}\nANGGOTA: ${anggota}\n\n` + 
+                             `1. ${j1}\n\n` +
+                             `2. ${j2}\n\n` +
+                             `3. ${j3}\n\n` +
+                             `4. ${j4}\n\n` +
+                             `5. ${j5}`;
 
       try {
         await addDoc(collection(window.db, "HasilLKPD"), {
-          nama: namaSiswa,
+          nama: namaKelompok, // Disimpan sebagai nama kelompok
+          ketua: namaSiswa,   // Menyimpan siapa yang submit (ketua/wakil)
+          anggota: anggota,
           nis: nisSiswa,
           kelas: "XI-6", 
           jawaban: jawabanLengkap,
@@ -129,20 +174,20 @@
         });
 
         status.style.color = "green";
-        status.textContent = "✅ Jawaban LKPD berhasil dikirim!";
+        status.textContent = "✅ Hasil diskusi berhasil dikirim!";
         btn.textContent = "✅ TERKIRIM";
         
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#d4af37', '#0a3622', '#16a085'] });
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#d4af37', '#0a3622', '#16a085'] });
 
         setTimeout(() => {
           window.location.href = "profil-siswa.html"; 
-        }, 2000);
+        }, 2500);
 
       } catch (error) {
         console.error(error);
         status.style.color = "red";
         status.textContent = "❌ Gagal menyimpan jawaban. Coba lagi.";
-        btn.textContent = "💾 KIRIM JAWABAN LKPD";
+        btn.textContent = "💾 KIRIM HASIL DISKUSI";
         btn.disabled = false;
       }
     }
