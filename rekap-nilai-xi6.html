@@ -7,6 +7,7 @@
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    // Pastikan import ini persis seperti ini
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     
     const firebaseConfig = {
@@ -19,7 +20,8 @@
     };
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    window.fbFunc = { collection, getDocs }; // Hanya butuh getDocs dan collection
+    // Hanya butuh collection dan getDocs
+    window.fbFunc = { collection, getDocs }; 
   </script>
 
   <style>
@@ -66,33 +68,21 @@
     window.addEventListener('load', async () => {
       const tbody = document.getElementById("listNilai");
       try {
-        // AMBIL SEMUA DATA TANPA FILTER (Anti Gagal Index / Typo Kelas)
-        const snap = await getDocs(collection(window.db, "HasilUjian"));
+        const { collection, getDocs } = window.fbFunc;
+        const db = window.db;
+
+        // MEMBACA DARI KOLEKSI BARU HasilUjianXI6
+        const snap = await getDocs(collection(db, "HasilUjianXI6"));
 
         if (snap.empty) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Belum ada data ujian di database.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Belum ada data nilai untuk kelas XI-6.</td></tr>';
           return;
         }
 
         let dataUjian = [];
-        snap.forEach(doc => {
-          const d = doc.data();
-          // FILTER MANUAL DI JAVASCRIPT (Lebih Aman)
-          // Mengecek apakah kelas mengandung unsur "XI" dan "6" (mengabaikan spasi, strip, atau huruf besar/kecil)
-          if (d.kelas) {
-            const kelasStr = String(d.kelas).toUpperCase().replace(/[\s-]/g, ''); // Hapus spasi & strip
-            if (kelasStr === "XI6") {
-               dataUjian.push(d);
-            }
-          }
-        });
-
-        if (dataUjian.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Belum ada data nilai untuk kelas XI-6.</td></tr>';
-          return;
-        }
+        snap.forEach(doc => dataUjian.push(doc.data()));
         
-        // Urutkan berdasarkan tanggal
+        // Urutkan berdasarkan tanggal terbaru
         dataUjian.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
         let html = "";
