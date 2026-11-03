@@ -4,10 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Post-Test Ketenagakerjaan XI-6 - SIPADAK</title>
+  
+  <!-- Library Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    // IMPORT BERSIH
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
       authDomain: "sipadak-xi6.firebaseapp.com",
@@ -19,6 +24,7 @@
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
   </script>
+
   <style>
     :root { --hijau: #0a3622; --gold: #d4af37; --bg: #f8fafc; --text: #1e293b; }
     * { box-sizing: border-box; }
@@ -146,7 +152,8 @@
       confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
 
       try {
-        await addDoc(collection(window.db, "HasilUjian"), {
+        // MENYIMPAN KE KOLEKSI BARU: HasilUjianXI6
+        await addDoc(collection(window.db, "HasilUjianXI6"), {
           nama: namaSiswa,
           jenisUjian: "Post-Test",
           kelas: "XI-6",
