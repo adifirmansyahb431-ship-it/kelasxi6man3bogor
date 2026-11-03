@@ -18,7 +18,18 @@
     .header .logout { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 8px 15px; font-weight: 700; cursor: pointer; }
     .menu-toggle { display: none; background: transparent; border: none; color: var(--neon-cyan); font-size: 24px; cursor: pointer; padding: 5px; }
     .main-wrapper { display: flex; flex: 1; height: calc(100vh - 70px); overflow: hidden; }
-    .sidebar { width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid rgba(0, 243, 255, 0.2); overflow-y: auto; display: flex; flex-direction: column; padding: 15px 0; z-index: 90; }
+    
+    /* PERBAIKAN SIDEBAR AGAR BISA DI-SCROLL */
+    .sidebar { 
+      width: 260px; 
+      background-color: var(--sidebar-bg); 
+      border-right: 1px solid rgba(0, 243, 255, 0.2); 
+      overflow-y: auto; 
+      display: flex; 
+      flex-direction: column; 
+      padding: 15px 0; 
+      z-index: 90; 
+    }
     
     /* CSS UNTUK JUDUL KATEGORI MENU */
     .menu-header { padding: 18px 20px 6px 20px; font-size: 11px; font-weight: 900; color: var(--gold); text-transform: uppercase; border-top: 1px solid rgba(255, 255, 255, 0.15); margin-top: 5px; }
@@ -92,7 +103,7 @@
       document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK <br><span style="color:#00f3ff;font-size:11px;">Login: ${nama}</span>`;
       document.getElementById("welcomeText").textContent = `Selamat Datang, ${nama}!`;
 
-      // STRUKTUR MENU LENGKAP (SUDAH DIPERBAIKI)
+      // STRUKTUR MENU LENGKAP (URUTAN SUDAH DIPERBAIKI)
       const semuaMenu = [
         { type: "header", title: "MENU UTAMA XI-6" },
         { id: "menuPelanggaran", href: "pelanggaran.html", icon: "📝", title: "Input Pelanggaran" },
@@ -106,12 +117,14 @@
         { id: "menuKartuKelas", href: "kartu-siswa.html", icon: "🪪", title: "Kartu Kelas" },        
         { id: "menuMedia", href: "media-belajar.html", icon: "📚", title: "Media Belajar XI-6" },
         
+        // --- DIPINDAHKAN KE ATAS ---
         { type: "header", title: "UJIAN & NILAI XI-6" },
         { id: "menuPreTestXI6", href: "pre-test-xi6.html", icon: "📝", title: "Pre-Test XI-6" },
         { id: "menuPostTestXI6", href: "post-test-xi6.html", icon: "🎯", title: "Post-Test XI-6" },
         { id: "menuRekapNilaiXI6", href: "rekap-nilai-xi6.html", icon: "📊", title: "Rekap Nilai XI-6" },
         { id: "menuGrafikXI6", href: "grafik-xi6.html", icon: "📈", title: "Grafik Nilai XI-6" },
         { id: "menuRekapLKPDXI6", href: "rekap-lkpd-xi6.html", icon: "📁", title: "Rekap LKPD XI-6" },
+        // ---------------------------
 
         { type: "header", title: "KELAS X-7" },
         { id: "menuCbtX7", href: "login-cbt-x7.html", icon: "💻", title: "CBT Kelas X-7" },
