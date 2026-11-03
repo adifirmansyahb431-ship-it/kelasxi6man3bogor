@@ -3,152 +3,114 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Induk - SIPADAK XI-6</title>
+  <title>Rekap Nilai XI-6 - SIPADAK</title>
   
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
+      authDomain: "sipadak-xi6.firebaseapp.com",
+      projectId: "sipadak-xi6",
+      storageBucket: "sipadak-xi6.firebasestorage.app",
+      messagingSenderId: "981787419124",
+      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
+    };
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+  </script>
 
   <style>
-    :root { --dark-bg: #070b19; --sidebar-bg: #0d1326; --neon-cyan: #00f3ff; --text: #e2e8f0; --hover-bg: rgba(0, 243, 255, 0.1); --gold: #d4af37; }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--dark-bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    .header { background: rgba(7, 11, 25, 0.95); color: var(--neon-cyan); display: flex; align-items: center; gap: 15px; padding: 10px 20px; border-bottom: 2px solid var(--neon-cyan); z-index: 100; height: 70px; flex-shrink: 0; }
-    .header img { height: 45px; width: 45px; background: white; border-radius: 8px; padding: 2px; object-fit: cover; }
-    .header .brand { flex: 1; font-size: 18px; font-weight: 800; line-height: 1.2; }
-    .header .brand small { display: block; font-size: 12px; color: #aaa; font-weight: 600; }
-    .header .logout { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 8px 15px; font-weight: 700; cursor: pointer; }
-    .menu-toggle { display: none; background: transparent; border: none; color: var(--neon-cyan); font-size: 24px; cursor: pointer; padding: 5px; }
-    .main-wrapper { display: flex; flex: 1; height: calc(100vh - 70px); overflow: hidden; }
-    .sidebar { width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid rgba(0, 243, 255, 0.2); overflow-y: auto; display: flex; flex-direction: column; padding: 15px 0; z-index: 90; }
-    .menu-header { padding: 18px 20px 6px 20px; font-size: 11px; font-weight: 900; color: var(--gold); text-transform: uppercase; border-top: 1px solid rgba(255, 255, 255, 0.15); margin-top: 5px; }
-    .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #aaa; text-decoration: none; font-weight: 600; font-size: 14px; cursor: pointer; border-left: 4px solid transparent; }
-    .menu-item:hover, .menu-item.active { background-color: var(--hover-bg); color: var(--neon-cyan); border-left-color: var(--neon-cyan); }
-    .content-area { flex: 1; background-color: var(--dark-bg); position: relative; display: flex; flex-direction: column; overflow: hidden; }
-    .ticker-wrapper { overflow: hidden; background: rgba(0, 243, 255, 0.05); border-bottom: 1px solid var(--neon-cyan); padding: 10px 0; flex-shrink: 0; }
-    .ticker-text { display: inline-block; white-space: nowrap; padding-left: 100%; animation: jalanTerus 25s linear infinite; color: var(--neon-cyan); font-weight: 700; font-size: 15px; }
-    @keyframes jalanTerus { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-    .welcome-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--neon-cyan); text-align: center; padding: 20px; flex: 1; }
-    #mainFrame { width: 100%; height: 100%; border: none; display: none; background: white; flex: 1; }
-    #welcome-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(7, 11, 25, 0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-    .piala { font-size: 120px; animation: bounceIn 1s ease-out, float 3s ease-in-out infinite 1s; }
-    @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); } }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-    .ucapan { font-size: 36px; font-weight: 800; color: var(--gold); margin: 10px 0; text-transform: uppercase; }
-    @media (max-width: 768px) {
-      .menu-toggle { display: block; }
-      .sidebar { position: absolute; height: 100%; transform: translateX(-100%); }
-      .sidebar.active { transform: translateX(0); }
-      .sidebar-overlay { display: none; position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 80; }
-      .sidebar-overlay.active { display: block; }
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: #f3f5f4; margin: 0; padding: 20px; }
+    .card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 1000px; margin: 0 auto; }
+    h2 { color: #0a3622; text-align: center; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 20px; }
+    th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
+    th { background: #0a3622; color: white; text-align: center; }
+    .btn-back { display: inline-block; background: #e2e8f0; color: #333; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-bottom: 20px; }
+    body.di-dalam-iframe .btn-back { display: none; }
+    .skor-tinggi { color: #27ae60; font-weight: bold; }
+    .skor-rendah { color: #e74c3c; font-weight: bold; }
   </style>
 </head>
 <body>
-  <div id="welcome-overlay">
-    <div class="piala">🏆</div>
-    <h2 class="ucapan">CONGRATULATIONS!</h2>
-    <p style="color: #fff; font-size: 18px; margin-top: 10px;">Selamat datang kembali di Dashboard Induk SIPADAK.</p>
-  </div>
-
-  <div class="header">
-    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-    <img src="fotogroupxi-6.png" alt="logo" />
-    <div class="brand">SIPADAK XI-6<small id="infoUser">MAN 3 BOGOR</small></div>
-    <button class="logout" onclick="logout()">🚪 KELUAR</button>
-  </div>
-
-  <div class="main-wrapper">
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-    <div class="sidebar" id="sidebar"></div>
-    <div class="content-area">
-      <div class="ticker-wrapper"><div class="ticker-text">SISTEM INFORMASI PANGKALAN DATA KELAS XI-6 ★ SIPADAK ★ MAN 3 BOGOR ★</div></div>
-      <div class="welcome-screen" id="welcomeScreen">
-        <h2 id="welcomeText">Selamat Datang!</h2>
-        <p>Silakan pilih menu di sebelah kiri.</p>
-      </div>
-      <iframe id="mainFrame" src=""></iframe>
+  <div class="card">
+    <a href="profil-siswa.html" class="btn-back">⬅ Kembali ke Profil</a>
+    <h2>📊 Rekap Nilai Pre-Test & Post-Test XI-6</h2>
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama Siswa</th>
+            <th>Jenis Ujian</th>
+            <th>Tanggal</th>
+            <th>Skor</th>
+            <th>Nilai Akhir</th>
+          </tr>
+        </thead>
+        <tbody id="listNilai">
+          <tr><td colspan="6" style="text-align:center; padding: 20px;">Memuat data...</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
   <script>
-    if (window.top !== window.self) { window.top.location.href = "dashboard-induk.html"; }
+    // Deteksi iframe
+    if (window.self !== window.top) {
+      document.body.classList.add('di-dalam-iframe');
+    }
 
-    window.addEventListener('load', () => {
-      confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 }, colors: ['#d4af37', '#00f3ff', '#ffffff'] });
-      setTimeout(() => { const overlay = document.getElementById('welcome-overlay'); if(overlay) overlay.style.display = 'none'; }, 3000);
-    });
-
-    const sudahLogin = localStorage.getItem("siTatibLogin");
-    const role = localStorage.getItem("siTatibRole");
-    const nama = localStorage.getItem("siTatibNama");
-
-    if (sudahLogin !== "true" || role === "siswa" || !nama) {
-      window.location.href = "index.html";
-    } else {
-      document.getElementById("infoUser").innerHTML = `MAN 3 BOGOR - SIPADAK <br><span style="color:#00f3ff;font-size:11px;">Login: ${nama}</span>`;
-      document.getElementById("welcomeText").textContent = `Selamat Datang, ${nama}!`;
-
-      // STRUKTUR MENU LENGKAP
-      const semuaMenu = [
-        { type: "header", title: "MENU UTAMA XI-6" },
-        { id: "m1", href: "pelanggaran.html", icon: "📝", title: "Input Pelanggaran" },
-        { id: "m2", href: "rekap.html", icon: "📊", title: "Rekap Poin" },
-        { id: "m3", href: "nilai.html", icon: "⭐", title: "Input Nilai" },
-        { id: "m4", href: "absensi.html", icon: "📋", title: "Absensi Siswa XI-6" },
-        { id: "m5", href: "rekap-bulanan.html", icon: "📅", title: "Rekap Bulanan" },
-        { id: "m6", href: "kelola-siswa.html", icon: "📤", title: "Kelola Siswa XI-6" },
-        { id: "m7", href: "kelola-akun.html", icon: "👤", title: "Akun Siswa" },
-        { id: "m8", href: "kas-kelas.html", icon: "💰", title: "Kas Kelas" },
-        { id: "m9", href: "kartu-siswa.html", icon: "🪪", title: "Kartu Kelas" },        
-        { id: "m10", href: "media-belajar.html", icon: "📚", title: "Media Belajar XI-6" },
-        
-        { type: "header", title: "UJIAN & NILAI XI-6" },
-        { id: "m11", href: "pre-test-xi6.html", icon: "📝", title: "Pre-Test XI-6" },
-        { id: "m12", href: "post-test-xi6.html", icon: "🎯", title: "Post-Test XI-6" },
-        { id: "m13", href: "rekap-nilai-xi6.html", icon: "📊", title: "Rekap Nilai XI-6" },
-        { id: "m14", href: "grafik-xi6.html", icon: "📈", title: "Grafik Nilai XI-6" },
-        { id: "m15", href: "rekap-lkpd-xi6.html", icon: "📁", title: "Rekap LKPD XI-6" },
-
-        { type: "header", title: "KELAS X-7" },
-        { id: "m16", href: "login-cbt-x7.html", icon: "💻", title: "CBT Kelas X-7" },
-        { id: "m17", href: "absensi-x7.html", icon: "📋", title: "Absensi X-7" },
-        
-        { type: "header", title: "KELAS X-9" },
-        { id: "m18", href: "login-cbt-x9.html", icon: "💻", title: "CBT Kelas X-9" },
-        { id: "m19", href: "absensi-x9.html", icon: "📋", title: "Absensi X-9" },
-        { id: "m20", href: "kelola-siswa-x9.html", icon: "📤", title: "Kelola Siswa X-9" },
-        { id: "m21", href: "rekap-nilai-cbt-x9.html", icon: "📊", title: "Rekap Nilai X-9" },
-        { id: "m22", href: "rekap-hasil-belajar-x9.html", icon: "📁", title: "Rekap Hasil X-9" }
-      ];
-
-      const sidebar = document.getElementById("sidebar");
-      semuaMenu.forEach(menu => {
-        if (menu.type === "header") {
-          const header = document.createElement("div");
-          header.className = "menu-header";
-          header.textContent = menu.title;
-          sidebar.appendChild(header);
-        } else {
-          const a = document.createElement("a");
-          a.className = "menu-item";
-          a.href = "javascript:void(0)";
-          a.innerHTML = `<div class="icon">${menu.icon}</div> ${menu.title}`;
-          a.onclick = function() { bukaHalaman(menu.href, this); };
-          sidebar.appendChild(a);
+    // Fungsi dijalankan saat halaman selesai dimuat
+    window.onload = async function() {
+      const tbody = document.getElementById("listNilai");
+      
+      try {
+        // Cek apakah Firebase siap
+        if (!window.db) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red; padding:20px;">Koneksi Firebase belum siap. Coba refresh.</td></tr>';
+          return;
         }
-      });
-    }
 
-    function toggleSidebar() { document.getElementById("sidebar").classList.toggle("active"); document.getElementById("sidebarOverlay").classList.toggle("active"); }
-    function bukaHalaman(url, el) {
-      document.getElementById("welcomeScreen").style.display = "none";
-      const iframe = document.getElementById("mainFrame");
-      iframe.style.display = "block"; iframe.src = url;
-      document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-      el.classList.add('active');
-      if (window.innerWidth <= 768) toggleSidebar();
-    }
-    window.tutupHalaman = function() { document.getElementById("mainFrame").style.display = "none"; document.getElementById("mainFrame").src = ""; document.getElementById("welcomeScreen").style.display = "flex"; document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active')); }
-    function logout() { if(confirm("Keluar?")) { localStorage.clear(); window.location.href = "index.html"; } }
+        // Mengambil data dari koleksi "HasilUjianXI6"
+        const snap = await getDocs(collection(window.db, "HasilUjianXI6"));
+
+        if (snap.empty) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Belum ada data nilai di database.</td></tr>';
+          return;
+        }
+
+        let dataUjian = [];
+        snap.forEach(doc => dataUjian.push(doc.data()));
+        
+        // Urutkan dari yang terbaru
+        dataUjian.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+        let html = "";
+        let no = 1;
+        dataUjian.forEach(d => {
+          const kelasSkor = d.persentase >= 70 ? "skor-tinggi" : "skor-rendah";
+          const jenis = d.jenisUjian || "Pre-Test";
+          html += `
+            <tr>
+              <td style="text-align:center;">${no++}</td>
+              <td><b>${d.nama}</b></td>
+              <td style="text-align:center;">${jenis}</td>
+              <td style="text-align:center;">${d.tanggal}</td>
+              <td style="text-align:center;">${d.skor} / ${d.totalSoal}</td>
+              <td class="${kelasSkor}" style="text-align:center;">${d.persentase}</td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+        
+      } catch (error) {
+        console.error("Error:", error);
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red; padding: 20px;">Gagal memuat data: ${error.message}</td></tr>`;
+      }
+    };
   </script>
 </body>
 </html>
