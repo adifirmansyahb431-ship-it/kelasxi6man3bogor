@@ -7,7 +7,7 @@
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
@@ -19,8 +19,7 @@
     };
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
-    // Menyimpan fungsi ke window agar bisa diakses oleh script di bawahnya
-    window.fbFunc = { collection, getDocs, query, where };
+    window.fbFunc = { collection, getDocs }; // Hanya butuh getDocs dan collection
   </script>
 
   <style>
@@ -67,20 +66,31 @@
     window.addEventListener('load', async () => {
       const tbody = document.getElementById("listNilai");
       try {
-        const { collection, getDocs, query, where } = window.fbFunc;
-        const db = window.db;
-
-        // Query memfilter kelas XI-6
-        const q = query(collection(db, "HasilUjian"), where("kelas", "==", "XI-6"));
-        const snap = await getDocs(q);
+        // AMBIL SEMUA DATA TANPA FILTER (Anti Gagal Index / Typo Kelas)
+        const snap = await getDocs(collection(window.db, "HasilUjian"));
 
         if (snap.empty) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Belum ada data nilai.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Belum ada data ujian di database.</td></tr>';
           return;
         }
 
         let dataUjian = [];
-        snap.forEach(doc => dataUjian.push(doc.data()));
+        snap.forEach(doc => {
+          const d = doc.data();
+          // FILTER MANUAL DI JAVASCRIPT (Lebih Aman)
+          // Mengecek apakah kelas mengandung unsur "XI" dan "6" (mengabaikan spasi, strip, atau huruf besar/kecil)
+          if (d.kelas) {
+            const kelasStr = String(d.kelas).toUpperCase().replace(/[\s-]/g, ''); // Hapus spasi & strip
+            if (kelasStr === "XI6") {
+               dataUjian.push(d);
+            }
+          }
+        });
+
+        if (dataUjian.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Belum ada data nilai untuk kelas XI-6.</td></tr>';
+          return;
+        }
         
         // Urutkan berdasarkan tanggal
         dataUjian.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
