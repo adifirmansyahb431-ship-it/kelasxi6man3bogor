@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rekap Nilai XI-6 - SIPADAK</title>
+  
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
     const firebaseConfig = {
       apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
       authDomain: "sipadak-xi6.firebaseapp.com",
@@ -17,7 +19,10 @@
     };
     const app = initializeApp(firebaseConfig);
     window.db = getFirestore(app);
+    // Menyimpan fungsi ke window agar bisa diakses oleh script di bawahnya
+    window.fbFunc = { collection, getDocs, query, where };
   </script>
+
   <style>
     body { font-family: 'Segoe UI', sans-serif; background: #f3f5f4; margin: 0; padding: 20px; }
     .card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 1000px; margin: 0 auto; }
@@ -25,33 +30,15 @@
     table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 20px; }
     th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
     th { background: #0a3622; color: white; text-align: center; }
-    
-    /* Tombol Kembali */
-    .btn-back { 
-      display: inline-block; 
-      background: #e2e8f0; 
-      color: #333; 
-      padding: 10px 20px; 
-      border-radius: 8px; 
-      text-decoration: none; 
-      font-weight: bold; 
-      margin-bottom: 20px; 
-      transition: 0.3s;
-    }
-    .btn-back:hover { background: #cbd5e1; }
-    
-    /* Menyembunyikan tombol kembali jika dibuka di iframe Dashboard Induk */
+    .btn-back { display: inline-block; background: #e2e8f0; color: #333; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-bottom: 20px; }
     body.di-dalam-iframe .btn-back { display: none; }
-    
     .skor-tinggi { color: #27ae60; font-weight: bold; }
     .skor-rendah { color: #e74c3c; font-weight: bold; }
   </style>
 </head>
 <body>
   <div class="card">
-    <!-- TOMBOL KEMBALI DIPERBAIKI KE PROFIL SISWA -->
     <a href="profil-siswa.html" class="btn-back">⬅ Kembali ke Profil</a>
-    
     <h2>📊 Rekap Nilai Pre-Test & Post-Test XI-6</h2>
     <div style="overflow-x: auto;">
       <table>
@@ -66,14 +53,13 @@
           </tr>
         </thead>
         <tbody id="listNilai">
-          <tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>
+          <tr><td colspan="6" style="text-align:center; padding: 20px;">Memuat data...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <script>
-    // Deteksi iframe dari dashboard induk
     if (window.self !== window.top) {
       document.body.classList.add('di-dalam-iframe');
     }
@@ -81,19 +67,22 @@
     window.addEventListener('load', async () => {
       const tbody = document.getElementById("listNilai");
       try {
-        // Query memfilter kelas XI-6 saja
-        const q = query(collection(window.db, "HasilUjian"), where("kelas", "==", "XI-6"));
+        const { collection, getDocs, query, where } = window.fbFunc;
+        const db = window.db;
+
+        // Query memfilter kelas XI-6
+        const q = query(collection(db, "HasilUjian"), where("kelas", "==", "XI-6"));
         const snap = await getDocs(q);
 
         if (snap.empty) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data nilai.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Belum ada data nilai.</td></tr>';
           return;
         }
 
         let dataUjian = [];
         snap.forEach(doc => dataUjian.push(doc.data()));
         
-        // Urutkan berdasarkan tanggal terbaru
+        // Urutkan berdasarkan tanggal
         dataUjian.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
         let html = "";
@@ -114,8 +103,8 @@
         });
         tbody.innerHTML = html;
       } catch (error) {
-        console.error(error);
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Gagal memuat data. Cek Console (F12).</td></tr>';
+        console.error("Error Firebase:", error);
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red; padding: 20px;">Gagal memuat data. Cek Console (F12).</td></tr>';
       }
     });
   </script>
