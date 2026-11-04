@@ -4,24 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rekap Nilai XI-6 - SIPADAK</title>
-  
-  <script type="module">
-    // PASTIKAN DUA BARIS IMPORT DI BAWAH INI ADA DAN LENGKAP
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    
-    const firebaseConfig = {
-      apiKey: "AIzaSyBZIzD2337cdCxhV2EdcDMK3iwnaR0GiS4",
-      authDomain: "sipadak-xi6.firebaseapp.com",
-      projectId: "sipadak-xi6",
-      storageBucket: "sipadak-xi6.firebasestorage.app",
-      messagingSenderId: "981787419124",
-      appId: "1:981787419124:web:6622e4bd0b928e9bea19a1"
-    };
-    const app = initializeApp(firebaseConfig);
-    window.db = getFirestore(app);
-  </script>
-
   <style>
     body { font-family: 'Segoe UI', sans-serif; background: #f3f5f4; margin: 0; padding: 20px; }
     .card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 1000px; margin: 0 auto; }
@@ -63,49 +45,62 @@
       document.body.classList.add('di-dalam-iframe');
     }
 
-    window.onload = async function() {
+    window.onload = function() {
       const tbody = document.getElementById("listNilai");
       
-      try {
-        if (!window.db) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red; padding:20px;">Koneksi Firebase belum siap.</td></tr>';
-          return;
-        }
+      // KITA MENGGUNAKAN FUNGSI FETCH (CARA PALING DASAR DI BROWSER)
+      fetch("https://firestore.googleapis.com/v1/projects/sipadak-xi6/databases/(default)/documents/HasilUjianXI6")
+        .then(response => response.json())
+        .then(data => {
+          if (!data.documents) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Belum ada data nilai di database.</td></tr>';
+            return;
+          }
 
-        const snap = await getDocs(collection(window.db, "HasilUjianXI6"));
+          let dataUjian = [];
+          data.documents.forEach(doc => {
+            const fields = doc.fields;
+            if (fields && fields.nama) {
+              dataUjian.push({
+                nama: fields.nama.stringValue,
+                jenis: fields.jenisUjian ? fields.jenisUjian.stringValue : "Pre-Test",
+                tanggal: fields.tanggal ? fields.tanggal.stringValue : "-",
+                skor: fields.skor ? fields.skor.integerValue : 0,
+                totalSoal: fields.totalSoal ? fields.totalSoal.integerValue : 0,
+                persentase: fields.persentase ? fields.persentase.integerValue : 0
+              });
+            }
+          });
 
-        if (snap.empty) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Belum ada data nilai di database.</td></tr>';
-          return;
-        }
+          if (dataUjian.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Data kosong.</td></tr>';
+            return;
+          }
 
-        let dataUjian = [];
-        snap.forEach(doc => dataUjian.push(doc.data()));
-        
-        dataUjian.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+          // Urutkan dari yang terbaru
+          dataUjian.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
-        let html = "";
-        let no = 1;
-        dataUjian.forEach(d => {
-          const kelasSkor = d.persentase >= 70 ? "skor-tinggi" : "skor-rendah";
-          const jenis = d.jenisUjian || "Pre-Test";
-          html += `
-            <tr>
-              <td style="text-align:center;">${no++}</td>
-              <td><b>${d.nama}</b></td>
-              <td style="text-align:center;">${jenis}</td>
-              <td style="text-align:center;">${d.tanggal}</td>
-              <td style="text-align:center;">${d.skor} / ${d.totalSoal}</td>
-              <td class="${kelasSkor}" style="text-align:center;">${d.persentase}</td>
-            </tr>
-          `;
+          let html = "";
+          let no = 1;
+          dataUjian.forEach(d => {
+            const kelasSkor = d.persentase >= 70 ? "skor-tinggi" : "skor-rendah";
+            html += `
+              <tr>
+                <td style="text-align:center;">${no++}</td>
+                <td><b>${d.nama}</b></td>
+                <td style="text-align:center;">${d.jenis}</td>
+                <td style="text-align:center;">${d.tanggal}</td>
+                <td style="text-align:center;">${d.skor} / ${d.totalSoal}</td>
+                <td class="${kelasSkor}" style="text-align:center;">${d.persentase}</td>
+              </tr>
+            `;
+          });
+          tbody.innerHTML = html;
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red; padding: 20px;">Gagal memuat data. Periksa koneksi internet Anda.</td></tr>';
         });
-        tbody.innerHTML = html;
-        
-      } catch (error) {
-        console.error("Error:", error);
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red; padding: 20px;">Gagal memuat data: ${error.message}</td></tr>`;
-      }
     };
   </script>
 </body>
