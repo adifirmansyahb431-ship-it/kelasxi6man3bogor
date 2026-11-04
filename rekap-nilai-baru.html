@@ -98,10 +98,19 @@
           tbody.innerHTML = html;
         })
         .catch(error => {
-          console.error("Error:", error);
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red; padding: 20px;">Gagal memuat data. Periksa koneksi internet Anda.</td></tr>';
-        });
-    };
+    // Kita sembunyikan error aslinya dari layar, tapi tetap catat di console
+    console.log("Info: Terjadi kesalahan teknis.", error);
+    
+    // Tampilkan pesan yang lebih ramah di tabel
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center; padding: 20px; color: #e74c3c;">
+          <b>Maaf, data nilai belum bisa dimuat saat ini.</b><br>
+          <span style="font-size: 12px;">Silakan coba beberapa saat lagi atau hubungi admin.</span>
+        </td>
+      </tr>
+    `;
+})
   </script>
 </body>
 </html>
